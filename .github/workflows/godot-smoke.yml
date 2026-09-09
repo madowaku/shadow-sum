@@ -1,0 +1,40 @@
+name: Godot 4.7 Smoke Test
+
+on:
+  push:
+    paths:
+      - "project.godot"
+      - "scenes/**"
+      - "src/**"
+      - "data/**"
+      - ".github/workflows/godot-smoke.yml"
+  pull_request:
+    paths:
+      - "project.godot"
+      - "scenes/**"
+      - "src/**"
+      - "data/**"
+      - ".github/workflows/godot-smoke.yml"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project
+        run: godot --headless --path . --editor --quit
+
+      - name: Boot main scene
+        run: godot --headless --path . --quit-after 2
