@@ -1,0 +1,28 @@
+name: Validate stages
+
+on:
+  push:
+    paths:
+      - "data/**"
+      - "tools/validate_stages.py"
+      - ".github/workflows/validate-stages.yml"
+  pull_request:
+    paths:
+      - "data/**"
+      - "tools/validate_stages.py"
+      - ".github/workflows/validate-stages.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate stage solutions and uniqueness
+        run: python tools/validate_stages.py
