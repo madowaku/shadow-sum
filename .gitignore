@@ -1,0 +1,14 @@
+# Godot 4+
+.godot/
+/export.cfg
+/export_presets.cfg
+
+# Imported/build artifacts
+*.tmp
+*.log
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
