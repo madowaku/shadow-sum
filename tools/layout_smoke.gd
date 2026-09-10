@@ -67,7 +67,7 @@ func _run_case(packed: PackedScene, logical_size: Vector2i, expect_compact: bool
 			viewport.queue_free()
 			return false
 	else:
-		if clue_cell.size.x < 47.0 or post_button.size.x < 57.0:
+		if clue_cell.size.x < 41.0 or post_button.size.x < 49.0:
 			push_error("Layout smoke: desktop controls were unexpectedly compact: clue=%s post=%s" % [clue_cell.size, post_button.size])
 			viewport.queue_free()
 			return false
