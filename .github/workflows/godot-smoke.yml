@@ -7,6 +7,7 @@ on:
       - "scenes/**"
       - "src/**"
       - "data/**"
+      - "tools/feel_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
     paths:
@@ -14,6 +15,7 @@ on:
       - "scenes/**"
       - "src/**"
       - "data/**"
+      - "tools/feel_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
 
 jobs:
@@ -38,3 +40,6 @@ jobs:
 
       - name: Boot main scene
         run: godot --headless --path . --quit-after 2
+
+      - name: Exercise feel interactions
+        run: godot --headless --path . --script res://tools/feel_smoke.gd
