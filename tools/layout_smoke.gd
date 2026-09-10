@@ -1,9 +1,9 @@
 extends SceneTree
 
-const TARGET_WINDOW_SIZE := Vector2i(360, 800)
+const COMPACT_LOGICAL_SIZE := Vector2i(405, 900)
+const DESKTOP_LOGICAL_SIZE := Vector2i(720, 900)
 
 func _initialize() -> void:
-	root.size = TARGET_WINDOW_SIZE
 	call_deferred("_run")
 
 
@@ -14,59 +14,76 @@ func _run() -> void:
 		quit(1)
 		return
 
+	if not await _run_case(packed, COMPACT_LOGICAL_SIZE, true, true):
+		quit(1)
+		return
+	if not await _run_case(packed, DESKTOP_LOGICAL_SIZE, false, false):
+		quit(1)
+		return
+
+	print("Layout smoke OK: compact 405x900 and desktop 720x900 both fit")
+	quit(0)
+
+
+func _run_case(packed: PackedScene, logical_size: Vector2i, expect_compact: bool, exercise_stage: bool) -> bool:
+	var viewport := SubViewport.new()
+	viewport.size = logical_size
+	viewport.disable_3d = true
+	root.add_child(viewport)
+
 	var scene := packed.instantiate()
-	root.add_child(scene)
+	viewport.add_child(scene)
 	await process_frame
 	await process_frame
 	await process_frame
 
 	var visible_rect := scene.get_viewport().get_visible_rect()
-	if not scene.compact_layout:
-		push_error("Layout smoke: 360x800 window did not enter compact layout; visible rect=%s" % visible_rect)
-		quit(1)
-		return
-
-	# canvas_items + expand uses logical canvas coordinates. At a 360x800 window,
-	# the 405x900 base canvas scales uniformly while preserving the 9:20 aspect.
-	if absf(visible_rect.size.x - 405.0) > 2.0 or absf(visible_rect.size.y - 900.0) > 2.0:
-		push_error("Layout smoke: unexpected logical canvas for 360x800: %s" % visible_rect.size)
-		quit(1)
-		return
+	if scene.compact_layout != expect_compact:
+		push_error("Layout smoke: compact=%s expected=%s at %s; visible=%s" % [scene.compact_layout, expect_compact, logical_size, visible_rect])
+		viewport.queue_free()
+		return false
 
 	var offenders: Array[String] = []
 	_check_control_bounds(scene, visible_rect, offenders)
 	if not offenders.is_empty():
-		push_error("Layout smoke: controls outside logical 360x800 canvas: %s" % ", ".join(offenders))
-		quit(1)
-		return
+		push_error("Layout smoke: controls outside %s logical canvas: %s" % [logical_size, ", ".join(offenders)])
+		viewport.queue_free()
+		return false
 
 	if scene.clue_cells.is_empty() or scene.post_buttons.is_empty():
-		push_error("Layout smoke: expected puzzle controls")
-		quit(1)
-		return
+		push_error("Layout smoke: expected puzzle controls at %s" % logical_size)
+		viewport.queue_free()
+		return false
 
 	var clue_cell := scene.clue_cells[0] as Control
 	var post_button := scene.post_buttons[0] as Control
-	if clue_cell.size.x > 34.0 or clue_cell.size.y > 34.0:
-		push_error("Layout smoke: compact clue cell is too large: %s" % clue_cell.size)
-		quit(1)
-		return
-	if post_button.size.x < 47.0 or post_button.size.y < 47.0:
-		push_error("Layout smoke: compact post target is too small: %s" % post_button.size)
-		quit(1)
-		return
+	if expect_compact:
+		if clue_cell.size.x > 34.0 or clue_cell.size.y > 34.0:
+			push_error("Layout smoke: compact clue cell is too large: %s" % clue_cell.size)
+			viewport.queue_free()
+			return false
+		if post_button.size.x < 47.0 or post_button.size.y < 47.0:
+			push_error("Layout smoke: compact post target is too small: %s" % post_button.size)
+			viewport.queue_free()
+			return false
+	else:
+		if clue_cell.size.x < 47.0 or post_button.size.x < 57.0:
+			push_error("Layout smoke: desktop controls were unexpectedly compact: clue=%s post=%s" % [clue_cell.size, post_button.size])
+			viewport.queue_free()
+			return false
 
-	# Ensure the compact pass did not break the core interaction path.
-	scene._load_stage(0)
-	scene._toggle_post(2, 2) # C3
-	await create_timer(0.30).timeout
-	if not scene.stage_solved:
-		push_error("Layout smoke: Stage 001 did not solve at 360x800")
-		quit(1)
-		return
+	if exercise_stage:
+		scene._load_stage(0)
+		scene._toggle_post(2, 2) # C3
+		await create_timer(0.30).timeout
+		if not scene.stage_solved:
+			push_error("Layout smoke: Stage 001 did not solve at compact size")
+			viewport.queue_free()
+			return false
 
-	print("Layout smoke OK: 360x800 -> 405x900 logical canvas fits and Stage 001 remains playable")
-	quit(0)
+	viewport.queue_free()
+	await process_frame
+	return true
 
 
 func _check_control_bounds(node: Node, viewport_rect: Rect2, offenders: Array[String]) -> void:
