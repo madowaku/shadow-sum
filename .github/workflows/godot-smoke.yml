@@ -8,6 +8,7 @@ on:
       - "src/**"
       - "data/**"
       - "tools/feel_smoke.gd"
+      - "tools/layout_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "src/**"
       - "data/**"
       - "tools/feel_smoke.gd"
+      - "tools/layout_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
 
 jobs:
@@ -43,3 +45,6 @@ jobs:
 
       - name: Exercise feel interactions
         run: godot --headless --path . --script res://tools/feel_smoke.gd
+
+      - name: Verify 360x800 layout
+        run: godot --headless --path . --script res://tools/layout_smoke.gd
