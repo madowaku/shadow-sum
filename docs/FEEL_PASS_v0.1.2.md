@@ -100,7 +100,7 @@ Audio is synthesized at runtime using tiny `AudioStreamWAV` buffers. No external
 - [x] Godot 4.7 project imports successfully in CI.
 - [x] Main scene boots in headless smoke test.
 - [x] Automated feel smoke solves Stage 001 and exercises level-2 and level-3 overlaps.
-- [ ] 360×800 logical-layout smoke passes with no Control outside the visible canvas.
+- [x] Compact 405×900 (360×800 physical target) and desktop 720×900 logical-layout smoke both pass with no Control outside the visible canvas.
 - [ ] Stage 001 placement produces immediate click + existing 3-way projection on local Windows build.
 - [ ] Removing a Post produces a softer response on local Windows build.
 - [ ] Stage 002 first double overlap reads heavier than a single shadow.
