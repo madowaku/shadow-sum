@@ -1,9 +1,9 @@
 extends SceneTree
 
-const TARGET_SIZE := Vector2i(360, 800)
+const TARGET_WINDOW_SIZE := Vector2i(360, 800)
 
 func _initialize() -> void:
-	root.size = TARGET_SIZE
+	root.size = TARGET_WINDOW_SIZE
 	call_deferred("_run")
 
 
@@ -20,15 +20,23 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 
+	var visible_rect := scene.get_viewport().get_visible_rect()
 	if not scene.compact_layout:
-		push_error("Layout smoke: 360x800 did not enter compact layout")
+		push_error("Layout smoke: 360x800 window did not enter compact layout; visible rect=%s" % visible_rect)
+		quit(1)
+		return
+
+	# canvas_items + expand uses logical canvas coordinates. At a 360x800 window,
+	# the 405x900 base canvas scales uniformly while preserving the 9:20 aspect.
+	if absf(visible_rect.size.x - 405.0) > 2.0 or absf(visible_rect.size.y - 900.0) > 2.0:
+		push_error("Layout smoke: unexpected logical canvas for 360x800: %s" % visible_rect.size)
 		quit(1)
 		return
 
 	var offenders: Array[String] = []
-	_check_control_bounds(scene, Rect2(Vector2.ZERO, Vector2(TARGET_SIZE)), offenders)
+	_check_control_bounds(scene, visible_rect, offenders)
 	if not offenders.is_empty():
-		push_error("Layout smoke: controls outside 360x800: %s" % ", ".join(offenders))
+		push_error("Layout smoke: controls outside logical 360x800 canvas: %s" % ", ".join(offenders))
 		quit(1)
 		return
 
@@ -39,11 +47,11 @@ func _run() -> void:
 
 	var clue_cell := scene.clue_cells[0] as Control
 	var post_button := scene.post_buttons[0] as Control
-	if clue_cell.size.x > 30.5 or clue_cell.size.y > 30.5:
+	if clue_cell.size.x > 34.0 or clue_cell.size.y > 34.0:
 		push_error("Layout smoke: compact clue cell is too large: %s" % clue_cell.size)
 		quit(1)
 		return
-	if post_button.size.x < 42.0 or post_button.size.y < 42.0:
+	if post_button.size.x < 47.0 or post_button.size.y < 47.0:
 		push_error("Layout smoke: compact post target is too small: %s" % post_button.size)
 		quit(1)
 		return
@@ -57,7 +65,7 @@ func _run() -> void:
 		quit(1)
 		return
 
-	print("Layout smoke OK: 360x800 fits and Stage 001 remains playable")
+	print("Layout smoke OK: 360x800 -> 405x900 logical canvas fits and Stage 001 remains playable")
 	quit(0)
 
 
@@ -68,6 +76,6 @@ func _check_control_bounds(node: Node, viewport_rect: Rect2, offenders: Array[St
 			if control.visible:
 				var rect := control.get_global_rect()
 				var epsilon := 1.5
-				if rect.position.x < -epsilon or rect.position.y < -epsilon or rect.end.x > viewport_rect.end.x + epsilon or rect.end.y > viewport_rect.end.y + epsilon:
+				if rect.position.x < viewport_rect.position.x - epsilon or rect.position.y < viewport_rect.position.y - epsilon or rect.end.x > viewport_rect.end.x + epsilon or rect.end.y > viewport_rect.end.y + epsilon:
 					offenders.append("%s:%s" % [control.name, rect])
 		_check_control_bounds(child, viewport_rect, offenders)
