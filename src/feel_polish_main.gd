@@ -7,9 +7,8 @@ extends "res://src/feel_main.gd"
 # 2. the full instrument should remain comfortably usable at 360x800.
 
 const COMPACT_BREAKPOINT_W := 560.0
-const COMPACT_BREAKPOINT_H := 850.0
-const COMPACT_SCREEN_CELL := 28.0
-const COMPACT_POST_CELL := 43.0
+const COMPACT_SCREEN_CELL := 32.0
+const COMPACT_POST_CELL := 48.0
 const LIQUID_SETTLE_TIME := 0.18
 
 var compact_layout := false
@@ -72,8 +71,10 @@ func _apply_responsive_layout() -> void:
 	if get_child_count() < 2:
 		return
 
+	# With canvas_items + expand, the visible rect is the correct logical canvas
+	# to design against. A 360x800 window maps to 405x900 logical units.
 	var viewport_size := get_viewport().get_visible_rect().size
-	var should_compact := viewport_size.x <= COMPACT_BREAKPOINT_W or viewport_size.y <= COMPACT_BREAKPOINT_H
+	var should_compact := viewport_size.x <= COMPACT_BREAKPOINT_W
 	compact_layout = should_compact
 
 	var margin := get_child(1) as MarginContainer
@@ -132,7 +133,7 @@ func _apply_responsive_layout() -> void:
 func _apply_screen_layout(screens: HBoxContainer, compact: bool) -> void:
 	screens.add_theme_constant_override("separation", 8 if compact else 24)
 	var size_value := COMPACT_SCREEN_CELL if compact else CELL_SIZE
-	var cell_font := 13 if compact else 19
+	var cell_font := 14 if compact else 19
 
 	for cell_value in clue_cells:
 		var cell := cell_value as PanelContainer
