@@ -1,5 +1,7 @@
 extends SceneTree
 
+const Rules = preload("res://src/shadow_rules.gd")
+
 func _initialize() -> void:
 	call_deferred("_run")
 
@@ -34,7 +36,7 @@ func _run() -> void:
 	scene._toggle_post(1, 1) # B2
 	scene._toggle_post(2, 2) # C3
 	await create_timer(0.28).timeout
-	var shadow_two := scene.ShadowRules.compute_shadow(scene.posts)
+	var shadow_two := Rules.compute_shadow(scene.posts)
 	if int(shadow_two[2][1]) != 2:
 		push_error("Feel smoke: expected a double shadow at B3")
 		quit(1)
@@ -46,7 +48,7 @@ func _run() -> void:
 	scene._toggle_post(2, 1) # B3
 	scene._toggle_post(2, 3) # D3
 	await create_timer(0.32).timeout
-	var shadow_three := scene.ShadowRules.compute_shadow(scene.posts)
+	var shadow_three := Rules.compute_shadow(scene.posts)
 	if int(shadow_three[2][2]) != 3:
 		push_error("Feel smoke: expected a full shadow at C3")
 		quit(1)
