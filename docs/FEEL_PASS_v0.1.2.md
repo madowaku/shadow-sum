@@ -46,6 +46,38 @@ The deterministic grid rules remain authoritative. Visuals and audio never deter
 - Add a restrained three-note rising chime, one note per light direction.
 - Do not turn the solve beat into a fanfare.
 
+## v0.1.2b — Liquid shadow tuning
+
+Shadow density changes should not read as four flat UI colours swapping instantly. `src/feel_polish_main.gd` keeps the same discrete 0/1/2/3 puzzle state but interpolates the visible StyleBox colour for 0.18 seconds.
+
+- Increasing density settles inward by a tiny amount before returning to rest.
+- Decreasing density breathes outward slightly before returning.
+- This animation never delays or changes the authoritative ShadowRules result.
+- The existing directional projection animation remains faster and more readable than the density settle. Cause first, material response second.
+
+The intended feeling is closer to light being absorbed into smoked glass than a button changing colour.
+
+## v0.1.2b — Responsive canvas
+
+The project uses a `405×900` 9:20 base canvas with `canvas_items` stretch mode and `expand` aspect handling.
+
+Why 405×900:
+- it scales uniformly to the 360×800 phone test target,
+- it keeps the existing 720×900 desktop window useful by expanding horizontal logical space,
+- it also behaves sensibly on 720×1280 and other taller portrait targets.
+
+Compact mode is selected from the visible logical canvas width, not raw physical window pixels.
+
+### Compact layout targets
+- TARGET and LIVE remain visible together horizontally. Comparing them should never require scrolling.
+- Shadow cells: 32 logical units.
+- Post hit targets: 48 logical units.
+- Outer margins and emitter labels tighten before the puzzle board itself is sacrificed.
+- `LIVE SHADOW` shortens to `LIVE` in compact mode.
+- Footer copy and legend become shorter, but core puzzle information stays visible.
+
+No vertical ScrollContainer is used in the core play screen. The puzzle should feel like one instrument, not a form.
+
 ## Stage-specific teaching
 
 ### 001 FIRST LIGHT
@@ -59,19 +91,22 @@ The first transition to level 3 must be unmistakably heavier than level 2 withou
 
 ## Implementation notes
 
-`src/feel_main.gd` subclasses the existing prototype controller. This keeps the feel layer separable from puzzle logic and makes it easy to tune or remove without touching `ShadowRules`.
+`src/feel_main.gd` subclasses the existing prototype controller and owns audio / impact feedback. `src/feel_polish_main.gd` subclasses that feel layer and owns liquid colour settling plus responsive layout. The inheritance layers deliberately keep `ShadowRules` and stage data untouched.
 
 Audio is synthesized at runtime using tiny `AudioStreamWAV` buffers. No external SFX assets are required for this pass.
 
 ## QA checklist
 
-- [ ] Godot 4.7 project imports successfully.
-- [ ] Main scene boots in headless smoke test.
-- [ ] Stage 001 placement produces immediate click + existing 3-way projection.
-- [ ] Removing a Post produces a softer response.
+- [x] Godot 4.7 project imports successfully in CI.
+- [x] Main scene boots in headless smoke test.
+- [x] Automated feel smoke solves Stage 001 and exercises level-2 and level-3 overlaps.
+- [ ] 360×800 logical-layout smoke passes with no Control outside the visible canvas.
+- [ ] Stage 001 placement produces immediate click + existing 3-way projection on local Windows build.
+- [ ] Removing a Post produces a softer response on local Windows build.
 - [ ] Stage 002 first double overlap reads heavier than a single shadow.
 - [ ] Stage 003 full shadow reads heavier than a double shadow.
+- [ ] Liquid density transition feels smooth rather than sluggish.
 - [ ] Match pulses never persist as solution-revealing markers.
 - [ ] Solving still reveals hidden target cells correctly.
 - [ ] Rapid placement/removal leaves cell scale and modulation at sane values.
-- [ ] Test at 720×900 and 360×800 before closing the feel pass.
+- [ ] Visual review at both 720×900 and 360×800 before closing the feel pass.
