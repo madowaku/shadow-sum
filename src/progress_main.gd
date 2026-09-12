@@ -22,6 +22,11 @@ var back_button: Button
 
 
 func _ready() -> void:
+	if progress_path == DEFAULT_PROGRESS_PATH and OS.has_environment("SHADOW_SUM_PROGRESS_PATH"):
+		var override_path := OS.get_environment("SHADOW_SUM_PROGRESS_PATH")
+		if not override_path.is_empty():
+			progress_path = override_path
+
 	super._ready()
 	_build_progress_controls()
 	_load_progress()
@@ -95,8 +100,8 @@ func _build_progress_controls() -> void:
 	back_button = Button.new()
 	back_button.name = "BackButton"
 	back_button.text = "‹  BACK"
-	back_button.custom_minimum_size = Vector2(88, 34)
 	_style_footer_button(back_button, false)
+	back_button.custom_minimum_size = Vector2(88, 34)
 	back_button.pressed.connect(_go_previous_stage)
 	footer.add_child(back_button)
 	footer.move_child(back_button, 0)
@@ -122,13 +127,13 @@ func _load_progress() -> void:
 	if file == null:
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
-	if not parsed is Dictionary:
+	if not (parsed is Dictionary):
 		return
 	if int(parsed.get("version", 0)) != PROGRESS_VERSION:
 		return
 
 	var completed = parsed.get("completed", [])
-	if not completed is Array:
+	if not (completed is Array):
 		return
 	for value in completed:
 		var id := int(value)
