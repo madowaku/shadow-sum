@@ -11,6 +11,7 @@ on:
       - "tools/layout_smoke.gd"
       - "tools/interaction_smoke.gd"
       - "tools/magnetic_smoke.gd"
+      - "tools/flow_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
     paths:
@@ -22,6 +23,7 @@ on:
       - "tools/layout_smoke.gd"
       - "tools/interaction_smoke.gd"
       - "tools/magnetic_smoke.gd"
+      - "tools/flow_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
 
 jobs:
@@ -55,6 +57,9 @@ jobs:
 
       - name: Exercise magnetic snap tuning
         run: godot --headless --path . --script res://tools/magnetic_smoke.gd
+
+      - name: Exercise one more puzzle flow
+        run: godot --headless --path . --script res://tools/flow_smoke.gd
 
       - name: Verify 360x800 layout
         run: godot --headless --path . --script res://tools/layout_smoke.gd
