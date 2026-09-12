@@ -12,6 +12,7 @@ on:
       - "tools/interaction_smoke.gd"
       - "tools/magnetic_smoke.gd"
       - "tools/flow_smoke.gd"
+      - "tools/progress_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - "tools/interaction_smoke.gd"
       - "tools/magnetic_smoke.gd"
       - "tools/flow_smoke.gd"
+      - "tools/progress_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
 
 jobs:
@@ -47,19 +49,22 @@ jobs:
         run: godot --headless --path . --editor --quit
 
       - name: Boot main scene
-        run: godot --headless --path . --quit-after 2
+        run: SHADOW_SUM_PROGRESS_PATH=user://boot_smoke_progress.json godot --headless --path . --quit-after 2
 
       - name: Exercise feel interactions
-        run: godot --headless --path . --script res://tools/feel_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://feel_smoke_progress.json godot --headless --path . --script res://tools/feel_smoke.gd
 
       - name: Exercise PICK SLIDE CLICK interaction
-        run: godot --headless --path . --script res://tools/interaction_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://interaction_smoke_progress.json godot --headless --path . --script res://tools/interaction_smoke.gd
 
       - name: Exercise magnetic snap tuning
-        run: godot --headless --path . --script res://tools/magnetic_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://magnetic_smoke_progress.json godot --headless --path . --script res://tools/magnetic_smoke.gd
 
       - name: Exercise one more puzzle flow
-        run: godot --headless --path . --script res://tools/flow_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://flow_smoke_progress.json godot --headless --path . --script res://tools/flow_smoke.gd
+
+      - name: Exercise KEEP THE LIGHT progress
+        run: godot --headless --path . --script res://tools/progress_smoke.gd
 
       - name: Verify 360x800 layout
-        run: godot --headless --path . --script res://tools/layout_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json godot --headless --path . --script res://tools/layout_smoke.gd
