@@ -33,9 +33,9 @@ func _run() -> void:
 		return
 
 	var target_button := scene.post_buttons[target] as Button
-	var target_rect := target_button.get_global_rect()
-	var target_center := target_rect.position + target_rect.size * 0.5
-	var magnetic_point := target_center + Vector2(target_rect.size.x * 0.5 + 5.0, 0.0)
+	var target_rect: Rect2 = target_button.get_global_rect()
+	var target_center: Vector2 = target_rect.position + target_rect.size * 0.5
+	var magnetic_point: Vector2 = target_center + Vector2(target_rect.size.x * 0.5 + 5.0, 0.0)
 
 	# The pointer is deliberately outside the visual socket, but still inside the
 	# tuned magnetic capture radius.
@@ -55,11 +55,12 @@ func _run() -> void:
 		quit(1)
 		return
 
-	if scene.drag_ghost == null or not scene.drag_ghost.visible:
+	var ghost := scene.drag_ghost as PanelContainer
+	if ghost == null or not ghost.visible:
 		push_error("Magnetic smoke: lifted ghost is not visible")
 		quit(1)
 		return
-	var ghost_center := scene.drag_ghost.position + scene.drag_ghost.size * 0.5
+	var ghost_center: Vector2 = ghost.position + ghost.size * 0.5
 	if ghost_center.y >= magnetic_point.y - 5.0:
 		push_error("Magnetic smoke: ghost was not visibly lifted above pointer")
 		quit(1)
