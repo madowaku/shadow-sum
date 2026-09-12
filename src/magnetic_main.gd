@@ -58,9 +58,7 @@ func _begin_post_drag(index: int, pointer_position := Vector2(-1.0, -1.0)) -> bo
 		return false
 
 	snapped_pointer_index = index
-	if index >= 0 and index < post_buttons.size():
-		var source_button := post_buttons[index] as Button
-		source_button.modulate = SOURCE_DIM
+	_apply_drag_socket_readability(index)
 	_update_drag_ghost(drag_pointer)
 	return true
 
@@ -71,11 +69,11 @@ func _set_drag_target(index: int) -> bool:
 	if not changed:
 		return false
 
+	_apply_drag_socket_readability(index)
 	if index != previous and index >= 0 and index < post_buttons.size():
 		var button := post_buttons[index] as Button
 		button.pivot_offset = button.size * 0.5
 		button.scale = Vector2(1.02, 1.02)
-		button.modulate = SNAP_WARM if index != drag_source_index else PICK_COLOR
 		var tween := create_tween()
 		tween.tween_property(button, "scale", Vector2(SNAP_SCALE, SNAP_SCALE), 0.055).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_property(button, "scale", Vector2(1.045, 1.045), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -123,6 +121,19 @@ func _update_drag_ghost(position: Vector2) -> void:
 
 	drag_ghost.position = visual_center - drag_ghost.size * 0.5
 	drag_ghost.rotation = sin(Time.get_ticks_msec() * 0.008) * 0.018
+
+
+func _apply_drag_socket_readability(target: int) -> void:
+	# _render_drag_preview resets button modulation, so re-state the two important
+	# locations after every magnetic target change: where the Post came from and
+	# where it will land.
+	if drag_source_index >= 0 and drag_source_index < post_buttons.size():
+		var source_button := post_buttons[drag_source_index] as Button
+		source_button.modulate = SOURCE_DIM
+		source_button.scale = Vector2.ONE
+	if target >= 0 and target < post_buttons.size():
+		var target_button := post_buttons[target] as Button
+		target_button.modulate = SNAP_WARM if target != drag_source_index else PICK_COLOR
 
 
 func _hide_drag_ghost() -> void:
