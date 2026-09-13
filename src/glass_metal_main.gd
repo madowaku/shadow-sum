@@ -139,8 +139,6 @@ func _ensure_glass_visual(cell: PanelContainer, target_surface: bool, index: int
 		visual = ShadowGlassVisual.new()
 		visual.name = node_name
 		cell.add_child(visual)
-		# Keep the ? label readable above the material overlay for this pass.
-		cell.move_child(visual, 0)
 
 	var store := clue_glass_visuals if target_surface else live_glass_visuals
 	while store.size() <= index:
