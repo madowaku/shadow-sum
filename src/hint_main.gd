@@ -11,6 +11,7 @@ var whisper_index := 0
 var whisper_serial := 0
 var hint_button: Button
 var hint_tweens: Array = []
+var hint_overlays: Array = []
 
 func _ready() -> void:
 	super._ready()
@@ -146,10 +147,13 @@ func _play_hint_target(item: Dictionary, serial: int) -> void:
 		repeats = 2
 	elif effect == "forced_empty":
 		color = COLOR_MUTED.lightened(0.2)
+		_show_hint_mark(control, "×", color, serial)
 	elif effect == "assume_empty":
 		color = HINT_CYAN
+		_show_hint_mark(control, "○", color, serial)
 	elif effect == "forced_filled":
 		color = HINT_GOLD
+		_show_hint_mark(control, "●", color, serial)
 	_pulse_control(control, color, 1.06, repeats)
 
 func _pulse_control(control: Control, color: Color, peak: float, repeats: int) -> void:
@@ -166,7 +170,38 @@ func _pulse_control(control: Control, color: Color, peak: float, repeats: int) -
 		tween.tween_property(control, "modulate", Color.WHITE, 0.16)
 		tween.parallel().tween_property(control, "scale", Vector2.ONE, 0.16)
 
+func _show_hint_mark(control: Control, glyph: String, color: Color, serial: int) -> void:
+	if control == null or serial != whisper_serial:
+		return
+	var mark := Label.new()
+	mark.text = glyph
+	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	mark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mark.add_theme_color_override("font_color", color)
+	mark.add_theme_font_size_override("font_size", 18 if compact_layout else 21)
+	mark.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	mark.z_index = 20
+	control.add_child(mark)
+	hint_overlays.append(mark)
+	var tween := create_tween()
+	hint_tweens.append(tween)
+	tween.tween_property(mark, "modulate", Color.WHITE, 0.10)
+	tween.tween_interval(1.05)
+	tween.tween_property(mark, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.16)
+	tween.tween_callback(_remove_hint_mark.bind(mark))
+
+func _remove_hint_mark(mark: Label) -> void:
+	hint_overlays.erase(mark)
+	if is_instance_valid(mark):
+		mark.queue_free()
+
 func _reset_hint_visuals() -> void:
+	for overlay_value in hint_overlays:
+		if is_instance_valid(overlay_value):
+			(overlay_value as Node).queue_free()
+	hint_overlays.clear()
 	for cell_value in clue_cells:
 		var cell := cell_value as Control
 		cell.scale = Vector2.ONE
