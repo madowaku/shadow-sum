@@ -33,6 +33,32 @@ const SHADOW_3 := Color("#353D43")
 const SHADOW_UNKNOWN := Color("#5A656C")
 const SHADOW_UNKNOWN_BORDER := Color("#7A858B")
 
+# GLASS & METAL v0.1.7b
+# These are material accents layered over the readable v0.1.7a values. The
+# four shadow levels above remain the semantic source of contrast.
+const GLASS_HIGHLIGHT := Color(1.0, 1.0, 1.0, 0.11)
+const GLASS_LOWLIGHT := Color(0.0, 0.0, 0.0, 0.14)
+const GLASS_FOG := Color(0.78, 0.84, 0.87, 0.10)
+const GLASS_GRAIN := Color(1.0, 1.0, 1.0, 0.045)
+const GLASS_TARGET_WARM := Color(0.86, 0.74, 0.54, 0.055)
+const GLASS_LIVE_COOL := Color(0.56, 0.82, 0.86, 0.050)
+
+const METAL_TOP := Color("#56616A")
+const METAL_TOP_INNER := Color("#3E474F")
+const METAL_SIDE := Color("#20272D")
+const METAL_SIDE_DARK := Color("#151B20")
+const METAL_RIM := Color("#697781")
+const METAL_SPECULAR := Color(1.0, 1.0, 1.0, 0.22)
+
+const SOCKET_INNER := Color("#090D10")
+const SOCKET_INNER_BOTTOM := Color("#0D1216")
+const SOCKET_RIM := Color("#2C3740")
+const SOCKET_RIM_INNER := Color("#182027")
+const SOCKET_ACTIVE := Color("#6EAAB2")
+const SOCKET_SETTLED := Color("#8E774D")
+const PANEL_SHADOW := Color(0.0, 0.0, 0.0, 0.32)
+
+# Legacy names retained while the material layer migrates visual ownership.
 const POST_TOP := Color("#C9C2B7")
 const POST_BODY := Color("#171C21")
 const POST_RING := Color("#746347")
