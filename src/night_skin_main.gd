@@ -72,10 +72,10 @@ func _apply_post_button_style(button: Button, occupied: bool) -> void:
 
 
 func _style_footer_button(button: Button, primary: bool) -> void:
-	button.custom_minimum_size = Vector2(118, 38)
+	button.custom_minimum_size = Vector2(78, 34) if compact_layout else Vector2(104, 36)
 	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_override("font", night_instrument_font)
-	button.add_theme_font_size_override("font_size", 12)
+	button.add_theme_font_size_override("font_size", 10 if compact_layout else 12)
 	var border := NightTokens.GOLD_SOFT if primary else NightTokens.LINE_MEDIUM
 	var text_color := NightTokens.GOLD if primary else NightTokens.TEXT_PRIMARY
 	button.add_theme_color_override("font_color", text_color)
