@@ -15,6 +15,7 @@ on:
       - "tools/progress_smoke.gd"
       - "tools/hint_smoke.gd"
       - "tools/night_skin_smoke.gd"
+      - "tools/glass_metal_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
     paths:
@@ -30,6 +31,7 @@ on:
       - "tools/progress_smoke.gd"
       - "tools/hint_smoke.gd"
       - "tools/night_skin_smoke.gd"
+      - "tools/glass_metal_smoke.gd"
       - ".github/workflows/godot-smoke.yml"
 
 jobs:
@@ -75,6 +77,9 @@ jobs:
 
       - name: Exercise MONOCHROME NIGHT skin
         run: SHADOW_SUM_PROGRESS_PATH=user://night_skin_smoke_progress.json godot --headless --path . --script res://tools/night_skin_smoke.gd
+
+      - name: Exercise GLASS & METAL polish
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_metal_smoke_progress.json godot --headless --path . --script res://tools/glass_metal_smoke.gd
 
       - name: Verify 360x800 layout
         run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json godot --headless --path . --script res://tools/layout_smoke.gd
