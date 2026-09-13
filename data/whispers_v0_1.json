@@ -1,0 +1,109 @@
+{
+  "3": [
+    {
+      "id": "003-1",
+      "kind": "focus",
+      "access": "free",
+      "text": "Start with the darkest shadow.",
+      "targets": [
+        {"surface": "clue", "cell": "C3", "effect": "pulse"}
+      ]
+    },
+    {
+      "id": "003-2",
+      "kind": "chain",
+      "access": "free",
+      "text": "Which three sockets can reach it?",
+      "sequence": [
+        {"delay": 0.00, "surface": "clue", "cell": "C3", "effect": "pulse"},
+        {"delay": 0.26, "surface": "socket", "cell": "C2", "effect": "pulse"},
+        {"delay": 0.34, "surface": "socket", "cell": "B3", "effect": "pulse"},
+        {"delay": 0.42, "surface": "socket", "cell": "D3", "effect": "pulse"}
+      ]
+    },
+    {
+      "id": "003-3",
+      "kind": "focus",
+      "access": "free",
+      "text": "Three shadows means all three sources are present.",
+      "targets": [
+        {"surface": "socket", "cell": "C2", "effect": "pulse"},
+        {"surface": "socket", "cell": "B3", "effect": "pulse"},
+        {"surface": "socket", "cell": "D3", "effect": "pulse"}
+      ]
+    }
+  ],
+  "12": [
+    {
+      "id": "012-1",
+      "kind": "focus",
+      "access": "free",
+      "text": "Clear the certain shadows first.",
+      "targets": [
+        {"surface": "clue", "cell": "A5", "effect": "pulse"},
+        {"surface": "clue", "cell": "B4", "effect": "pulse"},
+        {"surface": "clue", "cell": "C5", "effect": "pulse"}
+      ]
+    },
+    {
+      "id": "012-2",
+      "kind": "compare",
+      "access": "free",
+      "text": "This shadow already needs the last remaining Post.",
+      "emphasize_post_counter": true,
+      "sequence": [
+        {"delay": 0.00, "surface": "clue", "cell": "D1", "effect": "pulse"},
+        {"delay": 0.28, "surface": "socket", "cell": "C1", "effect": "pulse"},
+        {"delay": 0.36, "surface": "socket", "cell": "E1", "effect": "pulse"}
+      ]
+    },
+    {
+      "id": "012-3",
+      "kind": "chain",
+      "access": "free",
+      "text": "If that shadow uses the last Post, every other undecided socket must be empty.",
+      "emphasize_post_counter": true,
+      "sequence": [
+        {"delay": 0.00, "surface": "clue", "cell": "D1", "effect": "pulse"},
+        {"delay": 0.22, "surface": "socket", "cell": "C1", "effect": "pulse"},
+        {"delay": 0.22, "surface": "socket", "cell": "E1", "effect": "pulse"}
+      ]
+    }
+  ],
+  "13": [
+    {
+      "id": "013-1",
+      "kind": "assume",
+      "access": "free",
+      "text": "When deduction stops, test one uncertain socket.",
+      "targets": [
+        {"surface": "socket", "cell": "A2", "effect": "pulse"}
+      ]
+    },
+    {
+      "id": "013-2",
+      "kind": "assume",
+      "access": "free",
+      "text": "Suppose A2 were empty. Follow what that forces.",
+      "sequence": [
+        {"delay": 0.00, "surface": "socket", "cell": "A2", "effect": "assume_empty"},
+        {"delay": 0.36, "surface": "socket", "cell": "C2", "effect": "forced_filled"},
+        {"delay": 0.52, "surface": "socket", "cell": "B3", "effect": "forced_filled"}
+      ]
+    },
+    {
+      "id": "013-3",
+      "kind": "chain",
+      "access": "free",
+      "text": "That assumption leaves B3 with no possible source.",
+      "sequence": [
+        {"delay": 0.00, "surface": "socket", "cell": "A2", "effect": "assume_empty"},
+        {"delay": 0.24, "surface": "socket", "cell": "C2", "effect": "forced_filled"},
+        {"delay": 0.34, "surface": "socket", "cell": "B3", "effect": "forced_filled"},
+        {"delay": 0.56, "surface": "socket", "cell": "A3", "effect": "forced_empty"},
+        {"delay": 0.66, "surface": "socket", "cell": "C3", "effect": "forced_empty"},
+        {"delay": 0.92, "surface": "clue", "cell": "B3", "effect": "contradiction"}
+      ]
+    }
+  ]
+}
