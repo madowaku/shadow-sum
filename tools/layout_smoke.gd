@@ -1,6 +1,7 @@
 extends SceneTree
 
 const COMPACT_LOGICAL_SIZE := Vector2i(405, 900)
+const MID_LOGICAL_SIZE := Vector2i(676, 900)
 const DESKTOP_LOGICAL_SIZE := Vector2i(720, 900)
 
 func _initialize() -> void:
@@ -17,11 +18,14 @@ func _run() -> void:
 	if not await _run_case(packed, COMPACT_LOGICAL_SIZE, true, true):
 		quit(1)
 		return
+	if not await _run_case(packed, MID_LOGICAL_SIZE, false, false):
+		quit(1)
+		return
 	if not await _run_case(packed, DESKTOP_LOGICAL_SIZE, false, false):
 		quit(1)
 		return
 
-	print("Layout smoke OK: compact 405x900 and desktop 720x900 both fit")
+	print("Layout smoke OK: compact 405x900, mid 676x900 and desktop 720x900 all fit")
 	quit(0)
 
 
