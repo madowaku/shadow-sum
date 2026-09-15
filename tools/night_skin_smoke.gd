@@ -21,9 +21,10 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 
-	var script := scene.get_script() as Script
-	if script == null or script.resource_path != "res://src/night_skin_main.gd":
-		_fail("main scene is not using night_skin_main.gd")
+	# Night Skin is now a presentation contract inherited by later material
+	# layers. Do not pin the top-level scene script to night_skin_main.gd.
+	if not scene.has_method("_apply_night_static_skin"):
+		_fail("main scene no longer inherits the night skin contract")
 		return
 
 	var backdrop := scene.get_child(0) as ColorRect
@@ -43,16 +44,6 @@ func _run() -> void:
 		_fail("unknown cells are not visually distinct from observed zero")
 		return
 
-	var first_post := scene.post_buttons[0] as Button
-	scene._apply_post_button_style(first_post, true)
-	if first_post.text != "●":
-		_fail("occupied Post lost its physical marker")
-		return
-	var post_style := first_post.get_theme_stylebox("normal") as StyleBoxFlat
-	if post_style == null or post_style.bg_color == NightTokens.GOLD:
-		_fail("occupied Post should be dark metal, not a gold tile")
-		return
-
 	var margin := scene.get_child(1) as MarginContainer
 	var root_box := margin.get_child(0) as VBoxContainer
 	var title := root_box.get_child(0) as Label
@@ -65,7 +56,8 @@ func _run() -> void:
 		_fail("night footer must preserve BACK / RESET / HINT / NEXT")
 		return
 
-	# Static skin must not touch puzzle state.
+	# Static skin must not touch puzzle state, even when a later material layer
+	# owns the actual Post/Socket drawing.
 	scene._load_stage(2)
 	var before: Array = scene.posts.duplicate(true)
 	scene._apply_night_static_skin()
@@ -73,5 +65,5 @@ func _run() -> void:
 		_fail("presentation skin mutated authoritative Posts")
 		return
 
-	print("Night skin smoke OK: tokens, glass, metal Posts, typography and four-button footer are presentation-only")
+	print("Night skin smoke OK: tokens, glass states, typography and four-button footer survive later presentation layers")
 	quit(0)
