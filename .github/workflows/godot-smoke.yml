@@ -78,8 +78,17 @@ jobs:
       - name: Exercise MONOCHROME NIGHT skin
         run: SHADOW_SUM_PROGRESS_PATH=user://night_skin_smoke_progress.json godot --headless --path . --script res://tools/night_skin_smoke.gd
 
-      - name: Exercise GLASS & METAL polish
-        run: SHADOW_SUM_PROGRESS_PATH=user://glass_metal_smoke_progress.json godot --headless --path . --script res://tools/glass_metal_smoke.gd
+      - name: GLASS & METAL inventory
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_inventory_progress.json SHADOW_SUM_GLASS_PHASE=inventory godot --headless --path . --script res://tools/glass_metal_smoke.gd
+
+      - name: GLASS & METAL Stage001 solve
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_solve_progress.json SHADOW_SUM_GLASS_PHASE=solve godot --headless --path . --script res://tools/glass_metal_smoke.gd
+
+      - name: GLASS & METAL hidden glass
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_hidden_progress.json SHADOW_SUM_GLASS_PHASE=hidden godot --headless --path . --script res://tools/glass_metal_smoke.gd
+
+      - name: GLASS & METAL drag isolation
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_drag_progress.json SHADOW_SUM_GLASS_PHASE=drag godot --headless --path . --script res://tools/glass_metal_smoke.gd
 
       - name: Verify 360x800 layout
         run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json godot --headless --path . --script res://tools/layout_smoke.gd
