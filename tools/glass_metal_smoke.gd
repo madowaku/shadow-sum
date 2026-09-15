@@ -23,9 +23,23 @@ func _run() -> void:
 	if phase.is_empty():
 		phase = "all"
 
-	if not _check_inventory(scene):
+	if not _check_script(scene):
 		return
-	if phase == "inventory":
+	if phase == "script":
+		print("Glass metal smoke script OK")
+		quit(0)
+		return
+
+	if not _check_arrays(scene):
+		return
+	if phase == "arrays":
+		print("Glass metal smoke arrays OK")
+		quit(0)
+		return
+
+	if not _check_children(scene):
+		return
+	if phase == "children" or phase == "inventory":
 		print("Glass metal smoke inventory OK")
 		quit(0)
 		return
@@ -61,20 +75,24 @@ func _run() -> void:
 	print("Glass metal smoke OK: material slots, frosted clues, physical Posts and drag isolation")
 	quit(0)
 
-func _check_inventory(scene: Node) -> bool:
+func _check_script(scene: Node) -> bool:
 	var script := scene.get_script() as Script
 	var script_path := script.resource_path if script != null else ""
 	if not script_path.ends_with("glass_metal_main.gd"):
 		_fail("main scene is not using glass_metal_main.gd: %s" % script_path)
 		return false
+	return true
 
+func _check_arrays(scene: Node) -> bool:
 	if scene.socket_visuals.size() != 25 or scene.post_visuals.size() != 25:
 		_fail("expected 25 material slots, got sockets=%d posts=%d" % [scene.socket_visuals.size(), scene.post_visuals.size()])
 		return false
 	if scene.clue_glass_visuals.size() != 25 or scene.live_glass_visuals.size() != 25:
-		_fail("expected 25 target/live glass overlays")
+		_fail("expected 25 target/live glass overlays, got target=%d live=%d" % [scene.clue_glass_visuals.size(), scene.live_glass_visuals.size()])
 		return false
+	return true
 
+func _check_children(scene: Node) -> bool:
 	for index in 25:
 		var button := scene.post_buttons[index] as Button
 		if button.get_node_or_null("SocketVisual") == null or button.get_node_or_null("PostVisual") == null:
@@ -83,7 +101,6 @@ func _check_inventory(scene: Node) -> bool:
 	return true
 
 func _check_stage001_solve(scene: Node) -> bool:
-	# Stage 001: C3 must become a visible physical Post and still solve normally.
 	scene._load_stage(0)
 	var c3 := 2 * 5 + 2
 	if (scene.post_visuals[c3] as Control).visible:
@@ -97,7 +114,6 @@ func _check_stage001_solve(scene: Node) -> bool:
 	return true
 
 func _check_hidden_glass(scene: Node) -> bool:
-	# Stage 004 must present authored hidden clues through the frosted-glass state.
 	scene._load_stage(3)
 	await process_frame
 	var hidden_found := false
@@ -117,8 +133,6 @@ func _check_hidden_glass(scene: Node) -> bool:
 	return true
 
 func _check_drag(scene: Node) -> bool:
-	# Drag preview keeps the authoritative Posts untouched and uses the same
-	# physical Post for the floating ghost.
 	scene._load_stage(1)
 	scene._toggle_post(1, 1) # B2
 	await process_frame
