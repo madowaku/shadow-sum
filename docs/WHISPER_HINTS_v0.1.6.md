@@ -1,5 +1,11 @@
 # SHADOW SUM v0.1.6 — WHISPER HINTS Implementation Spec
 
+Current grant-demo content supersedes the original three-stage catalog below.
+See `GRANT18_DESIGN.md` and `data/whispers_v0_1.json`. There are now three
+whispers for each stage except Stage004, which retains its independent UNKNOWN
+notation lesson. Old Stage013 hypothetical marks below are historical, not the
+current authored reasoning chain.
+
 ## Goal
 
 WHISPER HINTS must preserve the feeling of solving the puzzle yourself.

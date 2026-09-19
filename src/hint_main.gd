@@ -65,6 +65,18 @@ func _on_hint_pressed() -> void:
 	_refresh_hint_button()
 	_restore_status_after_hint(serial)
 
+func _cancel_active_whisper() -> void:
+	whisper_serial += 1
+	_reset_hint_visuals()
+
+func _toggle_post(r: int, c: int) -> void:
+	_cancel_active_whisper()
+	super._toggle_post(r, c)
+
+func _begin_post_drag(index: int, pointer_position: Vector2 = Vector2(-1.0, -1.0)) -> bool:
+	_cancel_active_whisper()
+	return super._begin_post_drag(index, pointer_position)
+
 func _current_whispers() -> Array:
 	if stages.is_empty():
 		return []
@@ -198,6 +210,10 @@ func _remove_hint_mark(mark: Label) -> void:
 		mark.queue_free()
 
 func _reset_hint_visuals() -> void:
+	# Killing matters: clearing references alone lets old pulses repaint new stages.
+	for motion: Variant in hint_tweens:
+		if motion is Tween and motion.is_valid():
+			motion.kill()
 	for overlay_value in hint_overlays:
 		if is_instance_valid(overlay_value):
 			(overlay_value as Node).queue_free()

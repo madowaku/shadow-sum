@@ -19,6 +19,11 @@ on:
       - "tools/shadow_ink_smoke.gd"
       - "tools/unknown_smoke.gd"
       - "tools/comfort_smoke.gd"
+      - "tools/grant_campaign_smoke.gd"
+      - "tools/validate_stages.py"
+      - "tools/analyze_stages.py"
+      - "tools/validate_grant_campaign.py"
+      - "tools/test_stage_analysis.py"
       - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
@@ -39,6 +44,11 @@ on:
       - "tools/shadow_ink_smoke.gd"
       - "tools/unknown_smoke.gd"
       - "tools/comfort_smoke.gd"
+      - "tools/grant_campaign_smoke.gd"
+      - "tools/validate_stages.py"
+      - "tools/analyze_stages.py"
+      - "tools/validate_grant_campaign.py"
+      - "tools/test_stage_analysis.py"
       - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
 
@@ -54,6 +64,12 @@ jobs:
           version: 4.7-stable
           csharp: false
           export-templates: false
+      - name: Verify exhaustive stage uniqueness
+        run: python3 tools/validate_stages.py
+      - name: Verify grant campaign reasoning and hints
+        run: python3 tools/validate_grant_campaign.py
+      - name: Verify stage analysis regression cases
+        run: python3 -m unittest discover -s tools -p test_stage_analysis.py
       - name: Verify Godot
         run: bash tools/godot_checked.sh --version
       - name: Import project
@@ -92,5 +108,7 @@ jobs:
         run: SHADOW_SUM_PROGRESS_PATH=user://unknown_smoke_progress.json bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/unknown_smoke.gd
       - name: Exercise UNDO and current puzzle resume
         run: bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/comfort_smoke.gd
+      - name: Exercise all 18 grant puzzles and all whispers
+        run: bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/grant_campaign_smoke.gd
       - name: Verify 405x900, 676x900 and 720x900 layouts
         run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/layout_smoke.gd

@@ -61,6 +61,9 @@ All 18 v0.1 stages have exactly one valid placement under these rules.
 
 ## 6. Difficulty language
 
+The following bands describe the original v0.1 campaign. The current grant demo
+uses the revised progression and bounded reasoning in `GRANT18_DESIGN.md`.
+
 ### Intro 001–003
 Teach only the physical rule.
 

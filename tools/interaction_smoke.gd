@@ -88,5 +88,13 @@ func _run() -> void:
 		quit(1)
 		return
 
+	# Stop the audio mixer before tearing down its last short cancel tone.
+	for child: Node in scene.get_children():
+		if child is AudioStreamPlayer:
+			(child as AudioStreamPlayer).stop()
+	OS.delay_msec(100)
+	scene.queue_free()
+	await process_frame
+
 	print("Interaction smoke OK: PICK preview is temporary, SLIDE follows sockets, CLICK commits once")
 	quit(0)

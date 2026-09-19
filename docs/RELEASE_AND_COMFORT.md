@@ -12,7 +12,9 @@ Ship later chapters when ready (20–30 puzzles is a useful working batch), with
 100-puzzle packs reserved for major updates. Do not promise a recurring quantity
 before observing completion and purchase demand. Avoid rotation/mirror padding.
 Every puzzle needs uniqueness verification, an intended deduction and human
-playtesting. Existing Stage001–018 stay unchanged in this pass.
+playtesting. The comfort pass preserved Stage001–018. The subsequent grant submission
+revision is specified in `GRANT18_DESIGN.md`; its 18-puzzle demo takes priority
+over expansion to 100.
 
 Priority after comfort: bridge the reasoning transitions around Stage012 and
 Stage017, then observe 5–8 first-time Android players before authoring the rest.

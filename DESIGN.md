@@ -106,3 +106,13 @@ Do not introduce:
 ## Runtime token owner
 
 `src/night_tokens.gd` is the current runtime token source for MONOCHROME NIGHT. Durable token changes should update this document and runtime tokens together.
+
+## Grant submission campaign
+
+The current build contains the curated 18-puzzle grant demo described in
+`docs/GRANT18_DESIGN.md`. Chapter names describe ideas, not difficulty ranks:
+INTRO, FOG, LINKS, BALANCE, DOUBT, AFTERGLOW. Stage004 retains the short UNKNOWN
+lesson; other stages have three optional, free, authored whispers.
+
+The demo uses a separate progress filename to preserve pre-revision player
+saves. No puzzle rules, magnetic thresholds, or solve timing change.

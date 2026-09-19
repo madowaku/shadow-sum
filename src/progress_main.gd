@@ -10,10 +10,10 @@ extends "res://src/flow_main.gd"
 #
 # The campaign remains linear. No stage-select wall is placed in front of play.
 
-const DEFAULT_PROGRESS_PATH := "user://shadow_sum_progress_v0_1.json"
+const DEFAULT_PROGRESS_PATH := "user://shadow_sum_grant18_progress_v1.json"
 const PROGRESS_VERSION := 1
 const TIER_START_IDS := [1, 4, 7, 10, 13, 16]
-const TIER_NAMES := ["INTRO", "EASY", "MEDIUM", "HARD", "ECLIPSE", "UMBRA"]
+const TIER_NAMES := ["INTRO", "FOG", "LINKS", "BALANCE", "DOUBT", "AFTERGLOW"]
 
 var progress_path := DEFAULT_PROGRESS_PATH
 var completed_stage_ids: Dictionary = {}
@@ -79,7 +79,7 @@ func _next_stage() -> void:
 	var max_index := _highest_unlocked_stage_index()
 	if stage_index >= max_index:
 		if _all_stages_completed():
-			status_label.text = "ALL LIGHTS KEPT  ◐"
+			status_label.text = "18 SHADOWS KEPT. Thank you for playing."
 		return
 	_load_stage(stage_index + 1)
 
