@@ -18,6 +18,7 @@ on:
       - "tools/glass_metal_smoke.gd"
       - "tools/shadow_ink_smoke.gd"
       - "tools/unknown_smoke.gd"
+      - "tools/comfort_smoke.gd"
       - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
@@ -37,6 +38,7 @@ on:
       - "tools/glass_metal_smoke.gd"
       - "tools/shadow_ink_smoke.gd"
       - "tools/unknown_smoke.gd"
+      - "tools/comfort_smoke.gd"
       - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
 
@@ -88,5 +90,7 @@ jobs:
         run: SHADOW_SUM_PROGRESS_PATH=user://shadow_ink_smoke_progress.json bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/shadow_ink_smoke.gd
       - name: Exercise UNKNOWN IS NOT ZERO
         run: SHADOW_SUM_PROGRESS_PATH=user://unknown_smoke_progress.json bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/unknown_smoke.gd
+      - name: Exercise UNDO and current puzzle resume
+        run: bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/comfort_smoke.gd
       - name: Verify 405x900, 676x900 and 720x900 layouts
         run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/layout_smoke.gd

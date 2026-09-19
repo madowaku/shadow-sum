@@ -50,7 +50,7 @@ The whole puzzle must remain visible without scrolling:
 2. TARGET and LIVE SHADOW side by side;
 3. emitters and Placement Board;
 4. one short status line;
-5. BACK / RESET / HINT / NEXT;
+5. BACK / RESET / UNDO / HINT / NEXT;
 6. tiny legend.
 
 Never allow decorative polish to push controls outside the compact canvas. Existing layout smoke tests are a hard gate.

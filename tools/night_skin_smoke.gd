@@ -52,9 +52,15 @@ func _run() -> void:
 		return
 
 	var footer := scene.next_button.get_parent() as HBoxContainer
-	if footer == null or footer.get_child_count() != 4:
-		_fail("night footer must preserve BACK / RESET / HINT / NEXT")
+	if footer == null or footer.get_child_count() != 5:
+		_fail("night footer must preserve BACK / RESET / UNDO / HINT / NEXT")
 		return
+
+	var expected: Array = [scene.back_button, scene.reset_button, scene.undo_button, scene.hint_button, scene.next_button]
+	for index: int in expected.size():
+		if footer.get_child(index) != expected[index]:
+			_fail("footer control order changed")
+			return
 
 	# Static skin must not touch puzzle state, even when a later material layer
 	# owns the actual Post/Socket drawing.
@@ -65,5 +71,5 @@ func _run() -> void:
 		_fail("presentation skin mutated authoritative Posts")
 		return
 
-	print("Night skin smoke OK: tokens, glass states, typography and four-button footer survive later presentation layers")
+	print("Night skin smoke OK: tokens, glass states, typography and five-button footer survive later presentation layers")
 	quit(0)

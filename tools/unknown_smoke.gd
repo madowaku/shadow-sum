@@ -75,7 +75,10 @@ func _bounds(node: Node, canvas: Rect2) -> void:
 
 func _sequence(size: Vector2i) -> void:
 	var scene: Node = await _new_scene(size)
-	check(scene.get_script().resource_path == "res://src/unknown_main.gd", "wrong main script")
+	var layer: Script = scene.get_script()
+	while layer != null and layer.resource_path != "res://src/unknown_main.gd":
+		layer = layer.get_base_script()
+	check(layer != null, "UNKNOWN layer missing from main inheritance")
 	for stage in 3:
 		scene._load_stage(stage)
 		await create_timer(0.15).timeout
