@@ -347,3 +347,51 @@ v0.1.7d is done when:
 - Stage004 solve/reveal remains intact;
 - all Godot 4.7 CI is GREEN;
 - the game returns to complete stillness after the event.
+
+
+## Implementation and verification
+
+The `unknown_main.gd` entry layer schedules teaching only for authored stage
+ID 4. It scans actual clues in row order for the first 0 and first -1; no
+cell coordinate is embedded in the implementation. The opportunity is marked
+consumed before the 0.12s layout delay, so input during that delay also prevents
+replay. The three beats last 1.0, 1.2 and 0.8 seconds (3.12s including setup).
+The flag is in memory only; reset/navigation do not clear it and app restart
+may teach the unsolved stage again. No save schema or WHISPER data changed.
+
+`ShadowGlassVisual.emphasize_notation()` animates only a thin inset rim using
+the existing single `ink_tween` slot. It does not write density, fog, hidden
+state, or reveal. A separate ownership flag lets cancellation clear only the
+notation effect without killing a later SHADOW INK reveal. There is no new
+input surface, scale animation, repeating effect, or whole-cell tint.
+
+A serial check guards every delayed beat. Placement, drag, reset, navigation,
+hint requests and solve presentation invalidate it before delegating to the
+existing methods. Natural completion restores status with `_update_all()`;
+no old status string is replayed. Copy uses the existing status font and
+measures available width before selecting the specified shorter fog copy.
+
+`tools/unknown_smoke.gd` checks each beat's posts, full stage data, progress,
+save content, hint state, stage index/count and solve truth. It also checks
+hidden density/frost/question marks, input availability, selected-cell-only
+emphasis, eight cancellation paths, early input before Beat1, session-only
+replay suppression, natural progression and persisted resume at Stage004,
+WHISPER priority after navigation, SHADOW INK solve reveal, NEXT breath,
+copy width and all control bounds at 405x900, 676x900 and 720x900.
+
+```sh
+bash tools/godot_checked.sh --headless --fixed-fps 120 --path . \
+  --script res://tools/unknown_smoke.gd
+```
+
+The smoke uses isolated disposable `user://unknown_smoke_case_*.json` files,
+never the player's save. Optional real-render captures of all three beats
+are enabled by `SHADOW_SUM_CAPTURE_DIR` with an absolute output directory;
+omit `--headless` when capturing. Real OpenGL captures verified the full copy
+fits at 405px and the chosen fogged cell retains its question mark and frost.
+These are implementation/visual checks, not a claim of human comprehension
+testing with an unbriefed participant.
+
+The previous SHADOW INK smoke now verifies its exact script in the inheritance
+chain; the new smoke pins `unknown_main.gd` as the scene root. All previous
+behavior assertions remain. CI includes the new checked UNKNOWN step.

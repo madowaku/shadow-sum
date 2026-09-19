@@ -32,12 +32,33 @@ var glint: float = 0.0:
 var revealed: bool = false
 var initialized: bool = false
 var last_preview: bool = false
+var notation_owned: bool = false
+var notation_strength: float = 0.0:
+	set(next):
+		notation_strength = next
+		queue_redraw()
+
+func emphasize_notation(duration: float) -> void:
+	# Reuse the single material tween. Never touch density, fog, or clue state.
+	cancel_motion()
+	notation_owned = true
+	ink_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	ink_tween.tween_property(self, "notation_strength", 0.55, duration * 0.3)
+	ink_tween.tween_property(self, "notation_strength", 0.0, duration * 0.7)
+
+func clear_notation_emphasis() -> void:
+	# A later ink/reveal update may already own the tween: leave it alone.
+	if notation_owned:
+		cancel_motion()
+
 
 func cancel_motion() -> void:
 	if ink_tween != null and ink_tween.is_valid():
 		ink_tween.kill()
 	ink_tween = null
 	glint = 0.0
+	notation_owned = false
+	notation_strength = 0.0
 
 func set_state(new_value: int, is_hidden: bool, target_surface: bool, seed_value: int) -> void:
 	var unchanged: bool = initialized and value == new_value and clue_hidden == is_hidden and last_preview == preview_updates
@@ -80,6 +101,13 @@ func _draw() -> void:
 		return
 
 	var inner := Rect2(Vector2(2.0, 2.0), size - Vector2(4.0, 4.0))
+	if notation_strength > 0.0:
+		var rim: StyleBoxFlat = StyleBoxFlat.new()
+		rim.draw_center = false
+		rim.border_color = Color(NightTokens.CYAN_SOFT if clue_hidden else NightTokens.TEXT_SECONDARY, notation_strength)
+		rim.set_border_width_all(1)
+		rim.set_corner_radius_all(NightTokens.RADIUS_CELL)
+		draw_style_box(rim, inner)
 	var tint := NightTokens.GLASS_TARGET_WARM if is_target else NightTokens.GLASS_LIVE_COOL
 	draw_rect(inner, tint)
 	if motion_enabled:

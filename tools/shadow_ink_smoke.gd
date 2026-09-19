@@ -41,7 +41,10 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	check(is_equal_approx(scene.SOLVE_BREATH, 0.45), "solve breath duration changed")
-	check(scene.get_script().resource_path == "res://src/shadow_ink_main.gd", "wrong main script")
+	var script: Script = scene.get_script() as Script
+	while script != null and script.resource_path != "res://src/shadow_ink_main.gd":
+		script = script.get_base_script()
+	check(script != null, "SHADOW INK is missing from the actual script inheritance chain")
 	for inventory in [scene.socket_visuals, scene.post_visuals, scene.clue_glass_visuals, scene.live_glass_visuals]:
 		check(inventory.size() == 25, "material inventory changed")
 		for visual in inventory:
