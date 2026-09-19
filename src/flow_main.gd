@@ -10,6 +10,8 @@ const SOLVE_BREATH := 0.45
 const NEXT_PULSE_SCALE := 1.055
 
 var solve_flow_serial := 0
+var next_scale_tween: Tween
+var next_glow_tween: Tween
 
 
 func _load_stage(index: int) -> void:
@@ -56,15 +58,20 @@ func _release_next_after_breath(serial: int) -> void:
 	next_button.scale = Vector2(0.94, 0.94)
 
 	var tween := create_tween()
+	next_scale_tween = tween
 	tween.tween_property(next_button, "scale", Vector2(NEXT_PULSE_SCALE, NEXT_PULSE_SCALE), 0.13).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(next_button, "scale", Vector2.ONE, 0.17).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 	var glow := create_tween()
+	next_glow_tween = glow
 	glow.tween_property(next_button, "modulate", COLOR_GOLD_HOT, 0.08)
 	glow.tween_property(next_button, "modulate", Color.WHITE, 0.20)
 
 
 func _restore_next_button_resting_state() -> void:
+	for motion in [next_scale_tween, next_glow_tween]:
+		if motion != null and motion.is_valid():
+			motion.kill()
 	if next_button == null:
 		return
 	next_button.text = "NEXT  ›"

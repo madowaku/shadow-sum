@@ -87,7 +87,9 @@ func _run() -> void:
 func _check_script(scene: Node) -> bool:
 	var script := scene.get_script() as Script
 	var script_path := script.resource_path if script != null else ""
-	if not script_path.ends_with("glass_metal_main.gd"):
+	while script != null and not script.resource_path.ends_with("glass_metal_main.gd"):
+		script = script.get_base_script()
+	if script == null:
 		_fail("main scene is not using glass_metal_main.gd: %s" % script_path)
 		return false
 	return true

@@ -429,6 +429,10 @@ func _pulse_emitter(key: String, delay: float) -> void:
 	tween.tween_property(emitter, "modulate", COLOR_CYAN, 0.18)
 
 func _play_solve_beat() -> void:
+	_play_solve_materials()
+
+# Presentation hook; flow/progress continue to own solve timing and state.
+func _play_solve_materials() -> void:
 	_reveal_hidden_target_cells()
 	for i in live_cells.size():
 		var cell := live_cells[i] as PanelContainer

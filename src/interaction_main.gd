@@ -19,6 +19,7 @@ var drag_origin := Vector2.ZERO
 var drag_pointer := Vector2.ZERO
 var drag_active := false
 var drag_ghost: PanelContainer
+var drag_pick_tween: Tween
 
 
 func _ready() -> void:
@@ -117,6 +118,7 @@ func _begin_post_drag(index: int, pointer_position := Vector2(-1.0, -1.0)) -> bo
 		drag_ghost.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		_update_drag_ghost(pointer_position)
 		var ghost_tween := create_tween()
+		drag_pick_tween = ghost_tween
 		ghost_tween.tween_property(drag_ghost, "modulate", Color.WHITE, 0.07)
 		drag_ghost.scale = Vector2(0.82, 0.82)
 		ghost_tween.parallel().tween_property(drag_ghost, "scale", Vector2.ONE, 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -171,12 +173,7 @@ func _finish_post_drag(index: int) -> bool:
 	_clear_drag_state()
 	_update_all()
 
-	var target_button := post_buttons[target] as Button
-	target_button.pivot_offset = target_button.size * 0.5
-	target_button.scale = Vector2(0.84, 0.84)
-	var settle := create_tween()
-	settle.tween_property(target_button, "scale", Vector2(1.055, 1.055), 0.075).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	settle.tween_property(target_button, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_animate_drag_seat(target)
 
 	_play_micro_tone(1120.0, 760.0, 0.060, 0.18, -14.0)
 	_emit_drag_result_feedback(before_shadow)
@@ -185,6 +182,15 @@ func _finish_post_drag(index: int) -> bool:
 		_play_solve_beat()
 		_play_solve_chime()
 	return true
+
+
+func _animate_drag_seat(target: int) -> void:
+	var target_button := post_buttons[target] as Button
+	target_button.pivot_offset = target_button.size * 0.5
+	target_button.scale = Vector2(0.84, 0.84)
+	var settle := create_tween()
+	settle.tween_property(target_button, "scale", Vector2(1.055, 1.055), 0.075).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	settle.tween_property(target_button, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _render_drag_preview(target: int) -> void:
@@ -312,6 +318,8 @@ func _update_drag_ghost(position: Vector2) -> void:
 
 
 func _hide_drag_ghost() -> void:
+	if drag_pick_tween != null and drag_pick_tween.is_valid():
+		drag_pick_tween.kill()
 	if drag_ghost != null:
 		drag_ghost.visible = false
 		drag_ghost.modulate = Color.WHITE

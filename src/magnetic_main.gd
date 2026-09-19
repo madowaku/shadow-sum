@@ -72,12 +72,16 @@ func _set_drag_target(index: int) -> bool:
 	_apply_drag_socket_readability(index)
 	if index != previous and index >= 0 and index < post_buttons.size():
 		var button := post_buttons[index] as Button
-		button.pivot_offset = button.size * 0.5
-		button.scale = Vector2(1.02, 1.02)
-		var tween := create_tween()
-		tween.tween_property(button, "scale", Vector2(SNAP_SCALE, SNAP_SCALE), 0.055).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_property(button, "scale", Vector2(1.045, 1.045), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_animate_socket_capture(button)
 	return true
+
+
+func _animate_socket_capture(button: Button) -> void:
+	button.pivot_offset = button.size * 0.5
+	button.scale = Vector2(1.02, 1.02)
+	var tween := create_tween()
+	tween.tween_property(button, "scale", Vector2(SNAP_SCALE, SNAP_SCALE), 0.055).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(button, "scale", Vector2(1.045, 1.045), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _finish_post_drag(index: int) -> bool:

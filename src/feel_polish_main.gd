@@ -35,6 +35,10 @@ func _update_live_cell(cell: PanelContainer, value: int) -> void:
 	label.text = ""
 
 	var previous := int(cell.get_meta("shadow_level", -1))
+	if previous != value:
+		var old_tween: Tween = cell.get_meta("semantic_tween") as Tween if cell.has_meta("semantic_tween") else null
+		if old_tween != null and old_tween.is_valid():
+			old_tween.kill()
 	if previous < 0:
 		cell.add_theme_stylebox_override("panel", _shadow_style(value, false, false))
 		cell.set_meta("shadow_level", value)
@@ -45,16 +49,20 @@ func _update_live_cell(cell: PanelContainer, value: int) -> void:
 
 	# Tween the StyleBox itself. This makes the shadow density seep into the cell
 	# instead of swapping the entire tile colour in one frame.
-	var style := _shadow_style(previous, false, false)
+	var style: StyleBoxFlat = (cell.get_theme_stylebox("panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
 	var target := _shadow_style(value, false, false)
 	cell.add_theme_stylebox_override("panel", style)
 	cell.set_meta("shadow_level", value)
 
 	var tween := create_tween()
+	cell.set_meta("semantic_tween", tween)
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(style, "bg_color", target.bg_color, LIQUID_SETTLE_TIME)
 	tween.parallel().tween_property(style, "border_color", target.border_color, LIQUID_SETTLE_TIME)
 
+	_animate_live_settle(cell, value, previous)
+
+func _animate_live_settle(cell: PanelContainer, value: int, previous: int) -> void:
 	# A tiny breathing motion is enough to make density changes feel organic.
 	cell.pivot_offset = cell.size * 0.5
 	if value > previous:

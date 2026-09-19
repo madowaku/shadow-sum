@@ -361,3 +361,60 @@ v0.1.7c is complete when:
 - no stale tween survives reset/navigation;
 - all Godot 4.7 headless CI steps are GREEN;
 - a real screenshot/video reads as a quiet optical toy, not an animated UI dashboard.
+
+
+## Implementation and verification
+
+`shadow_ink_main.gd` is the entry presentation layer. It replaces only the
+solve-material, Post-seat, magnetic-capture and panel-motion hooks; the
+existing interaction/flow/progress/hint methods still own all decisions.
+`SOLVE_BREATH` remains 0.45s. No assets, audio, rules, or stages were added.
+
+Glass uses one replaceable tween for floating ink density, fog and glint.
+Ordinary increase durations are 0.18/0.20/0.23s, recession 0.15s, and preview
+0.09s. Switching into preview replaces an in-flight normal tween even when
+its integer target is unchanged. The existing 0.18s semantic StyleBox tween
+is retained, now replacing its predecessor from the currently displayed
+color. No second full-cell color tween was introduced. Fixed grain and top
+reflection do not move; only an inset ink veil changes opacity.
+
+Post seating transforms drawing coordinates, never the Button hit target:
+0.94 -> 1.018 -> 1.0 over 0.17s with a 2px downward seat and fading specular.
+Invalid/same-socket releases do not invoke this hook. Existing cell wipes,
+squashes and the 25-cell solve wave are replaced by material feedback.
+Existing overlap tones are preserved behind a presentation generation check.
+
+Only authored hidden TARGET cells reveal. Their authored solution density
+uses the same source as the previous reveal, so alternative valid placements
+do not change the authored reveal contract. Fog exposes the true background,
+ink settles in 0.18s, then a warm edge glint lasts 0.05s. Hidden-only stagger
+is 0.012s, capped at 0.20s for a worst-case future board: total <= 0.43s.
+`?` and frost remain until solve. Visible TARGET cells do not join the effect.
+
+Stage/reset cancels every material tween, clears preview, invalidates delayed
+presentation feedback and snaps fresh values. Existing NEXT invitation and
+pick-ghost tweens now have cancellable ownership too; flow serial and commit
+timing are unchanged.
+
+Run timing assertions with deterministic 120Hz simulation (avoids a long
+headless startup frame skipping the midpoint observation):
+
+```sh
+SHADOW_SUM_PROGRESS_PATH=user://shadow_ink_smoke_progress.json \
+  bash tools/godot_checked.sh --headless --fixed-fps 120 --path . \
+  --script res://tools/shadow_ink_smoke.gd
+```
+
+The smoke covers all authored hidden stages, real Stage002/003 density,
+interrupted targets, 13 rapid socket crossings, cancel, duplicate release,
+seat geometry, reset during drag, reset/load/BACK/NEXT during reveal, and
+existing breath timing. GLASS smoke checks the actual script inheritance
+chain rather than pinning the root to its superseded entry script; all of
+its inventory and behavior checks remain. SHADOW INK separately pins the
+new root script. Existing layout smoke covers all three required sizes.
+
+For repeatable real-render inspection (OpenGL, not headless), set an absolute
+output folder and use `tools/shadow_ink_capture.gd` with `--fixed-fps 60`.
+It captures Stage003 density/seat, Stage004 frost/reveal/reset, rapid drag,
+cancel and valid release as 110 frames at 405x900. The captured scenario ends
+at rest; there is no idle animation in the new materials.

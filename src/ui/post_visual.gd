@@ -11,7 +11,44 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	queue_redraw()
 
+var seat_tween: Tween
+var seat_scale: float = 1.0:
+	set(next):
+		seat_scale = next
+		queue_redraw()
+var seat_lift: float = 0.0:
+	set(next):
+		seat_lift = next
+		queue_redraw()
+var seat_glint: float = 0.0:
+	set(next):
+		seat_glint = next
+		queue_redraw()
+
+func cancel_motion() -> void:
+	if seat_tween != null and seat_tween.is_valid():
+		seat_tween.kill()
+	seat_tween = null
+	seat_scale = 1.0
+	seat_lift = 0.0
+	seat_glint = 0.0
+
+func mechanical_seat() -> void:
+	cancel_motion()
+	if not occupied or ghost:
+		return
+	seat_scale = 0.94
+	seat_lift = -2.0
+	seat_glint = 0.18
+	seat_tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	seat_tween.tween_property(self, "seat_scale", 1.018, 0.07)
+	seat_tween.parallel().tween_property(self, "seat_lift", 0.0, 0.10)
+	seat_tween.tween_property(self, "seat_scale", 1.0, 0.07)
+	seat_tween.parallel().tween_property(self, "seat_glint", 0.0, 0.07)
+
 func set_state(is_occupied: bool, is_ghost := false, is_settled := false) -> void:
+	if not is_occupied:
+		cancel_motion()
 	occupied = is_occupied
 	ghost = is_ghost
 	settled = is_settled
@@ -22,7 +59,8 @@ func _draw() -> void:
 	if not occupied:
 		return
 
-	var center := size * 0.5
+	draw_set_transform(size * 0.5 + Vector2(0.0, seat_lift), 0.0, Vector2.ONE * seat_scale)
+	var center := Vector2.ZERO
 	var scale_factor := minf(size.x, size.y) / 48.0
 	var body_width := 22.0 * scale_factor
 	var body_height := 23.0 * scale_factor
@@ -51,7 +89,7 @@ func _draw() -> void:
 
 	_draw_ellipse(Vector2(center.x, top_y), Vector2(body_width * 0.5, top_height * 0.5), NightTokens.METAL_RIM)
 	_draw_ellipse(Vector2(center.x, top_y + 0.8 * scale_factor), Vector2(body_width * 0.42, top_height * 0.38), NightTokens.METAL_TOP)
-	_draw_ellipse(Vector2(center.x - 2.0 * scale_factor, top_y - 0.2 * scale_factor), Vector2(body_width * 0.22, top_height * 0.14), NightTokens.METAL_SPECULAR)
+	_draw_ellipse(Vector2(center.x - 2.0 * scale_factor, top_y - 0.2 * scale_factor), Vector2(body_width * 0.22, top_height * 0.14), NightTokens.METAL_SPECULAR.lightened(seat_glint))
 
 	if settled:
 		_draw_ellipse(Vector2(center.x, bottom_y + 0.5 * scale_factor), Vector2(body_width * 0.60, top_height * 0.78), Color(NightTokens.GOLD_SOFT, 0.20), false, maxf(1.0, scale_factor))

@@ -16,6 +16,7 @@ on:
       - "tools/hint_smoke.gd"
       - "tools/night_skin_smoke.gd"
       - "tools/glass_metal_smoke.gd"
+      - "tools/shadow_ink_smoke.gd"
       - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
@@ -33,6 +34,7 @@ on:
       - "tools/hint_smoke.gd"
       - "tools/night_skin_smoke.gd"
       - "tools/glass_metal_smoke.gd"
+      - "tools/shadow_ink_smoke.gd"
       - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
 
@@ -80,5 +82,7 @@ jobs:
         run: SHADOW_SUM_PROGRESS_PATH=user://glass_hidden_progress.json SHADOW_SUM_GLASS_PHASE=hidden bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
       - name: GLASS & METAL drag isolation
         run: SHADOW_SUM_PROGRESS_PATH=user://glass_drag_progress.json SHADOW_SUM_GLASS_PHASE=drag bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
+      - name: Exercise SHADOW INK motion
+        run: SHADOW_SUM_PROGRESS_PATH=user://shadow_ink_smoke_progress.json bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/shadow_ink_smoke.gd
       - name: Verify 405x900, 676x900 and 720x900 layouts
         run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/layout_smoke.gd
