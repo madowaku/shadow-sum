@@ -137,3 +137,29 @@ Do not fold these into this pass:
 - 3D Post assets;
 - Stage 004 onboarding;
 - Daily Shadow or retention systems.
+
+
+## Godot 4.7 regression fix
+
+The visual inventory failure was reproduced on 4.7.stable.official.5b4e0cb0f.
+`ShadowGlassVisual.hidden` collided with the native `Control.hidden` signal,
+so the overlay script could not compile. `_ensure_glass_visual()` failed at
+`ShadowGlassVisual.new()` before registering the overlay: sockets/posts had
+25 entries while TARGET/LIVE had zero. Rename the authored state to
+`clue_hidden`; do not change array ownership or defer initialization.
+
+The base `_ready()` loads Stage001 and calls `_update_all()`, which dispatches
+to the derived clue/live update methods before `super._ready()` returns.
+Member arrays already exist at this point. The local `store` aliases the
+selected Array correctly. Smoke now checks inventories immediately after
+ready and after deferred refreshes, stable overlay identity on reapplication,
+unique child/array correspondence, and mouse-transparent material controls.
+It also checks every hidden Stage004 clue and the drag ghost's Post script.
+
+Once overlays compile, instrument depth application reaches the background
+assignment. It must use `NightTokens.BG_BASE` to preserve the inherited night
+skin contract rather than overwrite it with a separate literal.
+
+CI now rejects script/shader/error diagnostics even when Godot exits zero.
+All existing behavioral assertions remain; puzzle rules, stages, progress,
+hints, and drag/magnetic implementation are unchanged.

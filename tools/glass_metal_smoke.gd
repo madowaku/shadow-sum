@@ -15,6 +15,9 @@ func _run() -> void:
 
 	var scene := packed.instantiate()
 	root.add_child(scene)
+	# _ready must populate all inventories before deferred skin refreshes.
+	if not _check_arrays(scene):
+		return
 	await process_frame
 	await process_frame
 	await process_frame
@@ -31,6 +34,12 @@ func _run() -> void:
 		return
 
 	if not _check_arrays(scene):
+		return
+	var target_before: Array = scene.clue_glass_visuals.duplicate()
+	var live_before: Array = scene.live_glass_visuals.duplicate()
+	scene._apply_glass_metal_skin()
+	if scene.clue_glass_visuals != target_before or scene.live_glass_visuals != live_before:
+		_fail("skin refresh replaced glass instances")
 		return
 	if phase == "arrays":
 		print("Glass metal smoke arrays OK")
@@ -94,10 +103,25 @@ func _check_arrays(scene: Node) -> bool:
 
 func _check_children(scene: Node) -> bool:
 	for index in 25:
-		var button := scene.post_buttons[index] as Button
-		if button.get_node_or_null("SocketVisual") == null or button.get_node_or_null("PostVisual") == null:
-			_fail("missing material child at socket %d" % index)
-			return false
+		var parents: Array = [scene.post_buttons[index], scene.post_buttons[index], scene.clue_cells[index], scene.live_cells[index]]
+		var visuals: Array = [scene.socket_visuals[index], scene.post_visuals[index], scene.clue_glass_visuals[index], scene.live_glass_visuals[index]]
+		var names: Array[String] = ["SocketVisual", "PostVisual", "TargetGlassVisual", "LiveGlassVisual"]
+		for kind in names.size():
+			var parent: Control = parents[kind] as Control
+			var visual: Control = visuals[kind] as Control
+			if visual == null or parent.get_node_or_null(names[kind]) != visual:
+				_fail("material array/child mismatch at %s %d" % [names[kind], index])
+				return false
+			if visual.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+				_fail("material intercepts input at %s %d" % [names[kind], index])
+				return false
+			var count: int = 0
+			for child in parent.get_children():
+				if child.get_script() == visual.get_script():
+					count += 1
+			if count != 1:
+				_fail("duplicate material at %s %d" % [names[kind], index])
+				return false
 	return true
 
 func _check_stage001_solve(scene: Node) -> bool:
@@ -123,10 +147,9 @@ func _check_hidden_glass(scene: Node) -> bool:
 		if int(scene.stages[3]["clues"][r][c]) < 0:
 			hidden_found = true
 			var glass = scene.clue_glass_visuals[index]
-			if glass == null or not bool(glass.hidden):
+			if glass == null or not bool(glass.clue_hidden):
 				_fail("hidden clue %d did not enter frosted state" % index)
 				return false
-			break
 	if not hidden_found:
 		_fail("Stage004 unexpectedly contains no hidden clue")
 		return false
@@ -148,5 +171,11 @@ func _check_drag(scene: Node) -> bool:
 	if scene.drag_ghost == null or not scene.drag_ghost.visible or scene.drag_ghost.get_node_or_null("GhostPostVisual") == null:
 		_fail("physical drag ghost missing")
 		return false
+	var ghost: Control = scene.drag_ghost.get_node("GhostPostVisual") as Control
+	if ghost.get_script() != scene.post_visuals[source].get_script() or not ghost.visible or not ghost.ghost or ghost.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+		_fail("drag ghost must use the mouse-transparent physical Post material")
+		return false
 	scene._finish_post_drag(source)
+	# Allow release tweens/audio to finish before exiting the test tree.
+	await create_timer(0.40).timeout
 	return true

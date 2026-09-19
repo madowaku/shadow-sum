@@ -3,7 +3,8 @@ extends Control
 const NightTokens = preload("res://src/night_tokens.gd")
 
 var value := 0
-var hidden := false
+# Avoid Control.hidden (native signal); this is authored clue state.
+var clue_hidden: bool = false
 var is_target := false
 var cell_seed := 0
 
@@ -14,7 +15,7 @@ func _ready() -> void:
 
 func set_state(new_value: int, is_hidden: bool, target_surface: bool, seed_value: int) -> void:
 	value = new_value
-	hidden = is_hidden
+	clue_hidden = is_hidden
 	is_target = target_surface
 	cell_seed = seed_value
 	queue_redraw()
@@ -35,13 +36,13 @@ func _draw() -> void:
 
 	# Fixed grain prevents flat vector cells without creating restless animation.
 	var grain_count := 2 if value <= 1 else 3
-	if hidden:
+	if clue_hidden:
 		grain_count = 5
 	for i in grain_count:
 		var p := _grain_point(i)
 		draw_circle(p, 0.65, NightTokens.GLASS_GRAIN)
 
-	if hidden:
+	if clue_hidden:
 		# Three translucent fog bands say “unobservable” without implying zero.
 		var fog := NightTokens.GLASS_FOG
 		draw_line(Vector2(6.0, size.y * 0.38), Vector2(size.x - 7.0, size.y * 0.30), fog, 2.0, true)
@@ -50,7 +51,7 @@ func _draw() -> void:
 
 func _grain_point(index: int) -> Vector2:
 	var x_seed := (cell_seed * 17 + index * 29 + (11 if is_target else 23)) % 97
-	var y_seed := (cell_seed * 31 + index * 19 + (7 if hidden else 13)) % 89
+	var y_seed := (cell_seed * 31 + index * 19 + (7 if clue_hidden else 13)) % 89
 	var x := 6.0 + (size.x - 12.0) * float(x_seed) / 96.0
 	var y := 7.0 + (size.y - 14.0) * float(y_seed) / 88.0
 	return Vector2(x, y)

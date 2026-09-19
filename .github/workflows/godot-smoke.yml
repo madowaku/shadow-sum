@@ -16,6 +16,7 @@ on:
       - "tools/hint_smoke.gd"
       - "tools/night_skin_smoke.gd"
       - "tools/glass_metal_smoke.gd"
+      - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
   pull_request:
     paths:
@@ -32,6 +33,7 @@ on:
       - "tools/hint_smoke.gd"
       - "tools/night_skin_smoke.gd"
       - "tools/glass_metal_smoke.gd"
+      - "tools/godot_checked.sh"
       - ".github/workflows/godot-smoke.yml"
 
 jobs:
@@ -47,36 +49,36 @@ jobs:
           csharp: false
           export-templates: false
       - name: Verify Godot
-        run: godot --version
+        run: bash tools/godot_checked.sh --version
       - name: Import project
-        run: godot --headless --path . --editor --quit
+        run: bash tools/godot_checked.sh --headless --path . --editor --quit
       - name: Boot main scene
-        run: SHADOW_SUM_PROGRESS_PATH=user://boot_smoke_progress.json godot --headless --path . --quit-after 2
+        run: SHADOW_SUM_PROGRESS_PATH=user://boot_smoke_progress.json bash tools/godot_checked.sh --headless --path . --quit-after 2
       - name: Exercise feel interactions
-        run: SHADOW_SUM_PROGRESS_PATH=user://feel_smoke_progress.json godot --headless --path . --script res://tools/feel_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://feel_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/feel_smoke.gd
       - name: Exercise PICK SLIDE CLICK interaction
-        run: SHADOW_SUM_PROGRESS_PATH=user://interaction_smoke_progress.json godot --headless --path . --script res://tools/interaction_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://interaction_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/interaction_smoke.gd
       - name: Exercise magnetic snap tuning
-        run: SHADOW_SUM_PROGRESS_PATH=user://magnetic_smoke_progress.json godot --headless --path . --script res://tools/magnetic_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://magnetic_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/magnetic_smoke.gd
       - name: Exercise one more puzzle flow
-        run: SHADOW_SUM_PROGRESS_PATH=user://flow_smoke_progress.json godot --headless --path . --script res://tools/flow_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://flow_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/flow_smoke.gd
       - name: Exercise KEEP THE LIGHT progress
-        run: godot --headless --path . --script res://tools/progress_smoke.gd
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/progress_smoke.gd
       - name: Exercise WHISPER HINTS
-        run: SHADOW_SUM_PROGRESS_PATH=user://hint_smoke_progress.json godot --headless --path . --script res://tools/hint_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://hint_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/hint_smoke.gd
       - name: Exercise MONOCHROME NIGHT skin
-        run: SHADOW_SUM_PROGRESS_PATH=user://night_skin_smoke_progress.json godot --headless --path . --script res://tools/night_skin_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://night_skin_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/night_skin_smoke.gd
       - name: GLASS & METAL main script
-        run: SHADOW_SUM_PROGRESS_PATH=user://glass_script_progress.json SHADOW_SUM_GLASS_PHASE=script godot --headless --path . --script res://tools/glass_metal_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_script_progress.json SHADOW_SUM_GLASS_PHASE=script bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
       - name: GLASS & METAL visual arrays
-        run: SHADOW_SUM_PROGRESS_PATH=user://glass_arrays_progress.json SHADOW_SUM_GLASS_PHASE=arrays godot --headless --path . --script res://tools/glass_metal_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_arrays_progress.json SHADOW_SUM_GLASS_PHASE=arrays bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
       - name: GLASS & METAL material children
-        run: SHADOW_SUM_PROGRESS_PATH=user://glass_children_progress.json SHADOW_SUM_GLASS_PHASE=children godot --headless --path . --script res://tools/glass_metal_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_children_progress.json SHADOW_SUM_GLASS_PHASE=children bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
       - name: GLASS & METAL Stage001 solve
-        run: SHADOW_SUM_PROGRESS_PATH=user://glass_solve_progress.json SHADOW_SUM_GLASS_PHASE=solve godot --headless --path . --script res://tools/glass_metal_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_solve_progress.json SHADOW_SUM_GLASS_PHASE=solve bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
       - name: GLASS & METAL hidden glass
-        run: SHADOW_SUM_PROGRESS_PATH=user://glass_hidden_progress.json SHADOW_SUM_GLASS_PHASE=hidden godot --headless --path . --script res://tools/glass_metal_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_hidden_progress.json SHADOW_SUM_GLASS_PHASE=hidden bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
       - name: GLASS & METAL drag isolation
-        run: SHADOW_SUM_PROGRESS_PATH=user://glass_drag_progress.json SHADOW_SUM_GLASS_PHASE=drag godot --headless --path . --script res://tools/glass_metal_smoke.gd
-      - name: Verify 360x800 layout
-        run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json godot --headless --path . --script res://tools/layout_smoke.gd
+        run: SHADOW_SUM_PROGRESS_PATH=user://glass_drag_progress.json SHADOW_SUM_GLASS_PHASE=drag bash tools/godot_checked.sh --headless --path . --script res://tools/glass_metal_smoke.gd
+      - name: Verify 405x900, 676x900 and 720x900 layouts
+        run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/layout_smoke.gd

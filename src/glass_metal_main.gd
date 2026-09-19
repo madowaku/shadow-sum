@@ -170,7 +170,7 @@ func _apply_instrument_depth() -> void:
 		return
 	var backdrop := get_child(0) as ColorRect
 	if backdrop != null:
-		backdrop.color = Color("#080A0C")
+		backdrop.color = NightTokens.BG_BASE
 
 	var margin := get_child(1) as MarginContainer
 	if margin == null or margin.get_child_count() == 0:
