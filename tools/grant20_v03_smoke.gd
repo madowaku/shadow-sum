@@ -194,14 +194,14 @@ func _run() -> void:
 	# Layout on compact and wide targets.
 	for dimensions: Vector2i in [Vector2i(405, 900), Vector2i(720, 900)]:
 		root.size = dimensions
-		for stage_number: int in 14:
+		for stage_number: int in 20:
 			game.load_stage(stage_number)
 			await process_frame
 			await process_frame
 			_bounds(game, Rect2(Vector2.ZERO, Vector2(dimensions)))
 
 	# Dedicated save reload and isolation from all earlier campaigns.
-	for stage_number: int in 14:
+	for stage_number: int in 20:
 		game.completed[game.stages[stage_number]["id"]] = true
 	game._save_progress()
 	var resumed: Control = Experiment.new()
@@ -209,7 +209,7 @@ func _run() -> void:
 	resumed.progress_path = game.progress_path
 	root.add_child(resumed)
 	await process_frame
-	check(resumed.completed.size() == 20 and resumed.campaign_id == "grant14_v0_2", "Grant20 save reload")
+	check(resumed.completed.size() == 20 and resumed.campaign_id == "grant20_v0_3", "Grant20 save reload")
 	resumed.queue_free()
 
 	for index: int in protected_paths.size():
