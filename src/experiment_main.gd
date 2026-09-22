@@ -63,6 +63,7 @@ var first_action: String = ""
 var resets: int = 0
 var action_count: int = 0
 var sound_player: AudioStreamPlayer
+var requested_stage_index: int = -1
 
 func _ready() -> void:
 	var data_path: String = DATA
@@ -97,6 +98,8 @@ func _ready() -> void:
 	var resume: int = 0
 	while resume < stages.size() - 1 and completed.has(stages[resume]["id"]):
 		resume += 1
+	if requested_stage_index >= 0:
+		resume = clampi(requested_stage_index, 0, stages.size() - 1)
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var stage_flag: int = args.find("--stage")
 	if stage_flag >= 0 and stage_flag + 1 < args.size():
@@ -259,6 +262,10 @@ func _build_ui() -> void:
 	footer.alignment = BoxContainer.ALIGNMENT_CENTER
 	footer.add_theme_constant_override("separation", 6)
 	column.add_child(footer)
+	var menu_button: Button = _button("MENU", Vector2(54, 44))
+	menu_button.tooltip_text = "Return to HOME"
+	menu_button.pressed.connect(_go_home)
+	footer.add_child(menu_button)
 	back_button = _button("BACK", Vector2(56, 44))
 	back_button.pressed.connect(func() -> void: load_stage(maxi(0, stage_index - 1)))
 	footer.add_child(back_button)
@@ -934,6 +941,8 @@ func _process(delta: float) -> void:
 	motions = motions.filter(func(motion: Tween) -> bool: return motion.is_valid())
 
 func _click(frequency: float) -> void:
+	if not _sfx_enabled():
+		return
 	var wave: AudioStreamWAV = AudioStreamWAV.new()
 	wave.format = AudioStreamWAV.FORMAT_16_BITS
 	wave.mix_rate = 22050
@@ -961,6 +970,18 @@ func _save_progress() -> void:
 	var file: FileAccess = FileAccess.open(progress_path, FileAccess.WRITE)
 	if file != null:
 		file.store_string(JSON.stringify({"campaign": campaign_id, "completed": completed, "playtest": hint_records}, "\t"))
+
+func _go_home() -> void:
+	if not drag_kind.is_empty():
+		return
+	get_tree().change_scene_to_file("res://scenes/home.tscn")
+
+func _sfx_enabled() -> bool:
+	var settings_path := "user://shadow_sum_settings.json"
+	if not FileAccess.file_exists(settings_path):
+		return true
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(settings_path))
+	return not (parsed is Dictionary) or bool(parsed.get("sfx_enabled", true))
 
 func _exit_tree() -> void:
 	_cancel_motions()
