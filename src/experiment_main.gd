@@ -478,6 +478,10 @@ func _can_add_post(kind: String) -> bool:
 func _is_plate(index: int) -> bool:
 	return _post_type(index).begins_with("plate_")
 
+func _is_fixed_post(index: int) -> bool:
+	var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
+	return stage().get("fixed_posts", []).has(code)
+
 func rotate_plate(index: int) -> void:
 	if stage_solved or not posts.has(index) or not _is_plate(index) or not stage().get("rotatable_plate", false):
 		return
@@ -489,7 +493,7 @@ func rotate_plate(index: int) -> void:
 func toggle_post(index: int) -> void:
 	if stage_solved or index < 0 or index >= 25:
 		return
-	if stage().has("fixed_posts"):
+	if _is_fixed_post(index):
 		if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
 			rotate_plate(index)
 		else:
@@ -530,8 +534,8 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 		return
 	if kind == "shutter" and not stage().get("movable_shutter", false):
 		return
-	if kind == "post" and stage().has("fixed_posts"):
-		if index >= 0 and posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
+	if kind == "post" and index >= 0 and _is_fixed_post(index):
+		if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
 			rotate_plate(index)
 		else:
 			_note_fixed_post_touch()
@@ -699,7 +703,7 @@ func _refresh(animate: bool = true) -> void:
 		surface.occupied = posts.has(index)
 		surface.post_type = str(types.get(str(index), "normal")) if surface.occupied else "normal"
 		surface.tall = surface.occupied and surface.post_type == "tall"
-		surface.fixed = stage().has("fixed_posts")
+		surface.fixed = _is_fixed_post(index)
 	for direction: String in lamps:
 		var lamp: Button = lamps[direction]
 		var interactive: bool = stage().get("free_light_selection", false) or (stage().get("light_puzzle", false) and (direction != "BOTTOM" or cause_light or light_height))
@@ -733,9 +737,9 @@ func _refresh(animate: bool = true) -> void:
 	var has_fixed_posts: bool = stage().has("fixed_posts")
 	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts")
 	if mixed_inventory:
-		inventory.visible = not has_fixed_posts and _post_limit("normal") > _post_count("normal")
-		tall_inventory.visible = not has_fixed_posts and _post_limit("tall") > _post_count("tall")
-		plate_inventory.visible = not has_fixed_posts and _post_limit("plate") > _post_count("plate")
+		inventory.visible = _post_limit("normal") > _post_count("normal")
+		tall_inventory.visible = _post_limit("tall") > _post_count("tall")
+		plate_inventory.visible = _post_limit("plate") > _post_count("plate")
 		inventory.get_child(0).occupied = _can_add_post("normal")
 		inventory.get_child(0).tall = false
 		inventory.get_child(0).post_type = "normal"
