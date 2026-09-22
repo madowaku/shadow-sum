@@ -9,6 +9,7 @@ var progress_path: String = SAVE
 var cause_light: bool = false
 var light_height: bool = false
 var flat_plate: bool = false
+var grant14_v02: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
@@ -78,6 +79,11 @@ func _ready() -> void:
 		data_path = "res://data/flat_plate_p01_p04_v0_1.json"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_flat_plate_v0_1.json"
+	elif grant14_v02:
+		campaign_id = "grant14_v0_2"
+		data_path = "res://data/grant14_v0_2.json"
+		if progress_path == SAVE:
+			progress_path = "user://shadow_sum_grant14_v0_2.json"
 	stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
 	_build_ui()
 	_load_progress()
@@ -127,6 +133,8 @@ func _build_ui() -> void:
 		campaign_label = "L I G H T   &   H E I G H T"
 	elif flat_plate:
 		campaign_label = "F L A T   P L A T E"
+	elif grant14_v02:
+		campaign_label = "G R A N T   1 4   /   v 0 . 2"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
 	title_label = _label(column, "", 15, T.GOLD)
 	count_label = _label(column, "", 12, T.TEXT_SECONDARY)
@@ -392,7 +400,7 @@ func undo_move() -> void:
 	_refresh()
 
 func tap_light(direction: String) -> void:
-	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate):
+	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate and not grant14_v02):
 		return
 	if stage().get("free_light_selection", false):
 		if not stage().get("installed_lights", []).has(direction):
@@ -718,7 +726,7 @@ func _refresh(animate: bool = true) -> void:
 		lamp.get_child(0).fixed = not interactive
 		lamp.get_child(0).active = lights.has(direction)
 		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
-		if cause_light or light_height or flat_plate:
+		if cause_light or light_height or flat_plate or grant14_v02:
 			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
 			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
@@ -764,7 +772,7 @@ func _refresh(animate: bool = true) -> void:
 		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
 	else:
 		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
-	if light_height or flat_plate:
+	if light_height or flat_plate or grant14_v02:
 		var light_denominator: String = "FIXED"
 		if stage().get("free_light_selection", false):
 			light_denominator = str(stage()["active_light_count"]) if stage().has("active_light_count") else "?"
@@ -816,6 +824,8 @@ func next_stage() -> void:
 			status_label.text = "8 LIGHT & HEIGHT EXPERIMENTS COMPLETE."
 		elif flat_plate:
 			status_label.text = "4 FLAT PLATE EXPERIMENTS COMPLETE."
+		elif grant14_v02:
+			status_label.text = "GRANT14 CALIBRATION COMPLETE."
 		else:
 			status_label.text = "10 EXPERIMENTS COMPLETE. Thank you for exploring."
 	else:
