@@ -1,11 +1,14 @@
 extends "res://tools/grant_experiment_smoke.gd"
 
 func _select_inventory(kind: String) -> void:
-	if kind == "normal":
+	if kind == "normal" and game.inventory.visible:
 		_tap(game.inventory)
 	elif kind == "tall":
-		_tap(game.tall_inventory)
-	elif kind.begins_with("plate_"):
+		if game.tall_inventory.visible:
+			_tap(game.tall_inventory)
+		elif game.inventory.visible:
+			_tap(game.inventory)
+	elif kind.begins_with("plate_") and game.plate_inventory.visible:
 		_tap(game.plate_inventory)
 
 func _place(kind: String, code: String) -> void:
