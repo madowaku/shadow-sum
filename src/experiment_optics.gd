@@ -30,19 +30,32 @@ static func matches(shadow: Array, target: Dictionary) -> bool:
 			return false
 	return true
 
-static func solved(stage: Dictionary, posts: Array, shutters: Array, lights: Array) -> bool:
+static func solved(stage: Dictionary, posts: Array, shutters: Array, lights: Array, post_types: Dictionary = {}) -> bool:
 	if posts.size() != int(stage["posts"]):
 		return false
 	if stage.get("movable_shutter", false) and shutters.size() != 1:
 		return false
-	if stage.get("light_puzzle", false) and lights.size() != int(stage.get("active_light_count", 2)):
+	if stage.get("light_puzzle", false) and stage.has("active_light_count") and lights.size() != int(stage["active_light_count"]):
 		return false
-	var types: Dictionary = {}
+	if stage.get("free_light_selection", false) and lights.is_empty():
+		return false
+	var types: Dictionary = post_types.duplicate()
 	if stage.get("tall", false):
 		for index: Variant in posts:
 			types[str(index)] = "tall"
+	if stage.has("normal_posts") or stage.has("tall_posts"):
+		var normal_count: int = 0
+		var tall_count: int = 0
+		for index: Variant in posts:
+			if types.get(str(index), "normal") == "tall":
+				tall_count += 1
+			else:
+				normal_count += 1
+		if normal_count != int(stage.get("normal_posts", 0)) or tall_count != int(stage.get("tall_posts", 0)):
+			return false
 	for observation: Dictionary in stage["observations"]:
-		var active: Array = lights if stage.get("light_puzzle", false) else observation["active_lights"]
+		var use_live_lights: bool = stage.get("light_puzzle", false) or stage.get("free_light_selection", false)
+		var active: Array = lights if use_live_lights else observation["active_lights"]
 		if not matches(compute_shadow(posts, active, shutters, types), observation["target"]):
 			return false
 	return true

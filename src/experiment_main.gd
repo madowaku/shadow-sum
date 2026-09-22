@@ -7,11 +7,13 @@ const DATA: String = "res://data/grant_experiments_v0_1.json"
 const SAVE: String = "user://shadow_sum_grant_experiments_v0_1.json"
 var progress_path: String = SAVE
 var cause_light: bool = false
+var light_height: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
 var stage_index: int = 0
 var posts: Array = []
+var post_types: Dictionary = {}
 var shutters: Array = []
 var lights: Array = []
 var observation_index: int = 0
@@ -33,6 +35,7 @@ var back_button: Button
 var undo_button: Button
 var hint_button: Button
 var inventory: Button
+var tall_inventory: Button
 var rail: HBoxContainer
 var lamps: Dictionary = {}
 var rail_buttons: Array[Button] = []
@@ -42,6 +45,8 @@ var live_cells: Array[Control] = []
 var current_shadow: Array[int] = []
 var drag_kind: String = ""
 var drag_source: int = -1
+var drag_post_type: String = "normal"
+var selected_post_type: String = "normal"
 var drag_start: Vector2
 var drag_moved: bool = false
 var drag_preview: int = -1
@@ -55,11 +60,18 @@ var action_count: int = 0
 var sound_player: AudioStreamPlayer
 
 func _ready() -> void:
+	var data_path: String = DATA
 	if cause_light:
 		campaign_id = "cause_light_v0_1"
+		data_path = "res://data/cause_light_h01_h06_v0_1.json"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_cause_light_v0_1.json"
-	stages = JSON.parse_string(FileAccess.get_file_as_string("res://data/cause_light_h01_h06_v0_1.json" if cause_light else DATA))
+	elif light_height:
+		campaign_id = "light_height_v0_1"
+		data_path = "res://data/light_height_lc01_tp04_v0_1.json"
+		if progress_path == SAVE:
+			progress_path = "user://shadow_sum_light_height_v0_1.json"
+	stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
 	_build_ui()
 	_load_progress()
 	var resume: int = 0
@@ -101,7 +113,12 @@ func _build_ui() -> void:
 	column.add_theme_constant_override("separation", 4 if cause_light else 8)
 	margin.add_child(column)
 	_label(column, "SHADOW SUM", 25, T.TEXT_PRIMARY)
-	_label(column, "C A U S E   &   L I G H T" if cause_light else "G R A N T   /   E X P E R I M E N T S", 10, T.TEXT_MUTED)
+	var campaign_label: String = "G R A N T   /   E X P E R I M E N T S"
+	if cause_light:
+		campaign_label = "C A U S E   &   L I G H T"
+	elif light_height:
+		campaign_label = "L I G H T   &   H E I G H T"
+	_label(column, campaign_label, 10, T.TEXT_MUTED)
 	title_label = _label(column, "", 15, T.GOLD)
 	count_label = _label(column, "", 12, T.TEXT_SECONDARY)
 	observation_label = _label(column, "", 11, T.TEXT_MUTED)
@@ -180,13 +197,25 @@ func _build_ui() -> void:
 	_label(column, "PLACEMENT BOARD", 10, T.TEXT_MUTED)
 	var inventory_center: CenterContainer = CenterContainer.new()
 	column.add_child(inventory_center)
+	var inventory_row: HBoxContainer = HBoxContainer.new()
+	inventory_row.add_theme_constant_override("separation", 10)
+	inventory_center.add_child(inventory_row)
 	inventory = _button("", Vector2(64, 44))
-	inventory.tooltip_text = "Post inventory"
+	inventory.tooltip_text = "Normal Post inventory"
 	inventory.gui_input.connect(_start_pointer.bind("post", -1))
-	inventory_center.add_child(inventory)
+	inventory_row.add_child(inventory)
 	var inventory_surface: Control = Surface.new()
 	inventory_surface.kind = "inventory"
 	inventory.add_child(inventory_surface)
+	tall_inventory = _button("", Vector2(64, 44))
+	tall_inventory.tooltip_text = "Tall Post inventory"
+	tall_inventory.gui_input.connect(_start_pointer.bind("post", -2))
+	inventory_row.add_child(tall_inventory)
+	var tall_inventory_surface: Control = Surface.new()
+	tall_inventory_surface.kind = "inventory"
+	tall_inventory_surface.tall = true
+	tall_inventory.add_child(tall_inventory_surface)
+	tall_inventory.visible = false
 	status_label = _label(column, "", 12, T.TEXT_SECONDARY)
 	status_label.custom_minimum_size.y = 36
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -253,15 +282,20 @@ func load_stage(index: int) -> void:
 	_cancel_motions()
 	stage_index = clampi(index, 0, stages.size() - 1)
 	posts.clear()
+	post_types.clear()
 	for code: String in stage().get("fixed_posts", []):
-		posts.append(Optics.cell(code))
+		var fixed_index: int = Optics.cell(code)
+		posts.append(fixed_index)
+		post_types[str(fixed_index)] = "tall" if stage().get("tall", false) or stage().get("fixed_tall_posts", []).has(code) else "normal"
 	shutters = []
 	for slot: Variant in stage().get("fixed_shutters", []):
 		shutters.append(int(slot))
 	if stage().get("movable_shutter", false):
 		shutters = [0]
 	observation_index = 0
-	lights = stage()["observations"][0]["active_lights"].duplicate()
+	lights = stage().get("initial_lights", []).duplicate() if stage().get("free_light_selection", false) else stage()["observations"][0]["active_lights"].duplicate()
+	selected_post_type = "tall" if stage().get("tall", false) or (int(stage().get("normal_posts", 1)) == 0 and int(stage().get("tall_posts", 0)) > 0) else "normal"
+	drag_post_type = selected_post_type
 	stage_solved = false
 	hint_level = 0
 	hint_max_level = 0
@@ -296,6 +330,8 @@ func _cancel_motions() -> void:
 		control.modulate = Color.WHITE
 	if inventory != null:
 		inventory.modulate = Color.WHITE
+	if tall_inventory != null:
+		tall_inventory.modulate = Color.WHITE
 
 func reset_stage() -> void:
 	var previous: Dictionary = {"resets": resets, "elapsed": elapsed, "first": first_action, "actions": action_count, "hint": hint_max_level}
@@ -307,7 +343,7 @@ func reset_stage() -> void:
 	hint_max_level = previous["hint"]
 
 func _remember(kind: String) -> void:
-	history.append({"posts": posts.duplicate(), "shutters": shutters.duplicate(), "lights": lights.duplicate(), "observation": observation_index})
+	history.append({"posts": posts.duplicate(), "post_types": post_types.duplicate(), "shutters": shutters.duplicate(), "lights": lights.duplicate(), "observation": observation_index, "selected_post_type": selected_post_type})
 	if history.size() > 100:
 		history.pop_front()
 	if first_action.is_empty():
@@ -320,15 +356,28 @@ func undo_move() -> void:
 		return
 	var previous: Dictionary = history.pop_back()
 	posts = previous["posts"]
+	var restored_types: Dictionary = previous.get("post_types", {})
+	post_types = restored_types.duplicate()
 	shutters = previous["shutters"]
 	lights = previous["lights"]
 	observation_index = previous["observation"]
+	selected_post_type = str(previous.get("selected_post_type", "normal"))
 	_refresh()
 
 func tap_light(direction: String) -> void:
-	if stage_solved or (direction == "BOTTOM" and not cause_light):
+	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height):
 		return
-	if stage().has("active_light_count"):
+	if stage().get("free_light_selection", false):
+		if not stage().get("installed_lights", []).has(direction):
+			return
+		if not lights.has(direction) and stage().has("active_light_count") and lights.size() >= int(stage()["active_light_count"]):
+			return
+		_remember("Light")
+		if lights.has(direction):
+			lights.erase(direction)
+		else:
+			lights.append(direction)
+	elif stage().has("active_light_count"):
 		if not lights.has(direction):
 			return
 		_remember("Light")
@@ -370,6 +419,26 @@ func _note_fixed_post_touch() -> void:
 	action_count += 1
 	idle_seconds = 0
 
+func _post_type(index: int) -> String:
+	return str(post_types.get(str(index), "tall" if stage().get("tall", false) else "normal"))
+
+func _post_limit(kind: String) -> int:
+	if stage().has("normal_posts") or stage().has("tall_posts"):
+		return int(stage().get("tall_posts", 0) if kind == "tall" else stage().get("normal_posts", 0))
+	if stage().get("tall", false):
+		return int(stage()["posts"]) if kind == "tall" else 0
+	return int(stage()["posts"]) if kind == "normal" else 0
+
+func _post_count(kind: String) -> int:
+	var count: int = 0
+	for index: Variant in posts:
+		if _post_type(int(index)) == kind:
+			count += 1
+	return count
+
+func _can_add_post(kind: String) -> bool:
+	return posts.size() < int(stage()["posts"]) and _post_count(kind) < _post_limit(kind)
+
 func toggle_post(index: int) -> void:
 	if stage_solved or index < 0 or index >= 25:
 		return
@@ -377,13 +446,16 @@ func toggle_post(index: int) -> void:
 		_note_fixed_post_touch()
 		_click(240)
 		return
-	if not posts.has(index) and posts.size() >= int(stage()["posts"]):
-		return
 	_remember("Post")
 	if posts.has(index):
 		posts.erase(index)
+		post_types.erase(str(index))
 	else:
+		if not _can_add_post(selected_post_type):
+			history.pop_back()
+			return
 		posts.append(index)
+		post_types[str(index)] = selected_post_type
 	_click(620)
 	_refresh()
 
@@ -409,9 +481,28 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 		_note_fixed_post_touch()
 		_click(240)
 		return
+	var source: Control
+	if kind == "shutter":
+		source = rail_buttons[index]
+	else:
+		if index == -2:
+			if not _can_add_post("tall"):
+				return
+			selected_post_type = "tall"
+			drag_post_type = "tall"
+			source = tall_inventory
+		elif index == -1:
+			var inventory_type: String = "tall" if stage().get("tall", false) else "normal"
+			if not _can_add_post(inventory_type):
+				return
+			selected_post_type = inventory_type
+			drag_post_type = inventory_type
+			source = inventory
+		else:
+			drag_post_type = _post_type(index) if posts.has(index) else selected_post_type
+			source = sockets[index]
 	drag_kind = kind
 	drag_source = index
-	var source: Control = rail_buttons[index] if kind == "shutter" else (inventory if index < 0 else sockets[index])
 	drag_start = source.get_global_transform() * event.position
 	pointer_id = -1 if pressed else (event as InputEventScreenTouch).index
 	drag_moved = false
@@ -451,9 +542,9 @@ func _move_pointer(point: Vector2) -> void:
 		drag_preview = _nearest_socket(point)
 		for index: int in 25:
 			sockets[index].get_child(0).highlighted = index == drag_preview
-		if drag_moved and (posts.has(drag_source) or posts.size() < int(stage()["posts"])):
+		if drag_moved and (posts.has(drag_source) or _can_add_post(drag_post_type)):
 			drag_ghost.visible = true
-			drag_ghost.tall = stage().get("tall", false)
+			drag_ghost.tall = drag_post_type == "tall"
 			var center: Vector2 = point - Vector2(0, 18)
 			if drag_preview >= 0:
 				center = center.lerp(sockets[drag_preview].get_global_rect().get_center() - Vector2(0, 6), 0.38)
@@ -464,10 +555,13 @@ func _move_pointer(point: Vector2) -> void:
 			if shadow_motion != null and shadow_motion.is_valid():
 				shadow_motion.kill()
 			var preview: Array = posts.duplicate()
+			var types: Dictionary = post_types.duplicate()
 			if drag_preview >= 0 and (not posts.has(drag_preview) or drag_preview == drag_source):
 				preview.erase(drag_source)
+				if drag_source >= 0:
+					types.erase(str(drag_source))
 				preview.append(drag_preview)
-			var types: Dictionary = {}
+				types[str(drag_preview)] = drag_post_type
 			if stage().get("tall", false):
 				for index: Variant in preview:
 					types[str(index)] = "tall"
@@ -492,13 +586,21 @@ func _finish_pointer(point: Vector2) -> void:
 	pointer_id = -2
 	if kind == "post":
 		var destination: int = _nearest_socket(point)
-		if not drag_moved and destination == drag_source:
-			toggle_post(destination)
-		elif drag_moved and destination >= 0 and destination != drag_source and not posts.has(destination):
-			if posts.has(drag_source) or posts.size() < int(stage()["posts"]):
+		if not drag_moved:
+			if drag_source >= 0 and destination == drag_source:
+				toggle_post(destination)
+			elif drag_source < 0:
+				selected_post_type = drag_post_type
+				_refresh()
+		elif destination >= 0 and destination != drag_source and not posts.has(destination):
+			if posts.has(drag_source) or _can_add_post(drag_post_type):
 				_remember("Post")
-				posts.erase(drag_source)
+				if drag_source >= 0:
+					posts.erase(drag_source)
+					post_types.erase(str(drag_source))
 				posts.append(destination)
+				post_types[str(destination)] = drag_post_type
+				selected_post_type = drag_post_type
 				_click(620)
 				_refresh()
 	drag_preview = -1
@@ -510,7 +612,7 @@ func _finish_pointer(point: Vector2) -> void:
 func _refresh(animate: bool = true) -> void:
 	if shadow_motion != null and shadow_motion.is_valid():
 		shadow_motion.kill()
-	var types: Dictionary = {}
+	var types: Dictionary = post_types.duplicate()
 	if stage().get("tall", false):
 		for index: Variant in posts:
 			types[str(index)] = "tall"
@@ -532,12 +634,12 @@ func _refresh(animate: bool = true) -> void:
 			live_cells[index].value = float(current_shadow[index])
 		var surface: Control = sockets[index].get_child(0)
 		surface.occupied = posts.has(index)
-		surface.tall = stage().get("tall", false)
+		surface.tall = surface.occupied and str(types.get(str(index), "normal")) == "tall"
 		surface.fixed = stage().has("fixed_posts")
 	for direction: String in lamps:
 		var lamp: Button = lamps[direction]
-		var interactive: bool = stage().get("light_puzzle", false) and (direction != "BOTTOM" or cause_light)
-		if stage().has("active_light_count"):
+		var interactive: bool = stage().get("free_light_selection", false) or (stage().get("light_puzzle", false) and (direction != "BOTTOM" or cause_light or light_height))
+		if stage().has("active_light_count") and not stage().get("free_light_selection", false):
 			interactive = lights.has(direction)
 		if stage()["observations"].size() > 1:
 			var incidence: int = 0
@@ -548,11 +650,12 @@ func _refresh(animate: bool = true) -> void:
 		lamp.get_child(0).fixed = not interactive
 		lamp.get_child(0).active = lights.has(direction)
 		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
-		if cause_light:
-			# Invisible reserved mounts keep the board stationary across observations.
+		if cause_light or light_height:
+			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
-			lamp.modulate.a = 1.0 if stage()["installed_lights"].has(direction) else 0.0
-			lamp.mouse_filter = Control.MOUSE_FILTER_STOP if stage()["installed_lights"].has(direction) else Control.MOUSE_FILTER_IGNORE
+			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
+			lamp.modulate.a = 1.0 if installed.has(direction) else 0.0
+			lamp.mouse_filter = Control.MOUSE_FILTER_STOP if installed.has(direction) else Control.MOUSE_FILTER_IGNORE
 			lamp.get_child(0).glow = 1.0
 		if direction == "BOTTOM":
 			lamp.get_parent().visible = lamp.visible
@@ -563,13 +666,35 @@ func _refresh(animate: bool = true) -> void:
 		surface.active = lights.has("TOP")
 		surface.highlighted = drag_kind == "shutter" and shutters.has(slot)
 		rail_buttons[slot].disabled = not stage().get("movable_shutter", false) or stage_solved
-	inventory.get_child(0).occupied = posts.size() < int(stage()["posts"])
-	inventory.get_child(0).tall = stage().get("tall", false)
-	inventory.visible = not stage().has("fixed_posts")
-	inventory.get_parent().visible = inventory.visible
+	var has_fixed_posts: bool = stage().has("fixed_posts")
+	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts")
+	if mixed_inventory:
+		inventory.visible = not has_fixed_posts and _post_limit("normal") > 0
+		tall_inventory.visible = not has_fixed_posts and _post_limit("tall") > 0
+		inventory.get_child(0).occupied = _can_add_post("normal")
+		inventory.get_child(0).tall = false
+		inventory.get_child(0).highlighted = selected_post_type == "normal" and inventory.visible
+		tall_inventory.get_child(0).occupied = _can_add_post("tall")
+		tall_inventory.get_child(0).highlighted = selected_post_type == "tall" and tall_inventory.visible
+	else:
+		inventory.visible = not has_fixed_posts
+		tall_inventory.visible = false
+		inventory.get_child(0).occupied = posts.size() < int(stage()["posts"])
+		inventory.get_child(0).tall = stage().get("tall", false)
+		inventory.get_child(0).highlighted = false
+	inventory.get_parent().visible = inventory.visible or tall_inventory.visible
 	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
-	count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
-	observation_label.text = "OBSERVATION  " + str(stage()["observations"][observation_index]["id"])
+	if mixed_inventory:
+		count_label.text = "N %d/%d    T %d/%d    ·    %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), stage_index + 1, stages.size()]
+	else:
+		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
+	if light_height:
+		var light_denominator: String = "FIXED"
+		if stage().get("free_light_selection", false):
+			light_denominator = str(stage()["active_light_count"]) if stage().has("active_light_count") else "?"
+		observation_label.text = "LIGHTS  %d / %s" % [lights.size(), light_denominator]
+	else:
+		observation_label.text = "OBSERVATION  " + str(stage()["observations"][observation_index]["id"])
 	if cause_light:
 		observation_label.text += "    ACTIVE LIGHTS = %d / %d" % [lights.size(), stage()["installed_lights"].size()]
 		for index: int in observation_buttons.size():
@@ -581,7 +706,7 @@ func _refresh(animate: bool = true) -> void:
 	_check_solve()
 
 func _check_solve() -> void:
-	if stage_solved or not drag_kind.is_empty() or not Optics.solved(stage(), posts, shutters, lights):
+	if stage_solved or not drag_kind.is_empty() or not Optics.solved(stage(), posts, shutters, lights, post_types):
 		return
 	stage_solved = true
 	next_button.disabled = true
@@ -609,7 +734,12 @@ func next_stage() -> void:
 	if next_button.disabled:
 		return
 	if stage_index == stages.size() - 1:
-		status_label.text = "6 CAUSES KEPT. Thank you for exploring." if cause_light else "10 EXPERIMENTS KEPT. Thank you for exploring."
+		if cause_light:
+			status_label.text = "6 CAUSES COMPLETE. Thank you for exploring."
+		elif light_height:
+			status_label.text = "8 LIGHT & HEIGHT EXPERIMENTS COMPLETE."
+		else:
+			status_label.text = "10 EXPERIMENTS COMPLETE. Thank you for exploring."
 	else:
 		load_stage(stage_index + 1)
 
@@ -632,7 +762,7 @@ func whisper() -> void:
 	elif surface_name == "shutter_slot":
 		controls = rail_buttons
 	elif surface_name == "socket":
-		controls = [inventory]
+		controls = [inventory, tall_inventory]
 	for control: Control in controls:
 		if cause_light and control.modulate.a == 0.0:
 			continue
@@ -657,7 +787,7 @@ func _process(delta: float) -> void:
 		pulse.tween_property(lamp, "scale", Vector2.ONE, 0.35)
 	for surface: Control in target_cells + live_cells:
 		surface.queue_redraw()
-	for button: Button in sockets + rail_buttons + [inventory]:
+	for button: Button in sockets + rail_buttons + [inventory, tall_inventory]:
 		button.get_child(0).queue_redraw()
 	for button: Button in lamps.values():
 		button.get_child(0).queue_redraw()

@@ -24,6 +24,8 @@ on:
       - "tools/validate_grant_experiments.py"
       - "tools/validate_cause_light.py"
       - "tools/cause_light_smoke.gd"
+      - "tools/validate_light_height.py"
+      - "tools/light_height_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -53,6 +55,8 @@ on:
       - "tools/validate_grant_experiments.py"
       - "tools/validate_cause_light.py"
       - "tools/cause_light_smoke.gd"
+      - "tools/validate_light_height.py"
+      - "tools/light_height_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -134,3 +138,10 @@ jobs:
         run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/cause_light_smoke.gd
       - name: Boot Cause and Light at H03
         run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign cause-light --stage H03
+
+      - name: Exhaustively validate Light Combination and Tall Post experiments
+        run: python3 tools/validate_light_height.py
+      - name: Exercise all eight Light and Height experiments
+        run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/light_height_smoke.gd
+      - name: Boot Light and Height at TP04
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign light-height --stage TP04
