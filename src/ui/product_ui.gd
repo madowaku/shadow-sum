@@ -83,6 +83,9 @@ func _ready() -> void:
 	collection_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	collection.draw.connect(_draw_collection)
 	_build_help()
+	for button: Button in [game.back_button, game.reset_button, game.undo_button, game.hint_button, game.next_button]:
+		if button != null:
+			button.pressed.connect(_play_ui_sfx)
 	for index: int in game.post_buttons.size():
 		var button: Button = game.post_buttons[index]
 		button.name = "Socket" + String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
@@ -447,13 +450,19 @@ func _toggle_sound() -> void:
 	if muted:
 		for child: Node in game.get_children():
 			if child is AudioStreamPlayer:
-				child.queue_free()
+				(child as AudioStreamPlayer).stop()
 	_save_preferences()
+	_play_ui_sfx("switch", -4.0)
 
 func _toggle_language() -> void:
 	language_code = L.JA if language_code == L.EN else L.EN
 	reflow()
 	_save_preferences()
+	_play_ui_sfx("switch", -4.0)
+
+func _play_ui_sfx(kind: String = "ui") -> void:
+	if is_instance_valid(game) and game.audio_manager != null:
+		game.audio_manager.play_sfx(kind, -3.0)
 
 func _save_preferences() -> void:
 	var config: ConfigFile = ConfigFile.new()
@@ -471,12 +480,8 @@ func _load_preferences() -> void:
 	_refresh_sound()
 
 func _refresh_sound() -> void:
+	if is_instance_valid(game) and game.audio_manager != null:
+		game.audio_manager.set_muted(muted)
 	sound_button.text = "OFF" if muted else "SFX"
 	sound_button.tooltip_text = L.copy("sound_off", language_code) if muted else L.copy("sound_on", language_code)
 	sound_button.accessibility_name = L.copy("unmute", language_code) if muted else L.copy("mute", language_code)
-
-
-
-
-
-

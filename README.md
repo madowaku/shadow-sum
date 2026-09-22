@@ -30,6 +30,7 @@ The player is told the required number of posts and must place them so every vis
 - 18 handcrafted stages from Intro to Umbra
 - data-driven stage format
 - JP/EN UI toggle from the header or L; language and sound preferences persist
+- looping BGM with semantic glass/metal/UI SFX; mute control covers both layers
 
 ## Milestone 1
 

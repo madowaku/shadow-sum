@@ -6,10 +6,15 @@ var undo_history: Array = []
 var comfort_ready: bool = false
 const HISTORY_LIMIT: int = 100
 const ProductUI = preload("res://src/ui/product_ui.gd")
+const AudioManager = preload("res://src/ui/audio_manager.gd")
 var product_ui: Control
+var audio_manager: Node
 
 func _ready() -> void:
 	super._ready()
+	audio_manager = AudioManager.new()
+	audio_manager.name = "AudioManager"
+	add_child(audio_manager)
 	undo_button = Button.new()
 	undo_button.name = "UndoButton"
 	undo_button.text = "UNDO"
@@ -23,6 +28,20 @@ func _ready() -> void:
 	_refresh_undo()
 	product_ui = ProductUI.new()
 	add_child(product_ui)
+
+func _play_game_sfx(kind: String, volume_offset_db: float = 0.0) -> void:
+	if is_instance_valid(audio_manager):
+		audio_manager.play_sfx(kind, volume_offset_db)
+
+func _begin_post_drag(index: int, pointer_position: Vector2 = Vector2(-1.0, -1.0)) -> bool:
+	var started: bool = super._begin_post_drag(index, pointer_position)
+	if started:
+		_play_game_sfx("drag", -8.0)
+	return started
+
+func _play_solve_chime() -> void:
+	super._play_solve_chime()
+	_play_game_sfx("solve", -8.0)
 
 func _apply_responsive_layout() -> void:
 	super._apply_responsive_layout()
@@ -70,13 +89,18 @@ func _load_stage(index: int) -> void:
 
 func _toggle_post(r: int, c: int) -> void:
 	var before: Array = posts.duplicate(true)
+	var was_occupied: bool = bool(posts[r][c])
 	super._toggle_post(r, c)
 	_record_move(before)
+	if was_occupied != bool(posts[r][c]):
+		_play_game_sfx("release" if was_occupied else "place", -4.0)
 
 func _finish_post_drag(index: int) -> bool:
 	var before: Array = posts.duplicate(true)
 	var moved: bool = super._finish_post_drag(index)
 	_record_move(before)
+	if moved:
+		_play_game_sfx("place", -6.0)
 	return moved
 
 func _reset_stage() -> void:
