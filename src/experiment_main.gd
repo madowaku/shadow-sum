@@ -11,6 +11,7 @@ var light_height: bool = false
 var flat_plate: bool = false
 var grant14_v02: bool = false
 var grant20_v03: bool = false
+var grant36_v04: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
@@ -90,6 +91,11 @@ func _ready() -> void:
 		data_path = "res://data/grant20_v0_3.json"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_grant20_v0_3.json"
+	elif grant36_v04:
+		campaign_id = "grant36_v0_4"
+		data_path = "res://data/grant36_v0_4.json"
+		if progress_path == SAVE:
+			progress_path = "user://shadow_sum_grant36_v0_4.json"
 	stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
 	_build_ui()
 	_load_progress()
@@ -126,10 +132,10 @@ func _build_ui() -> void:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or grant14_v02 or grant20_v03 else 16)
+		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or grant14_v02 or grant20_v03 or grant36_v04 else 16)
 	add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 4 if cause_light or grant14_v02 or grant20_v03 else 8)
+	column.add_theme_constant_override("separation", 4 if cause_light or grant14_v02 or grant20_v03 or grant36_v04 else 8)
 	margin.add_child(column)
 	_label(column, "SHADOW SUM", 25, T.TEXT_PRIMARY)
 	var campaign_label: String = "G R A N T   /   E X P E R I M E N T S"
@@ -143,6 +149,8 @@ func _build_ui() -> void:
 		campaign_label = "G R A N T   1 4   /   v 0 . 2"
 	elif grant20_v03:
 		campaign_label = "G R A N T   2 0   /   v 0 . 3"
+	elif grant36_v04:
+		campaign_label = "G R A N T   3 6   /   v 0 . 4"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
 	title_label = _label(column, "", 15, T.GOLD)
 	count_label = _label(column, "", 12, T.TEXT_SECONDARY)
@@ -171,7 +179,7 @@ func _build_ui() -> void:
 		screen_column.add_child(grid)
 		for index: int in 25:
 			var holder: Control = Control.new()
-			holder.custom_minimum_size = Vector2(26, 26) if cause_light or grant14_v02 or grant20_v03 else Vector2(28, 28)
+			holder.custom_minimum_size = Vector2(26, 26) if cause_light or grant14_v02 or grant20_v03 or grant36_v04 else Vector2(28, 28)
 			grid.add_child(holder)
 			var surface: Control = Surface.new()
 			surface.kind = "shadow"
@@ -408,7 +416,7 @@ func undo_move() -> void:
 	_refresh()
 
 func tap_light(direction: String) -> void:
-	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate and not grant14_v02 and not grant20_v03):
+	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate and not grant14_v02 and not grant20_v03 and not grant36_v04):
 		return
 	if stage().get("free_light_selection", false):
 		if not stage().get("installed_lights", []).has(direction):
@@ -736,7 +744,9 @@ func _refresh(animate: bool = true) -> void:
 			types[str(index)] = "tall"
 	current_shadow = Optics.compute_shadow(posts, lights, shutters, types)
 	var near_shadow: Array[int] = Optics.compute_shadow(posts, lights, shutters)
-	var target: Dictionary = stage()["observations"][observation_index]["target"]
+	var observation: Dictionary = stage()["observations"][observation_index]
+	var target: Dictionary = observation["target"]
+	var hidden_cells: Array = observation.get("hidden_cells", [])
 	var motion: Tween = null
 	if animate:
 		motion = create_tween().set_parallel(true)
@@ -744,6 +754,8 @@ func _refresh(animate: bool = true) -> void:
 		motions.append(motion)
 	for index: int in 25:
 		var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
+		target_cells[index].unknown = hidden_cells.has(code)
+		target_cells[index].queue_redraw()
 		if animate:
 			motion.tween_property(target_cells[index], "value", float(target.get(code, 0)), 0.2)
 			motion.tween_property(live_cells[index], "value", float(current_shadow[index]), 0.18).set_delay(0.04 if current_shadow[index] > near_shadow[index] else 0.0)
@@ -769,7 +781,7 @@ func _refresh(animate: bool = true) -> void:
 		lamp.get_child(0).fixed = not interactive
 		lamp.get_child(0).active = lights.has(direction)
 		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
-		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03:
+		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v04:
 			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
 			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
@@ -817,7 +829,7 @@ func _refresh(animate: bool = true) -> void:
 		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
 	else:
 		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
-	if light_height or flat_plate or grant14_v02 or grant20_v03:
+	if light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v04:
 		var light_denominator: String = "FIXED"
 		if stage().get("free_light_selection", false):
 			light_denominator = str(stage()["active_light_count"]) if stage().has("active_light_count") else "?"
@@ -873,6 +885,8 @@ func next_stage() -> void:
 			status_label.text = "GRANT14 CALIBRATION COMPLETE."
 		elif grant20_v03:
 			status_label.text = "GRANT20 CALIBRATION COMPLETE."
+		elif grant36_v04:
+			status_label.text = "DEEP CALIBRATION COMPLETE."
 		else:
 			status_label.text = "10 EXPERIMENTS COMPLETE. Thank you for exploring."
 	else:
