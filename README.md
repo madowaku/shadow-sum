@@ -84,3 +84,8 @@ A curated 14-puzzle Grant candidate is available with `--campaign grant14-v02`. 
 ## Grant20 v0.3
 
 A 20-puzzle curated Grant candidate is available with `--campaign grant20-v03`. It keeps the GRANT14 discovery curve, adds six synthesis puzzles using only already-learned optics, and moves the integrated CALIBRATION finale to GR20. See [campaign structure, launch instructions, and validation](docs/GRANT20_V0_3.md).
+
+
+## Grant36 v0.4
+
+GR21-GR36 form a generated-and-curated deep puzzle section after the existing 20-stage discovery arc. The branch boots `grant36-v04` by default. Four late stages introduce FROST: target cells that are unobserved rather than zero. See [Deep16 generation and selection](docs/DEEP16_SELECTION.md).

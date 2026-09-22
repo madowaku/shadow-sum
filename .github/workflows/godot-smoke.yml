@@ -32,6 +32,9 @@ on:
       - "tools/grant14_v02_smoke.gd"
       - "tools/validate_grant20_v03.py"
       - "tools/grant20_v03_smoke.gd"
+      - "tools/generate_deep16.py"
+      - "tools/validate_grant36_v04.py"
+      - "tools/grant36_v04_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -69,6 +72,9 @@ on:
       - "tools/grant14_v02_smoke.gd"
       - "tools/validate_grant20_v03.py"
       - "tools/grant20_v03_smoke.gd"
+      - "tools/generate_deep16.py"
+      - "tools/validate_grant36_v04.py"
+      - "tools/grant36_v04_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -178,3 +184,12 @@ jobs:
         run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/grant20_v03_smoke.gd
       - name: Boot Grant20 final calibration
         run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign grant20-v03 --stage GR20
+
+      - name: Generate and verify the 160-candidate deep puzzle pool
+        run: python3 tools/generate_deep16.py
+      - name: Exhaustively validate Grant36 v0.4
+        run: python3 tools/validate_grant36_v04.py
+      - name: Exercise all 36 Grant36 v0.4 puzzles
+        run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/grant36_v04_smoke.gd
+      - name: Boot Grant36 final deep calibration
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign grant36-v04 --stage GR36
