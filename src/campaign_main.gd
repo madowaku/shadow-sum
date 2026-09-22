@@ -1,0 +1,41 @@
+extends Control
+
+# Explicit developer selector; ordinary startup remains Grant18.
+func _ready() -> void:
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.has("--dev-selector"):
+		_show_selector()
+		return
+	var selected: String = "grant18"
+	for argument: String in args:
+		if argument.begins_with("--campaign="):
+			selected = argument.trim_prefix("--campaign=")
+	var option: int = args.find("--campaign")
+	if option >= 0 and option + 1 < args.size():
+		selected = args[option + 1]
+	_launch(selected)
+
+func _launch(selected: String) -> void:
+	for child: Node in get_children():
+		remove_child(child)
+		child.queue_free()
+	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light"] else "res://scenes/experiments.tscn"
+	var campaign: Control = (load(path) as PackedScene).instantiate()
+	if selected == "cause-light":
+		campaign.cause_light = true
+	add_child(campaign)
+
+func _show_selector() -> void:
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(center)
+	var column: VBoxContainer = VBoxContainer.new()
+	center.add_child(column)
+	var labels: Array[String] = ["GRANT18", "G01–G10 EXPERIMENTS", "H01–H06 CAUSE & LIGHT"]
+	var campaigns: Array[String] = ["grant18", "experiments", "cause-light"]
+	for index: int in labels.size():
+		var button: Button = Button.new()
+		button.text = labels[index]
+		button.custom_minimum_size = Vector2(300, 52)
+		button.pressed.connect(_launch.bind(campaigns[index]))
+		column.add_child(button)

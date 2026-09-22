@@ -2,6 +2,19 @@ extends Control
 
 const NightTokens = preload("res://src/night_tokens.gd")
 
+const LIVE_TEXTURE_PATHS: Array[String] = [
+	"res://assets/materials/board/live_0.png",
+	"res://assets/materials/board/live_1.png",
+	"res://assets/materials/board/live_2.png",
+	"res://assets/materials/board/live_3.png",
+]
+const TARGET_TEXTURE_PATHS: Array[String] = [
+	"res://assets/materials/board/target_0.png",
+	"res://assets/materials/board/target_1.png",
+	"res://assets/materials/board/target_2.png",
+	"res://assets/materials/board/target_3.png",
+]
+
 var value := 0
 # Avoid Control.hidden (native signal); this is authored clue state.
 var clue_hidden: bool = false
@@ -11,7 +24,17 @@ var cell_seed := 0
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	live_material_textures = _load_material_textures(LIVE_TEXTURE_PATHS)
+	target_material_textures = _load_material_textures(TARGET_TEXTURE_PATHS)
 	queue_redraw()
+
+func _load_material_textures(paths: Array[String]) -> Array[Texture2D]:
+	var textures: Array[Texture2D] = []
+	for path: String in paths:
+		var texture: Texture2D = load(path) as Texture2D
+		if texture != null:
+			textures.append(texture)
+	return textures
 
 var motion_enabled: bool = false
 var immediate_updates: bool = true
@@ -33,6 +56,8 @@ var revealed: bool = false
 var initialized: bool = false
 var last_preview: bool = false
 var notation_owned: bool = false
+var live_material_textures: Array[Texture2D] = []
+var target_material_textures: Array[Texture2D] = []
 var notation_strength: float = 0.0:
 	set(next):
 		notation_strength = next
@@ -108,11 +133,23 @@ func _draw() -> void:
 		rim.set_border_width_all(1)
 		rim.set_corner_radius_all(NightTokens.RADIUS_CELL)
 		draw_style_box(rim, inner)
-	var tint := NightTokens.GLASS_TARGET_WARM if is_target else NightTokens.GLASS_LIVE_COOL
-	draw_rect(inner, tint)
+	# Shared density makes target and live directly comparable. Photography
+	# supplies a trace of grain, never a competing brightness value.
+	var level: float = clampf(display_level if motion_enabled else float(value), 0.0, 3.0)
+	var lower: int = mini(int(level), 2)
+	var shades: Array[Color] = [NightTokens.SHADOW_0, NightTokens.SHADOW_1, NightTokens.SHADOW_2, NightTokens.SHADOW_3]
+	var density: Color = shades[lower].lerp(shades[lower + 1], level - float(lower))
+	if clue_hidden:
+		density = density.lerp(NightTokens.SHADOW_UNKNOWN, fog_amount)
+	var glass_face: StyleBoxFlat = StyleBoxFlat.new()
+	glass_face.bg_color = density
+	glass_face.set_corner_radius_all(6)
+	draw_style_box(glass_face, inner)
+	var material_texture: Texture2D = _material_texture()
+	if material_texture != null:
+		var material_tint: Color = Color(1.0, 1.0, 1.0, 0.045)
+		draw_texture_rect(material_texture, inner, false, material_tint)
 	if motion_enabled:
-		var level: float = clampf(display_level, 0.0, 3.0)
-		var lower: int = mini(int(level), 2)
 		var alphas: Array[float] = [0.0, 0.035, 0.075, 0.120]
 		var ink_alpha: float = lerpf(alphas[lower], alphas[lower + 1], level - float(lower))
 		# Inset ink keeps the reflection at the glass surface stationary.
@@ -142,6 +179,14 @@ func _draw() -> void:
 		draw_line(Vector2(6.0, size.y * 0.38), Vector2(size.x - 7.0, size.y * 0.30), fog, 2.0, true)
 		draw_line(Vector2(5.0, size.y * 0.52), Vector2(size.x - 5.0, size.y * 0.48), Color(fog, fog.a * 0.85), 2.4, true)
 		draw_line(Vector2(7.0, size.y * 0.67), Vector2(size.x - 8.0, size.y * 0.61), Color(fog, fog.a * 0.65), 1.7, true)
+
+func _material_texture() -> Texture2D:
+	if clue_hidden:
+		return null
+	var textures: Array[Texture2D] = target_material_textures if is_target else live_material_textures
+	if value < 0 or value >= textures.size():
+		return null
+	return textures[value]
 
 func _grain_point(index: int) -> Vector2:
 	var x_seed := (cell_seed * 17 + index * 29 + (11 if is_target else 23)) % 97

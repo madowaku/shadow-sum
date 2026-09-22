@@ -17,9 +17,7 @@ func _ready() -> void:
 	night_body_font = NightTokens.body_font()
 	super._ready()
 	_apply_night_static_skin()
-	call_deferred("_apply_night_static_skin")
-
-
+	# The immediate pass is sufficient; a deferred full update would cancel a move.
 func _apply_responsive_layout() -> void:
 	super._apply_responsive_layout()
 	_apply_night_typography()

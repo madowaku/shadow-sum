@@ -20,6 +20,10 @@ on:
       - "tools/unknown_smoke.gd"
       - "tools/comfort_smoke.gd"
       - "tools/grant_campaign_smoke.gd"
+      - "tools/grant_experiment_smoke.gd"
+      - "tools/validate_grant_experiments.py"
+      - "tools/validate_cause_light.py"
+      - "tools/cause_light_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -45,6 +49,10 @@ on:
       - "tools/unknown_smoke.gd"
       - "tools/comfort_smoke.gd"
       - "tools/grant_campaign_smoke.gd"
+      - "tools/grant_experiment_smoke.gd"
+      - "tools/validate_grant_experiments.py"
+      - "tools/validate_cause_light.py"
+      - "tools/cause_light_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -112,3 +120,17 @@ jobs:
         run: bash tools/godot_checked.sh --headless --fixed-fps 120 --path . --script res://tools/grant_campaign_smoke.gd
       - name: Verify 405x900, 676x900 and 720x900 layouts
         run: SHADOW_SUM_PROGRESS_PATH=user://layout_smoke_progress.json bash tools/godot_checked.sh --headless --path . --script res://tools/layout_smoke.gd
+
+      - name: Exhaustively validate Grant experiments
+        run: python3 tools/validate_grant_experiments.py
+      - name: Exercise all 10 optical experiments
+        run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/grant_experiment_smoke.gd
+      - name: Boot experiments campaign
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign experiments
+
+      - name: Exhaustively validate Cause and Light exact candidate counts
+        run: python3 tools/validate_cause_light.py
+      - name: Exercise all six Cause and Light puzzles
+        run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/cause_light_smoke.gd
+      - name: Boot Cause and Light at H03
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign cause-light --stage H03

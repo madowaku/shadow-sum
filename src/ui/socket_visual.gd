@@ -1,11 +1,14 @@
 extends Control
 
 const NightTokens = preload("res://src/night_tokens.gd")
+const LIGHT_CORE_TEXTURE_PATH: String = "res://assets/materials/light/core.png"
 
 var occupied := false
 var active := false
+var light_core_texture: Texture2D
 
 func _ready() -> void:
+	light_core_texture = load(LIGHT_CORE_TEXTURE_PATH) as Texture2D
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	queue_redraw()
@@ -39,6 +42,12 @@ func _draw() -> void:
 	var center := size * 0.5
 	var bore_color := NightTokens.SOCKET_ACTIVE if active else NightTokens.LINE_BRIGHT.darkened(0.12)
 	draw_circle(center, 1.6 if size.x < 50.0 else 1.9, bore_color)
+
+	if light_core_texture != null and (occupied or active):
+		var core_size: float = minf(size.x, size.y) * 0.54
+		var core_rect: Rect2 = Rect2(center - Vector2.ONE * core_size * 0.5, Vector2.ONE * core_size)
+		var core_tint: Color = Color(1.0, 0.92, 0.72, 0.44) if occupied else Color(0.70, 0.95, 1.0, 0.58)
+		draw_texture_rect(light_core_texture, core_rect, false, core_tint)
 
 	if active:
 		draw_arc(center, minf(size.x, size.y) * 0.32, 0.0, TAU, 32, Color(NightTokens.CYAN, 0.22), 1.0, true)

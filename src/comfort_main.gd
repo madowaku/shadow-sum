@@ -5,6 +5,8 @@ var undo_button: Button
 var undo_history: Array = []
 var comfort_ready: bool = false
 const HISTORY_LIMIT: int = 100
+const ProductUI = preload("res://src/ui/product_ui.gd")
+var product_ui: Control
 
 func _ready() -> void:
 	super._ready()
@@ -19,6 +21,33 @@ func _ready() -> void:
 	comfort_ready = true
 	_apply_responsive_layout()
 	_refresh_undo()
+	product_ui = ProductUI.new()
+	add_child(product_ui)
+
+func _apply_responsive_layout() -> void:
+	super._apply_responsive_layout()
+	if is_instance_valid(product_ui) and product_ui.is_node_ready():
+		product_ui.reflow()
+
+func _apply_night_static_skin() -> void:
+	super._apply_night_static_skin()
+	if is_instance_valid(product_ui) and product_ui.is_node_ready():
+		product_ui.reflow()
+
+func _update_all() -> void:
+	super._update_all()
+	if is_instance_valid(product_ui) and product_ui.is_node_ready():
+		product_ui.refresh()
+
+func _refresh_progress_ui() -> void:
+	super._refresh_progress_ui()
+	if is_instance_valid(product_ui) and product_ui.is_node_ready():
+		product_ui.refresh()
+
+func _play_micro_tone(start_hz: float, end_hz: float, duration: float, amplitude: float, volume_db: float) -> void:
+	if is_instance_valid(product_ui) and product_ui.muted:
+		return
+	super._play_micro_tone(start_hz, end_hz, duration, amplitude, volume_db)
 
 func _apply_night_footer_skin() -> void:
 	super._apply_night_footer_skin()

@@ -1,12 +1,18 @@
 ; Engine configuration file.
-; SHADOW SUM v0.1 prototype
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
 [application]
 
 config/name="SHADOW SUM"
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/campaign.tscn"
+config/features=PackedStringArray("4.7")
 
 [display]
 
@@ -17,8 +23,11 @@ window/size/window_height_override=900
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[gui]
+
+theme/custom="res://theme/product_theme.tres"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/default_filters/use_nearest_mipmap_filter=false

@@ -1,0 +1,696 @@
+extends Control
+
+const Optics = preload("res://src/experiment_optics.gd")
+const Surface = preload("res://src/ui/experiment_surface.gd")
+const T = preload("res://src/night_tokens.gd")
+const DATA: String = "res://data/grant_experiments_v0_1.json"
+const SAVE: String = "user://shadow_sum_grant_experiments_v0_1.json"
+var progress_path: String = SAVE
+var cause_light: bool = false
+var campaign_id: String = "experiments_v0_1"
+var observation_buttons: Array[Button] = []
+var stages: Array = []
+var stage_index: int = 0
+var posts: Array = []
+var shutters: Array = []
+var lights: Array = []
+var observation_index: int = 0
+var completed: Dictionary = {}
+var stage_solved: bool = false
+var hint_level: int = 0
+var hint_max_level: int = 0
+var drag_ghost: Control
+var hint_records: Dictionary = {}
+var history: Array = []
+var motions: Array[Tween] = []
+var shadow_motion: Tween
+var title_label: Label
+var count_label: Label
+var observation_label: Label
+var status_label: Label
+var next_button: Button
+var back_button: Button
+var undo_button: Button
+var hint_button: Button
+var inventory: Button
+var rail: HBoxContainer
+var lamps: Dictionary = {}
+var rail_buttons: Array[Button] = []
+var sockets: Array[Button] = []
+var target_cells: Array[Control] = []
+var live_cells: Array[Control] = []
+var current_shadow: Array[int] = []
+var drag_kind: String = ""
+var drag_source: int = -1
+var drag_start: Vector2
+var drag_moved: bool = false
+var drag_preview: int = -1
+var pointer_id: int = -2
+var idle_seconds: float = 0.0
+var idle_pulsed: bool = false
+var elapsed: float = 0.0
+var first_action: String = ""
+var resets: int = 0
+var action_count: int = 0
+var sound_player: AudioStreamPlayer
+
+func _ready() -> void:
+	if cause_light:
+		campaign_id = "cause_light_v0_1"
+		if progress_path == SAVE:
+			progress_path = "user://shadow_sum_cause_light_v0_1.json"
+	stages = JSON.parse_string(FileAccess.get_file_as_string("res://data/cause_light_h01_h06_v0_1.json" if cause_light else DATA))
+	_build_ui()
+	_load_progress()
+	var resume: int = 0
+	while resume < stages.size() - 1 and completed.has(stages[resume]["id"]):
+		resume += 1
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	var stage_flag: int = args.find("--stage")
+	if stage_flag >= 0 and stage_flag + 1 < args.size():
+		for index: int in stages.size():
+			if stages[index]["id"] == args[stage_flag + 1]:
+				resume = index
+	load_stage(resume)
+
+func _build_ui() -> void:
+	var background: ColorRect = ColorRect.new()
+	background.color = T.BG_BASE
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(background)
+	theme = Theme.new()
+	theme.default_font_size = 12
+	for state: String in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var style: StyleBoxFlat = StyleBoxFlat.new()
+		style.bg_color = T.BG_BUTTON if state != "hover" else T.BG_PANEL
+		style.border_color = T.CYAN if state == "focus" else T.LINE_MEDIUM
+		style.set_border_width_all(2 if state == "focus" else 1)
+		style.set_corner_radius_all(8)
+		if state == "focus":
+			style.draw_center = false
+		theme.set_stylebox(state, "Button", style)
+	theme.set_color("font_color", "Button", T.TEXT_SECONDARY)
+	theme.set_color("font_disabled_color", "Button", T.TEXT_MUTED)
+	var margin: MarginContainer = MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for side: String in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 8 if cause_light else 16)
+	add_child(margin)
+	var column: VBoxContainer = VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4 if cause_light else 8)
+	margin.add_child(column)
+	_label(column, "SHADOW SUM", 25, T.TEXT_PRIMARY)
+	_label(column, "C A U S E   &   L I G H T" if cause_light else "G R A N T   /   E X P E R I M E N T S", 10, T.TEXT_MUTED)
+	title_label = _label(column, "", 15, T.GOLD)
+	count_label = _label(column, "", 12, T.TEXT_SECONDARY)
+	observation_label = _label(column, "", 11, T.TEXT_MUTED)
+	if cause_light:
+		var observations: HBoxContainer = HBoxContainer.new()
+		observations.alignment = BoxContainer.ALIGNMENT_CENTER
+		column.add_child(observations)
+		for index: int in 2:
+			var button: Button = _button("OBSERVATION " + String.chr(65 + index), Vector2(144, 44))
+			button.pressed.connect(select_observation.bind(index))
+			observations.add_child(button)
+			observation_buttons.append(button)
+	var screens: HBoxContainer = HBoxContainer.new()
+	screens.alignment = BoxContainer.ALIGNMENT_CENTER
+	screens.add_theme_constant_override("separation", 16)
+	column.add_child(screens)
+	for screen_name: String in ["TARGET", "CURRENT"]:
+		var screen_column: VBoxContainer = VBoxContainer.new()
+		screens.add_child(screen_column)
+		_label(screen_column, screen_name, 10, T.GOLD if screen_name == "TARGET" else T.CYAN)
+		var grid: GridContainer = GridContainer.new()
+		grid.columns = 5
+		grid.add_theme_constant_override("h_separation", 2)
+		grid.add_theme_constant_override("v_separation", 2)
+		screen_column.add_child(grid)
+		for index: int in 25:
+			var holder: Control = Control.new()
+			holder.custom_minimum_size = Vector2(26, 26) if cause_light else Vector2(28, 28)
+			grid.add_child(holder)
+			var surface: Control = Surface.new()
+			surface.kind = "shadow"
+			holder.add_child(surface)
+			if screen_name == "TARGET":
+				target_cells.append(surface)
+			else:
+				live_cells.append(surface)
+	var top_center: CenterContainer = CenterContainer.new()
+	column.add_child(top_center)
+	top_center.add_child(_lamp("TOP"))
+	var rail_center: CenterContainer = CenterContainer.new()
+	column.add_child(rail_center)
+	rail = HBoxContainer.new()
+	rail.add_theme_constant_override("separation", 2)
+	rail_center.add_child(rail)
+	for slot: int in 5:
+		var button: Button = _button("", Vector2(48, 44))
+		button.tooltip_text = "Shutter " + String.chr(65 + slot)
+		button.gui_input.connect(_start_pointer.bind("shutter", slot))
+		rail.add_child(button)
+		var surface: Control = Surface.new()
+		surface.kind = "shutter"
+		surface.slot_label = String.chr(65 + slot)
+		button.add_child(surface)
+		rail_buttons.append(button)
+	var table: HBoxContainer = HBoxContainer.new()
+	table.alignment = BoxContainer.ALIGNMENT_CENTER
+	table.add_theme_constant_override("separation", 8)
+	column.add_child(table)
+	table.add_child(_lamp("LEFT"))
+	var board: GridContainer = GridContainer.new()
+	board.columns = 5
+	board.add_theme_constant_override("h_separation", 2)
+	board.add_theme_constant_override("v_separation", 2)
+	table.add_child(board)
+	for index: int in 25:
+		var button: Button = _button("", Vector2(48, 48))
+		button.tooltip_text = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
+		button.gui_input.connect(_start_pointer.bind("post", index))
+		board.add_child(button)
+		button.add_child(Surface.new())
+		sockets.append(button)
+	table.add_child(_lamp("RIGHT"))
+	var bottom_center: CenterContainer = CenterContainer.new()
+	column.add_child(bottom_center)
+	bottom_center.add_child(_lamp("BOTTOM"))
+	_label(column, "PLACEMENT BOARD", 10, T.TEXT_MUTED)
+	var inventory_center: CenterContainer = CenterContainer.new()
+	column.add_child(inventory_center)
+	inventory = _button("", Vector2(64, 44))
+	inventory.tooltip_text = "Post inventory"
+	inventory.gui_input.connect(_start_pointer.bind("post", -1))
+	inventory_center.add_child(inventory)
+	var inventory_surface: Control = Surface.new()
+	inventory_surface.kind = "inventory"
+	inventory.add_child(inventory_surface)
+	status_label = _label(column, "", 12, T.TEXT_SECONDARY)
+	status_label.custom_minimum_size.y = 36
+	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var footer: HBoxContainer = HBoxContainer.new()
+	footer.alignment = BoxContainer.ALIGNMENT_CENTER
+	footer.add_theme_constant_override("separation", 6)
+	column.add_child(footer)
+	back_button = _button("BACK", Vector2(56, 44))
+	back_button.pressed.connect(func() -> void: load_stage(maxi(0, stage_index - 1)))
+	footer.add_child(back_button)
+	var reset_button: Button = _button("RESET", Vector2(56, 44))
+	reset_button.pressed.connect(reset_stage)
+	footer.add_child(reset_button)
+	undo_button = _button("UNDO", Vector2(56, 44))
+	undo_button.pressed.connect(undo_move)
+	footer.add_child(undo_button)
+	hint_button = _button("WHISPER", Vector2(76, 44))
+	hint_button.pressed.connect(whisper)
+	footer.add_child(hint_button)
+	next_button = _button("NEXT", Vector2(56, 44))
+	next_button.pressed.connect(next_stage)
+	footer.add_child(next_button)
+	drag_ghost = Surface.new()
+	drag_ghost.kind = "inventory"
+	drag_ghost.occupied = true
+	drag_ghost.visible = false
+	add_child(drag_ghost)
+	drag_ghost.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	drag_ghost.size = Vector2(48, 48)
+	sound_player = AudioStreamPlayer.new()
+	add_child(sound_player)
+
+func _label(parent: Node, text_value: String, font_size: int, color: Color) -> Label:
+	var label: Label = Label.new()
+	label.text = text_value
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	parent.add_child(label)
+	return label
+
+func _button(text_value: String, minimum: Vector2) -> Button:
+	var button: Button = Button.new()
+	button.text = text_value
+	button.custom_minimum_size = minimum
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return button
+
+func _lamp(direction: String) -> Button:
+	var button: Button = _button("", Vector2(44, 44))
+	button.tooltip_text = direction
+	button.pressed.connect(tap_light.bind(direction))
+	var surface: Control = Surface.new()
+	surface.kind = "lamp"
+	button.add_child(surface)
+	lamps[direction] = button
+	return button
+
+func stage() -> Dictionary:
+	return stages[stage_index]
+
+func load_stage(index: int) -> void:
+	_cancel_motions()
+	stage_index = clampi(index, 0, stages.size() - 1)
+	posts.clear()
+	for code: String in stage().get("fixed_posts", []):
+		posts.append(Optics.cell(code))
+	shutters = []
+	for slot: Variant in stage().get("fixed_shutters", []):
+		shutters.append(int(slot))
+	if stage().get("movable_shutter", false):
+		shutters = [0]
+	observation_index = 0
+	lights = stage()["observations"][0]["active_lights"].duplicate()
+	stage_solved = false
+	hint_level = 0
+	hint_max_level = 0
+	drag_ghost.visible = false
+	history.clear()
+	drag_kind = ""
+	pointer_id = -2
+	drag_preview = -1
+	idle_seconds = 0
+	idle_pulsed = false
+	elapsed = 0
+	first_action = ""
+	resets = 0
+	action_count = 0
+	status_label.text = ""
+	next_button.disabled = true
+	_refresh(false)
+	if lights.has("BOTTOM"):
+		var bottom: Control = lamps["BOTTOM"].get_child(0)
+		bottom.glow = 0
+		var ignition: Tween = create_tween()
+		motions.append(ignition)
+		ignition.tween_property(bottom, "glow", 1.0, 0.3)
+
+func _cancel_motions() -> void:
+	for motion: Tween in motions:
+		if motion.is_valid():
+			motion.kill()
+	motions.clear()
+	for control: Control in lamps.values() + sockets + rail_buttons + target_cells + live_cells:
+		control.scale = Vector2.ONE
+		control.modulate = Color.WHITE
+	if inventory != null:
+		inventory.modulate = Color.WHITE
+
+func reset_stage() -> void:
+	var previous: Dictionary = {"resets": resets, "elapsed": elapsed, "first": first_action, "actions": action_count, "hint": hint_max_level}
+	load_stage(stage_index)
+	resets = int(previous["resets"]) + 1
+	elapsed = float(previous["elapsed"])
+	first_action = previous["first"]
+	action_count = previous["actions"]
+	hint_max_level = previous["hint"]
+
+func _remember(kind: String) -> void:
+	history.append({"posts": posts.duplicate(), "shutters": shutters.duplicate(), "lights": lights.duplicate(), "observation": observation_index})
+	if history.size() > 100:
+		history.pop_front()
+	if first_action.is_empty():
+		first_action = kind
+	action_count += 1
+	idle_seconds = 0
+
+func undo_move() -> void:
+	if history.is_empty() or stage_solved:
+		return
+	var previous: Dictionary = history.pop_back()
+	posts = previous["posts"]
+	shutters = previous["shutters"]
+	lights = previous["lights"]
+	observation_index = previous["observation"]
+	_refresh()
+
+func tap_light(direction: String) -> void:
+	if stage_solved or (direction == "BOTTOM" and not cause_light):
+		return
+	if stage().has("active_light_count"):
+		if not lights.has(direction):
+			return
+		_remember("Light")
+		lights = stage()["installed_lights"].duplicate()
+		lights.erase(direction)
+	elif stage().get("light_puzzle", false):
+		_remember("Light")
+		var was_active: bool = lights.has(direction)
+		lights = ["TOP", "LEFT", "RIGHT"]
+		if was_active:
+			lights.erase(direction)
+	elif stage()["observations"].size() > 1:
+		var desired: int = -1
+		for index: int in stage()["observations"].size():
+			if stage()["observations"][index]["active_lights"].has(direction) and not lights.has(direction):
+				desired = index
+		if desired < 0:
+			return
+		_remember("Light")
+		observation_index = desired
+		lights = stage()["observations"][desired]["active_lights"].duplicate()
+	else:
+		return
+	_click(1100)
+	_refresh()
+
+func select_observation(index: int) -> void:
+	if stage_solved or index == observation_index or index < 0 or index >= stage()["observations"].size():
+		return
+	_remember("Light")
+	observation_index = index
+	lights = stage()["observations"][index]["active_lights"].duplicate()
+	_click(1100)
+	_refresh()
+
+func _note_fixed_post_touch() -> void:
+	if first_action.is_empty():
+		first_action = "Post"
+	action_count += 1
+	idle_seconds = 0
+
+func toggle_post(index: int) -> void:
+	if stage_solved or index < 0 or index >= 25:
+		return
+	if stage().has("fixed_posts"):
+		_note_fixed_post_touch()
+		_click(240)
+		return
+	if not posts.has(index) and posts.size() >= int(stage()["posts"]):
+		return
+	_remember("Post")
+	if posts.has(index):
+		posts.erase(index)
+	else:
+		posts.append(index)
+	_click(620)
+	_refresh()
+
+func move_shutter(slot: int, remember: bool = true) -> void:
+	if stage_solved or not stage().get("movable_shutter", false) or slot < 0 or slot > 4 or shutters == [slot]:
+		return
+	if remember:
+		_remember("Shutter")
+	shutters = [slot]
+	_click(850)
+	_refresh()
+
+func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
+	var pressed: bool = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
+	var touch: bool = event is InputEventScreenTouch and event.pressed
+	if (not pressed and not touch) or stage_solved or not drag_kind.is_empty():
+		return
+	if event is InputEventMouseButton and event.device == -1:
+		return
+	if kind == "shutter" and not stage().get("movable_shutter", false):
+		return
+	if kind == "post" and stage().has("fixed_posts"):
+		_note_fixed_post_touch()
+		_click(240)
+		return
+	drag_kind = kind
+	drag_source = index
+	var source: Control = rail_buttons[index] if kind == "shutter" else (inventory if index < 0 else sockets[index])
+	drag_start = source.get_global_transform() * event.position
+	pointer_id = -1 if pressed else (event as InputEventScreenTouch).index
+	drag_moved = false
+	if kind == "shutter":
+		_remember("Shutter")
+		move_shutter(index, false)
+	accept_event()
+
+func _input(event: InputEvent) -> void:
+	if drag_kind.is_empty():
+		return
+	var point: Vector2
+	var released: bool = false
+	if pointer_id == -1 and event is InputEventMouseMotion:
+		point = event.position
+	elif pointer_id == -1 and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		point = event.position
+		released = true
+	elif event is InputEventScreenDrag and event.index == pointer_id:
+		point = event.position
+	elif event is InputEventScreenTouch and event.index == pointer_id and not event.pressed:
+		point = event.position
+		released = true
+	else:
+		return
+	_move_pointer(point)
+	if released:
+		_finish_pointer(point)
+	get_viewport().set_input_as_handled()
+
+func _move_pointer(point: Vector2) -> void:
+	drag_moved = drag_moved or point.distance_to(drag_start) > 8
+	if drag_kind == "shutter":
+		var slot: int = clampi(roundi((point.x - rail_buttons[0].get_global_rect().get_center().x) / 50.0), 0, 4)
+		move_shutter(slot, false)
+	else:
+		drag_preview = _nearest_socket(point)
+		for index: int in 25:
+			sockets[index].get_child(0).highlighted = index == drag_preview
+		if drag_moved and (posts.has(drag_source) or posts.size() < int(stage()["posts"])):
+			drag_ghost.visible = true
+			drag_ghost.tall = stage().get("tall", false)
+			var center: Vector2 = point - Vector2(0, 18)
+			if drag_preview >= 0:
+				center = center.lerp(sockets[drag_preview].get_global_rect().get_center() - Vector2(0, 6), 0.38)
+			drag_ghost.global_position = center - drag_ghost.size * 0.5
+			drag_ghost.queue_redraw()
+			if drag_source >= 0:
+				sockets[drag_source].modulate.a = 0.42
+			if shadow_motion != null and shadow_motion.is_valid():
+				shadow_motion.kill()
+			var preview: Array = posts.duplicate()
+			if drag_preview >= 0 and (not posts.has(drag_preview) or drag_preview == drag_source):
+				preview.erase(drag_source)
+				preview.append(drag_preview)
+			var types: Dictionary = {}
+			if stage().get("tall", false):
+				for index: Variant in preview:
+					types[str(index)] = "tall"
+			var shadow: Array[int] = Optics.compute_shadow(preview, lights, shutters, types)
+			for index: int in 25:
+				live_cells[index].value = float(shadow[index])
+
+func _nearest_socket(point: Vector2) -> int:
+	var nearest: int = -1
+	var distance: float = 36.0
+	for index: int in 25:
+		var gap: float = sockets[index].get_global_rect().get_center().distance_to(point)
+		if gap < distance:
+			nearest = index
+			distance = gap
+	return nearest
+
+func _finish_pointer(point: Vector2) -> void:
+	var kind: String = drag_kind
+	drag_ghost.visible = false
+	drag_kind = ""
+	pointer_id = -2
+	if kind == "post":
+		var destination: int = _nearest_socket(point)
+		if not drag_moved and destination == drag_source:
+			toggle_post(destination)
+		elif drag_moved and destination >= 0 and destination != drag_source and not posts.has(destination):
+			if posts.has(drag_source) or posts.size() < int(stage()["posts"]):
+				_remember("Post")
+				posts.erase(drag_source)
+				posts.append(destination)
+				_click(620)
+				_refresh()
+	drag_preview = -1
+	for button: Button in sockets:
+		button.get_child(0).highlighted = false
+		button.modulate = Color.WHITE
+	_refresh()
+
+func _refresh(animate: bool = true) -> void:
+	if shadow_motion != null and shadow_motion.is_valid():
+		shadow_motion.kill()
+	var types: Dictionary = {}
+	if stage().get("tall", false):
+		for index: Variant in posts:
+			types[str(index)] = "tall"
+	current_shadow = Optics.compute_shadow(posts, lights, shutters, types)
+	var near_shadow: Array[int] = Optics.compute_shadow(posts, lights, shutters)
+	var target: Dictionary = stage()["observations"][observation_index]["target"]
+	var motion: Tween = null
+	if animate:
+		motion = create_tween().set_parallel(true)
+		shadow_motion = motion
+		motions.append(motion)
+	for index: int in 25:
+		var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
+		if animate:
+			motion.tween_property(target_cells[index], "value", float(target.get(code, 0)), 0.2)
+			motion.tween_property(live_cells[index], "value", float(current_shadow[index]), 0.18).set_delay(0.04 if current_shadow[index] > near_shadow[index] else 0.0)
+		else:
+			target_cells[index].value = float(target.get(code, 0))
+			live_cells[index].value = float(current_shadow[index])
+		var surface: Control = sockets[index].get_child(0)
+		surface.occupied = posts.has(index)
+		surface.tall = stage().get("tall", false)
+		surface.fixed = stage().has("fixed_posts")
+	for direction: String in lamps:
+		var lamp: Button = lamps[direction]
+		var interactive: bool = stage().get("light_puzzle", false) and (direction != "BOTTOM" or cause_light)
+		if stage().has("active_light_count"):
+			interactive = lights.has(direction)
+		if stage()["observations"].size() > 1:
+			var incidence: int = 0
+			for observation: Dictionary in stage()["observations"]:
+				incidence += int(observation["active_lights"].has(direction))
+			interactive = incidence > 0 and incidence < stage()["observations"].size()
+		lamp.disabled = not interactive or stage_solved
+		lamp.get_child(0).fixed = not interactive
+		lamp.get_child(0).active = lights.has(direction)
+		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
+		if cause_light:
+			# Invisible reserved mounts keep the board stationary across observations.
+			lamp.visible = true
+			lamp.modulate.a = 1.0 if stage()["installed_lights"].has(direction) else 0.0
+			lamp.mouse_filter = Control.MOUSE_FILTER_STOP if stage()["installed_lights"].has(direction) else Control.MOUSE_FILTER_IGNORE
+			lamp.get_child(0).glow = 1.0
+		if direction == "BOTTOM":
+			lamp.get_parent().visible = lamp.visible
+	rail.get_parent().visible = stage().has("fixed_shutters") or stage().get("movable_shutter", false)
+	for slot: int in 5:
+		var surface: Control = rail_buttons[slot].get_child(0)
+		surface.occupied = shutters.has(slot)
+		surface.active = lights.has("TOP")
+		surface.highlighted = drag_kind == "shutter" and shutters.has(slot)
+		rail_buttons[slot].disabled = not stage().get("movable_shutter", false) or stage_solved
+	inventory.get_child(0).occupied = posts.size() < int(stage()["posts"])
+	inventory.get_child(0).tall = stage().get("tall", false)
+	inventory.visible = not stage().has("fixed_posts")
+	inventory.get_parent().visible = inventory.visible
+	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
+	count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
+	observation_label.text = "OBSERVATION  " + str(stage()["observations"][observation_index]["id"])
+	if cause_light:
+		observation_label.text += "    ACTIVE LIGHTS = %d / %d" % [lights.size(), stage()["installed_lights"].size()]
+		for index: int in observation_buttons.size():
+			observation_buttons[index].get_parent().visible = stage()["observations"].size() > 1
+			observation_buttons[index].disabled = index == observation_index or stage_solved
+	back_button.disabled = stage_index == 0
+	undo_button.disabled = history.is_empty() or stage_solved
+	hint_button.disabled = stage_solved or hint_level >= 3
+	_check_solve()
+
+func _check_solve() -> void:
+	if stage_solved or not drag_kind.is_empty() or not Optics.solved(stage(), posts, shutters, lights):
+		return
+	stage_solved = true
+	next_button.disabled = true
+	undo_button.disabled = true
+	hint_button.disabled = true
+	var solve_motion: Tween = create_tween()
+	motions.append(solve_motion)
+	solve_motion.tween_interval(0.45)
+	solve_motion.tween_callback(func() -> void:
+		status_label.text = "LIGHT KEPT"
+		for surface: Control in live_cells:
+			var reveal: Tween = create_tween()
+			motions.append(reveal)
+			reveal.tween_property(surface, "modulate", Color(1.08, 1.05, 1.0), 0.2)
+			reveal.tween_property(surface, "modulate", Color.WHITE, 0.25)
+		completed[stage()["id"]] = true
+		hint_records[stage()["id"]] = {"hint": hint_max_level, "first_action": first_action, "solve_seconds": elapsed, "actions": action_count, "resets": resets}
+		_save_progress())
+	solve_motion.tween_interval(0.2)
+	solve_motion.tween_callback(_click.bind(440))
+	solve_motion.tween_interval(0.25)
+	solve_motion.tween_callback(func() -> void: next_button.disabled = false)
+
+func next_stage() -> void:
+	if next_button.disabled:
+		return
+	if stage_index == stages.size() - 1:
+		status_label.text = "6 CAUSES KEPT. Thank you for exploring." if cause_light else "10 EXPERIMENTS KEPT. Thank you for exploring."
+	else:
+		load_stage(stage_index + 1)
+
+func whisper() -> void:
+	if stage_solved or hint_level >= 3:
+		return
+	status_label.text = "WHISPER " + ["I", "II", "III"][hint_level] + "  ·  " + stage()["hints"][hint_level]
+	hint_level += 1
+	hint_max_level = maxi(hint_max_level, hint_level)
+	var surface_name: String = stage()["hint_surface"]
+	var controls: Array = []
+	if surface_name == "cause":
+		controls = lamps.values() + rail_buttons
+		if hint_level == 2:
+			controls = []
+			for code: String in stage()["hint_targets"]:
+				controls.append(target_cells[Optics.cell(code)])
+	if surface_name == "light" or surface_name == "observation":
+		controls = lamps.values()
+	elif surface_name == "shutter_slot":
+		controls = rail_buttons
+	elif surface_name == "socket":
+		controls = [inventory]
+	for control: Control in controls:
+		if cause_light and control.modulate.a == 0.0:
+			continue
+		var pulse: Tween = create_tween()
+		motions.append(pulse)
+		pulse.tween_property(control, "modulate", Color(1.25, 1.2, 1.08), 0.2)
+		pulse.tween_property(control, "modulate", Color.WHITE, 0.5)
+	hint_button.disabled = hint_level >= 3
+
+func _process(delta: float) -> void:
+	if stages.is_empty():
+		return
+	elapsed += delta
+	idle_seconds += delta
+	if stage()["id"] == "G02" and idle_seconds > 5 and not idle_pulsed and observation_index == 0 and not stage_solved:
+		idle_pulsed = true
+		var lamp: Button = lamps["LEFT"]
+		lamp.pivot_offset = lamp.size * 0.5
+		var pulse: Tween = create_tween()
+		motions.append(pulse)
+		pulse.tween_property(lamp, "scale", Vector2.ONE * 1.035, 0.35)
+		pulse.tween_property(lamp, "scale", Vector2.ONE, 0.35)
+	for surface: Control in target_cells + live_cells:
+		surface.queue_redraw()
+	for button: Button in sockets + rail_buttons + [inventory]:
+		button.get_child(0).queue_redraw()
+	for button: Button in lamps.values():
+		button.get_child(0).queue_redraw()
+	motions = motions.filter(func(motion: Tween) -> bool: return motion.is_valid())
+
+func _click(frequency: float) -> void:
+	var wave: AudioStreamWAV = AudioStreamWAV.new()
+	wave.format = AudioStreamWAV.FORMAT_16_BITS
+	wave.mix_rate = 22050
+	var bytes: PackedByteArray = PackedByteArray()
+	bytes.resize(1324)
+	for index: int in 662:
+		var envelope: float = pow(1.0 - float(index) / 662.0, 3.0)
+		bytes.encode_s16(index * 2, int(sin(TAU * frequency * float(index) / 22050.0) * envelope * 1600))
+	wave.data = bytes
+	sound_player.stream = wave
+	sound_player.play()
+
+func _load_progress() -> void:
+	if not FileAccess.file_exists(progress_path):
+		return
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(progress_path))
+	if parsed is Dictionary and parsed.get("campaign", "") == campaign_id:
+		for id: String in parsed.get("completed", {}):
+			for entry: Dictionary in stages:
+				if id == entry["id"]:
+					completed[id] = true
+		hint_records = parsed.get("playtest", {})
+
+func _save_progress() -> void:
+	var file: FileAccess = FileAccess.open(progress_path, FileAccess.WRITE)
+	if file != null:
+		file.store_string(JSON.stringify({"campaign": campaign_id, "completed": completed, "playtest": hint_records}, "\t"))
+
+func _exit_tree() -> void:
+	_cancel_motions()

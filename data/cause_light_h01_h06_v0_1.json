@@ -1,0 +1,316 @@
+[
+  {
+    "id": "H01",
+    "title": "TWO LIGHTS",
+    "posts": 2,
+    "movable_shutter": true,
+    "solution": [
+      "B2",
+      "C3"
+    ],
+    "solution_shutter": 2,
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "C2": 1,
+          "B3": 1,
+          "D3": 1
+        }
+      }
+    ],
+    "expected_candidates": [
+      1,
+      1
+    ],
+    "hints": [
+      "Count the sources before following the shadows.",
+      "Which directions can cast a shadow here?",
+      "A missing source and a blocked path leave different traces."
+    ],
+    "hint_surface": "light",
+    "installed_lights": [
+      "TOP",
+      "LEFT"
+    ]
+  },
+  {
+    "id": "H02",
+    "title": "FULL LIGHT",
+    "posts": 2,
+    "movable_shutter": true,
+    "solution": [
+      "B2",
+      "D4"
+    ],
+    "solution_shutter": 3,
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "A2": 1,
+          "C2": 1,
+          "B3": 1,
+          "D3": 1,
+          "C4": 1,
+          "E4": 1
+        }
+      }
+    ],
+    "expected_candidates": [
+      1,
+      1
+    ],
+    "hints": [
+      "More light leaves more traces.",
+      "Does the missing trace belong to a whole direction?",
+      "Compare that path with another column."
+    ],
+    "hint_surface": "light",
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ]
+  },
+  {
+    "id": "H03",
+    "title": "OFF OR BLOCKED",
+    "posts": 2,
+    "movable_shutter": true,
+    "solution": [
+      "B2",
+      "D4"
+    ],
+    "solution_shutter": 3,
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "C2": 1,
+          "B3": 1,
+          "D3": 1,
+          "E4": 1
+        }
+      }
+    ],
+    "expected_candidates": [
+      1,
+      1
+    ],
+    "hints": [
+      "Not every missing shadow has the same cause.",
+      "Is this light missing everywhere — or only in one column?",
+      "One absence belongs to the lamp. Another belongs to the path."
+    ],
+    "hint_surface": "cause",
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "light_puzzle": true,
+    "active_light_count": 3,
+    "solution_lights": [
+      "TOP",
+      "LEFT",
+      "BOTTOM"
+    ],
+    "hint_targets": [
+      "B3",
+      "D5"
+    ]
+  },
+  {
+    "id": "H04",
+    "title": "TWO WITNESSES",
+    "posts": 2,
+    "movable_shutter": true,
+    "solution": [
+      "B2",
+      "D4"
+    ],
+    "solution_shutter": 3,
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "C2": 1,
+          "B3": 1,
+          "E4": 1
+        }
+      },
+      {
+        "id": "B",
+        "active_lights": [
+          "TOP",
+          "RIGHT"
+        ],
+        "target": {
+          "A2": 1,
+          "B3": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_candidates": [
+      4,
+      5,
+      1
+    ],
+    "hints": [
+      "One witness may leave several possibilities.",
+      "Keep the objects. Change the light.",
+      "Which arrangement can explain both witnesses?"
+    ],
+    "hint_surface": "observation",
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ]
+  },
+  {
+    "id": "H05",
+    "title": "CHANGING SKY",
+    "posts": 2,
+    "movable_shutter": true,
+    "solution": [
+      "C1",
+      "A3"
+    ],
+    "solution_shutter": 0,
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "D1": 1,
+          "C2": 1,
+          "B3": 1
+        }
+      },
+      {
+        "id": "B",
+        "active_lights": [
+          "TOP",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "A2": 1,
+          "C2": 1
+        }
+      }
+    ],
+    "expected_candidates": [
+      2,
+      4,
+      1
+    ],
+    "hints": [
+      "Watch the sky as you change observations.",
+      "A new direction can reveal another side of the same object.",
+      "The objects stay. Their illumination changes."
+    ],
+    "hint_surface": "observation",
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ]
+  },
+  {
+    "id": "H06",
+    "title": "ONE PLATE, TWO GAPS",
+    "posts": 3,
+    "movable_shutter": true,
+    "solution": [
+      "B2",
+      "B4",
+      "D4"
+    ],
+    "solution_shutter": 1,
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "C2": 1,
+          "B3": 1,
+          "D3": 1,
+          "C4": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      },
+      {
+        "id": "B",
+        "active_lights": [
+          "TOP",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "A2": 1,
+          "B3": 1,
+          "D3": 1,
+          "A4": 1,
+          "C4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_candidates": [
+      2,
+      4,
+      1
+    ],
+    "hints": [
+      "Two missing shadows. Do they share something?",
+      "Follow their paths back toward the light.",
+      "One plate can interrupt more than one path."
+    ],
+    "hint_surface": "observation",
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "BOTTOM",
+      "RIGHT"
+    ]
+  }
+]

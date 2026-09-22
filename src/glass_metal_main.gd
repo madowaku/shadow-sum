@@ -16,8 +16,8 @@ var live_glass_visuals: Array = []
 func _ready() -> void:
 	super._ready()
 	_apply_glass_metal_skin()
-	call_deferred("_apply_glass_metal_skin")
-
+	# Material controls redraw themselves after layout; avoid a second full-state pass
+	# that cancels an in-flight density tween immediately after a move.
 func _apply_post_button_style(button: Button, occupied: bool) -> void:
 	# Keep all behavior from the established layer, then hand visual ownership
 	# from text/styleboxes to dedicated material Controls.

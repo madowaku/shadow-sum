@@ -29,6 +29,7 @@ The player is told the required number of posts and must place them so every vis
 - visible-clue validation
 - 18 handcrafted stages from Intro to Umbra
 - data-driven stage format
+- JP/EN UI toggle from the header or L; language and sound preferences persist
 
 ## Milestone 1
 
@@ -55,3 +56,11 @@ docs/
 ## Status
 
 Implementation sprint started September 2026.
+
+## Grant experiments
+
+An isolated G01-G10 optical campaign is available with `--campaign experiments`. See [play instructions and validation](docs/GRANT_EXPERIMENTS.md). Default startup remains Grant18.
+
+## Cause & Light
+
+H01-H06 is available with --campaign cause-light. See [play instructions and validation](docs/CAUSE_LIGHT.md). Use --dev-selector to choose among the three campaigns.

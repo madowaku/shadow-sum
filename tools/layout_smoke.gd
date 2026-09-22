@@ -94,7 +94,7 @@ func _check_control_bounds(node: Node, viewport_rect: Rect2, offenders: Array[St
 	for child in node.get_children():
 		if child is Control:
 			var control := child as Control
-			if control.visible:
+			if control.is_visible_in_tree():
 				var rect := control.get_global_rect()
 				var epsilon := 1.5
 				if rect.position.x < viewport_rect.position.x - epsilon or rect.position.y < viewport_rect.position.y - epsilon or rect.end.x > viewport_rect.end.x + epsilon or rect.end.y > viewport_rect.end.y + epsilon:

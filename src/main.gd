@@ -17,6 +17,7 @@ const COLOR_CYAN_HOT := Color("#b7fbff")
 const COLOR_GOLD := Color("#e6b86b")
 const COLOR_GOLD_HOT := Color("#ffe0a0")
 const COLOR_DANGER := Color("#ef8d82")
+const BACKDROP_TEXTURE_PATH: String = "res://assets/night_lake_backdrop_shared.png"
 
 var stages: Array = []
 var stage_index := 0
@@ -50,11 +51,30 @@ func _load_stages() -> void:
 		push_error("Stage JSON root must be an array.")
 
 func _build_ui() -> void:
-	var backdrop := ColorRect.new()
+	var backdrop: ColorRect = ColorRect.new()
 	backdrop.color = COLOR_BG
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
+
+	# The generated night lake is deliberately a quiet surface layer: the
+	# deterministic puzzle UI and its semantic contrast remain above it.
+	var backdrop_texture: TextureRect = TextureRect.new()
+	backdrop_texture.name = "NightLakeBackdrop"
+	backdrop_texture.texture = load(BACKDROP_TEXTURE_PATH) as Texture2D
+	backdrop_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop_texture.modulate = Color(0.84, 0.91, 0.94, 0.42)
+	backdrop_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop_texture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	backdrop.add_child(backdrop_texture)
+
+	var contrast_veil: ColorRect = ColorRect.new()
+	contrast_veil.name = "UiContrastVeil"
+	contrast_veil.color = Color(0.01, 0.022, 0.028, 0.38)
+	contrast_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	contrast_veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	backdrop.add_child(contrast_veil)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -335,10 +355,10 @@ func _update_all() -> void:
 		status_label.text = "Tap a socket. Watch where its three shadows go."
 		status_label.add_theme_color_override("font_color", COLOR_TEXT)
 	elif int(stage["id"]) == 1:
-		status_label.text = "Move the post until LIVE SHADOW matches TARGET."
+		status_label.text = "Move the post until your shadow matches the target."
 		status_label.add_theme_color_override("font_color", COLOR_TEXT)
 	elif placed == required:
-		status_label.text = "Close. Move a post and watch the light recompute."
+		status_label.text = "All posts placed. Move one to shape the shadow."
 		status_label.add_theme_color_override("font_color", COLOR_TEXT)
 	else:
 		status_label.text = "Shape the observed shadow."

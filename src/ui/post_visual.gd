@@ -1,12 +1,18 @@
 extends Control
 
 const NightTokens = preload("res://src/night_tokens.gd")
+const POST_TEXTURE_PATH: String = "res://assets/materials/post/occupied.png"
+const POST_GHOST_TEXTURE_PATH: String = "res://assets/materials/post/ghost.png"
 
+var post_texture: Texture2D
+var ghost_texture: Texture2D
 var occupied := false
 var ghost := false
 var settled := false
 
 func _ready() -> void:
+	post_texture = load(POST_TEXTURE_PATH) as Texture2D
+	ghost_texture = load(POST_GHOST_TEXTURE_PATH) as Texture2D
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	queue_redraw()
@@ -72,6 +78,16 @@ func _draw() -> void:
 	# A quiet contact shadow makes the part sit inside the socket rather than
 	# read as a state icon floating on a button.
 	_draw_ellipse(Vector2(center.x, bottom_y + 3.0 * scale_factor), Vector2(body_width * 0.62, top_height * 0.72), Color(0.0, 0.0, 0.0, 0.34))
+
+	var texture_to_draw: Texture2D = ghost_texture if ghost and ghost_texture != null else post_texture
+	if texture_to_draw != null:
+		var sprite_size: float = minf(size.x, size.y) * 0.76
+		var sprite_rect: Rect2 = Rect2(Vector2(-sprite_size * 0.5, -sprite_size * 0.5), Vector2(sprite_size, sprite_size))
+		var texture_tint: Color = Color(0.80, 0.96, 1.0, 0.84) if ghost else Color.WHITE
+		draw_texture_rect(texture_to_draw, sprite_rect, false, texture_tint)
+		if settled:
+			_draw_ellipse(Vector2(center.x, sprite_size * 0.40), Vector2(sprite_size * 0.30, sprite_size * 0.08), Color(NightTokens.GOLD_SOFT, 0.20), false, maxf(1.0, scale_factor))
+		return
 
 	var side_points := PackedVector2Array([
 		Vector2(left, top_y),
