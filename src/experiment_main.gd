@@ -685,7 +685,7 @@ func _refresh(animate: bool = true) -> void:
 	inventory.get_parent().visible = inventory.visible or tall_inventory.visible
 	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
 	if mixed_inventory:
-		count_label.text = "NORMAL %d / %d    TALL %d / %d    ·    %02d / %02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), stage_index + 1, stages.size()]
+		count_label.text = "N %d/%d    T %d/%d    ·    %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), stage_index + 1, stages.size()]
 	else:
 		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
 	if light_height:
