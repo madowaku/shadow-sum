@@ -1,0 +1,343 @@
+{
+  "validator": "independent GRANT20 reference rays + exhaustive combinations + carry-free 4-bit lanes",
+  "draft_sha256": "b69fa6f58569f77cbd6f654642f04fc0727229aa69a09413c45833604271a569",
+  "stages": [
+    {
+      "id": "GR21",
+      "states": 34500,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        1667,
+        336,
+        59,
+        18,
+        9,
+        5,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.045
+    },
+    {
+      "id": "GR22",
+      "states": 55200,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        1068,
+        108,
+        36,
+        12,
+        3,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.066
+    },
+    {
+      "id": "GR23",
+      "states": 46000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        1191,
+        112,
+        36,
+        14,
+        6,
+        3,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.052
+    },
+    {
+      "id": "GR24",
+      "states": 69000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        2331,
+        225,
+        92,
+        34,
+        9,
+        5,
+        3,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.082
+    },
+    {
+      "id": "GR25",
+      "states": 138000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        5159,
+        991,
+        147,
+        28,
+        14,
+        8,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.136
+    },
+    {
+      "id": "GR26",
+      "states": 138000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        4852,
+        146,
+        66,
+        25,
+        6,
+        3,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.148
+    },
+    {
+      "id": "GR27",
+      "states": 110400,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        1992,
+        569,
+        196,
+        38,
+        11,
+        3,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.13
+    },
+    {
+      "id": "GR28",
+      "states": 276000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        4815,
+        369,
+        60,
+        24,
+        14,
+        6,
+        3,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 0.258
+    },
+    {
+      "id": "GR29",
+      "states": 138000,
+      "solution_count": 1,
+      "visible_cells": 22,
+      "fog_cells": [
+        "B1",
+        "D2",
+        "A3"
+      ],
+      "witness_survivors": [
+        35996,
+        8403,
+        1697,
+        390,
+        92,
+        33,
+        10,
+        6,
+        3,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": true,
+      "seconds": 0.14
+    },
+    {
+      "id": "GR30",
+      "states": 69000,
+      "solution_count": 1,
+      "visible_cells": 22,
+      "fog_cells": [
+        "A1",
+        "C5",
+        "D5"
+      ],
+      "witness_survivors": [
+        2331,
+        144,
+        59,
+        8,
+        4,
+        3,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": true,
+      "seconds": 0.079
+    },
+    {
+      "id": "GR31",
+      "states": 41400,
+      "solution_count": 1,
+      "visible_cells": 20,
+      "fog_cells": [
+        "E1",
+        "A2",
+        "E3",
+        "E4",
+        "B5"
+      ],
+      "witness_survivors": [
+        8850,
+        1535,
+        284,
+        76,
+        16,
+        10,
+        5,
+        3,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": true,
+      "seconds": 0.053
+    },
+    {
+      "id": "GR32",
+      "states": 69000,
+      "solution_count": 1,
+      "visible_cells": 22,
+      "fog_cells": [
+        "E2",
+        "C3",
+        "B4"
+      ],
+      "witness_survivors": [
+        16964,
+        3156,
+        324,
+        150,
+        48,
+        20,
+        4,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": true,
+      "seconds": 0.081
+    },
+    {
+      "id": "GR33",
+      "states": 1518000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        96026,
+        6442,
+        2061,
+        700,
+        240,
+        81,
+        13,
+        6,
+        3,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 1.834
+    },
+    {
+      "id": "GR34",
+      "states": 1518000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        93570,
+        4722,
+        333,
+        81,
+        30,
+        13,
+        8,
+        4,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 1.997
+    },
+    {
+      "id": "GR35",
+      "states": 1214400,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        41440,
+        4026,
+        827,
+        124,
+        34,
+        19,
+        9,
+        5,
+        3,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 1.609
+    },
+    {
+      "id": "GR36",
+      "states": 6072000,
+      "solution_count": 1,
+      "visible_cells": 25,
+      "fog_cells": [],
+      "witness_survivors": [
+        316696,
+        25563,
+        2930,
+        326,
+        88,
+        32,
+        10,
+        3,
+        2,
+        1
+      ],
+      "fog_unknown_not_zero_exercised": false,
+      "seconds": 7.247
+    }
+  ],
+  "total_states": 11506900,
+  "total_seconds": 13.99,
+  "all_passed": true
+}

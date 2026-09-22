@@ -1,0 +1,53 @@
+{
+  "all_passed": true,
+  "reproducibility": {
+    "seed": 20260922,
+    "independent_pool_enumerations": 2,
+    "candidate_count": 192,
+    "all_candidate_records_equal": true,
+    "final_selection_recomputed_from_both_pools_equal": true,
+    "final_draft_equals_recomputed_selection": true,
+    "distinct_selected_reasoning_signatures": 16,
+    "timings_excluded_from_equality": true,
+    "candidate_semantic_sha256": "45850e90947a56832e941a5fffbf703c1e33d4c3feeafa0804924c01086c9c57",
+    "selection_semantic_sha256": "886ab3b0f46c0e148f109fad3661b63a0028683b3890ca01ab20a4f78c484613"
+  },
+  "checks": [
+    {
+      "command": "python tools/test_deep_calibration.py",
+      "exit_code": 0,
+      "tests": 8,
+      "seconds": 0.128
+    },
+    {
+      "command": "python tools/validate_grant20_v03.py",
+      "exit_code": 0,
+      "seconds": 2.133
+    },
+    {
+      "command": "python tools/validate_flat_plate.py",
+      "exit_code": 0,
+      "seconds": 0.07
+    },
+    {
+      "command": "python tools/validate_light_height.py",
+      "exit_code": 0,
+      "seconds": 0.118
+    },
+    {
+      "command": "python tools/validate_cause_light.py",
+      "exit_code": 0,
+      "seconds": 0.177
+    },
+    {
+      "command": "python tools/validate_grant36_draft.py",
+      "exit_code": 0,
+      "states": 11506900,
+      "stages": 16,
+      "seconds": 12.727
+    }
+  ],
+  "independent_validation_report": "generated/grant36_validation.json",
+  "draft_sha256": "b69fa6f58569f77cbd6f654642f04fc0727229aa69a09413c45833604271a569",
+  "runtime_integration": false
+}
