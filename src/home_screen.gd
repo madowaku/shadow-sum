@@ -239,7 +239,6 @@ func _hover_button(button: Button, entered: bool) -> void:
 	tween.tween_property(button, "scale", Vector2.ONE * (1.015 if entered else 1.0), 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _play_intro() -> void:
-	var title := get_node_or_null("MarginContainer") as Node
 	var actual_title := find_child("Title", true, false) as Label
 	var subtitle := find_child("Subtitle", true, false) as Label
 	var tween := create_tween()
@@ -254,12 +253,14 @@ func _play_intro() -> void:
 func _update_progress_readout() -> void:
 	var done := _completed_count()
 	var resume := _resume_index()
-	continue_button.disabled = stages.is_empty()
+	continue_button.disabled = stages.is_empty() or done <= 0
 	if stages.is_empty():
 		continue_info.text = "Campaign data unavailable"
 		return
 	if done <= 0:
 		continue_info.text = "No calibration record yet"
+	elif done >= stages.size():
+		continue_info.text = "Progress %02d / %02d   ·   Calibration complete" % [done, stages.size()]
 	else:
 		var stage_id := str(stages[resume]["id"])
 		continue_info.text = "Progress %02d / %02d   ·   Next %s" % [done, stages.size(), stage_id]
