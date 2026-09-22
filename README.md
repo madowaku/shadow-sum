@@ -80,3 +80,8 @@ P01-P04 is available with `--campaign flat-plate`. A Flat Plate casts only along
 ## Grant14 v0.2
 
 A curated 14-puzzle Grant candidate is available with `--campaign grant14-v02`. It keeps all reasoning on one optical board and progressively introduces light selection, shutter occlusion, Tall Posts, and Flat Plate orientation before a final integrated calibration puzzle. See [campaign design, launch instructions, and validation](docs/GRANT14_V0_2.md).
+
+
+## Grant20 v0.3
+
+A 20-puzzle curated Grant candidate is available with `--campaign grant20-v03`. It keeps the GRANT14 discovery curve, adds six synthesis puzzles using only already-learned optics, and moves the integrated CALIBRATION finale to GR20. See [campaign structure, launch instructions, and validation](docs/GRANT20_V0_3.md).
