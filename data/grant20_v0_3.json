@@ -1,0 +1,928 @@
+[
+  {
+    "id": "GR01",
+    "title": "FIRST SHADOW",
+    "posts": 1,
+    "solution": [
+      "C3"
+    ],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B3": 1,
+          "D3": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_states": 25,
+    "hints": [
+      "One Post explains all three marks.",
+      "Trace the three shadows back toward a common socket.",
+      "Their common origin is the center of the three directions."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR02",
+    "title": "OVERLAP",
+    "posts": 2,
+    "solution": [
+      "B2",
+      "C3"
+    ],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A2": 1,
+          "C2": 1,
+          "B3": 2,
+          "D3": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_states": 300,
+    "hints": [
+      "A darker mark can have more than one cause.",
+      "Ask which two Posts could both contribute to B3.",
+      "Use the single shadows to pin those Posts down."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR03",
+    "title": "EMPTY SPEAKS",
+    "posts": 3,
+    "solution": [
+      "C2",
+      "B3",
+      "D3"
+    ],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B2": 1,
+          "D2": 1,
+          "A3": 1,
+          "C3": 3,
+          "E3": 1,
+          "B4": 1,
+          "D4": 1
+        }
+      }
+    ],
+    "expected_states": 2300,
+    "hints": [
+      "Clear glass is evidence too.",
+      "A candidate Post must explain its shadows without creating new ones.",
+      "The dark center needs three causes, but the empty cells reject the wrong trio."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR04",
+    "title": "FOURTH LIGHT",
+    "posts": 1,
+    "solution": [
+      "C3"
+    ],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "C2": 1,
+          "B3": 1,
+          "D3": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_states": 25,
+    "hints": [
+      "Something changed below the board.",
+      "The Post has not learned a new rule. The apparatus has.",
+      "Read the fourth shadow back toward its source."
+    ],
+    "hint_surface": "light"
+  },
+  {
+    "id": "GR05",
+    "title": "TWO SOURCES",
+    "posts": 1,
+    "fixed_posts": [
+      "C3"
+    ],
+    "free_light_selection": true,
+    "active_light_count": 2,
+    "initial_lights": [],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "C3"
+    ],
+    "solution_lights": [
+      "TOP",
+      "LEFT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "D3": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_states": 6,
+    "hints": [
+      "The Post is already known. Reconstruct the illumination.",
+      "Each target mark points away from the source that made it.",
+      "Choose only the sources needed by these two directions."
+    ],
+    "hint_surface": "light"
+  },
+  {
+    "id": "GR06",
+    "title": "LIGHT & POST",
+    "posts": 2,
+    "free_light_selection": true,
+    "initial_lights": [],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "B3",
+      "D3"
+    ],
+    "solution_lights": [
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "A3": 1,
+          "C3": 2,
+          "E3": 1
+        }
+      }
+    ],
+    "expected_states": 4500,
+    "hints": [
+      "Position and illumination can be solved together.",
+      "The double mark in the middle needs two opposing causes.",
+      "The absence of vertical traces constrains the lamps as strongly as the Posts."
+    ],
+    "hint_surface": "light"
+  },
+  {
+    "id": "GR07",
+    "title": "SHUTTER",
+    "posts": 2,
+    "fixed_shutters": [
+      2
+    ],
+    "solution": [
+      "C3",
+      "E2"
+    ],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "D2": 1,
+          "B3": 1,
+          "D3": 1,
+          "E3": 1
+        }
+      }
+    ],
+    "expected_states": 300,
+    "hints": [
+      "The top lamp is lit, but one column behaves differently.",
+      "The metal plate interrupts only one light path.",
+      "Sideways shadows still survive in the blocked column."
+    ],
+    "hint_surface": "shutter_slot"
+  },
+  {
+    "id": "GR08",
+    "title": "TWO UNKNOWNS",
+    "posts": 2,
+    "movable_shutter": true,
+    "solution": [
+      "C2",
+      "D4"
+    ],
+    "solution_shutter": 2,
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B2": 1,
+          "D2": 1,
+          "C4": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 1500,
+    "hints": [
+      "First separate object evidence from path evidence.",
+      "The side shadows can locate Posts without using the shutter.",
+      "Then move the plate to explain the missing downward trace."
+    ],
+    "hint_surface": "shutter_slot"
+  },
+  {
+    "id": "GR09",
+    "title": "LONG REACH",
+    "posts": 1,
+    "tall": true,
+    "solution": [
+      "C3"
+    ],
+    "solution_tall": [
+      "C3"
+    ],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A3": 1,
+          "B3": 1,
+          "D3": 1,
+          "E3": 1,
+          "C4": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 25,
+    "hints": [
+      "The object itself has changed.",
+      "Follow one direction beyond the nearest cell.",
+      "Height is written into the reach of the shadow."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR10",
+    "title": "MIXED HEIGHTS",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "C3",
+      "D4"
+    ],
+    "solution_tall": [
+      "C3"
+    ],
+    "solution_post_types": {
+      "C3": "tall",
+      "D4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A3": 1,
+          "B3": 1,
+          "D3": 1,
+          "E3": 1,
+          "C4": 2,
+          "E4": 1,
+          "C5": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 600,
+    "hints": [
+      "Two objects can answer the same light differently.",
+      "Find which object must reach the far cells.",
+      "The darker C4 is shared by the tall and normal objects."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR11",
+    "title": "TURN THE PLATE",
+    "posts": 1,
+    "fixed_posts": [
+      "C3"
+    ],
+    "fixed_post_types": {
+      "C3": "plate_v"
+    },
+    "rotatable_plate": true,
+    "solution": [
+      "C3"
+    ],
+    "solution_post_types": {
+      "C3": "plate_h"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "C2": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_states": 2,
+    "hints": [
+      "The object can stay put and still change its answer.",
+      "Its broad face and thin edge do not meet light the same way.",
+      "Rotate the plate and watch which shadow axis survives."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR12",
+    "title": "CROSS SECTION",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "rotatable_plate": true,
+    "solution": [
+      "C3",
+      "D4"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "D4": "plate_v"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "C2": 1,
+          "B3": 1,
+          "D3": 1,
+          "C4": 2,
+          "E4": 1
+        }
+      }
+    ],
+    "expected_states": 1200,
+    "hints": [
+      "One object answers every direction. One answers only two.",
+      "The full cross locates the ordinary Post.",
+      "Use the remaining pair and the overlap to orient the plate."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR13",
+    "title": "EDGE OR DARK?",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "fixed_posts": [
+      "C3"
+    ],
+    "fixed_post_types": {
+      "C3": "normal"
+    },
+    "rotatable_plate": true,
+    "free_light_selection": true,
+    "active_light_count": 3,
+    "initial_lights": [],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "C3",
+      "C1"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "C1": "plate_v"
+    },
+    "solution_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "B1": 1,
+          "D1": 1,
+          "B3": 1,
+          "D3": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_states": 192,
+    "hints": [
+      "Not every missing shadow has the same cause.",
+      "Use the fixed round Post to identify which lamps are truly on.",
+      "Then let the plate's thin edge explain the remaining absence."
+    ],
+    "hint_surface": "cause"
+  },
+  {
+    "id": "GR14",
+    "title": "LONG & LIT",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "free_light_selection": true,
+    "active_light_count": 2,
+    "initial_lights": [],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "C3",
+      "B3"
+    ],
+    "solution_tall": [
+      "C3"
+    ],
+    "solution_post_types": {
+      "C3": "tall",
+      "B3": "normal"
+    },
+    "solution_lights": [
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "A3": 2,
+          "B3": 1,
+          "C3": 1,
+          "D3": 1,
+          "E3": 1
+        }
+      }
+    ],
+    "expected_states": 3600,
+    "hints": [
+      "The light pair and the object heights are entangled.",
+      "The two-cell reach must belong to the Tall Post.",
+      "Once height is fixed, the horizontal-only pattern tells you the two active lamps."
+    ],
+    "hint_surface": "cause"
+  },
+  {
+    "id": "GR15",
+    "title": "PLATE & SHUTTER",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "rotatable_plate": true,
+    "movable_shutter": true,
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "B3",
+      "D3"
+    ],
+    "solution_shutter": 1,
+    "solution_post_types": {
+      "B3": "normal",
+      "D3": "plate_v"
+    },
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B2": 1,
+          "A3": 1,
+          "C3": 2,
+          "E3": 1
+        }
+      }
+    ],
+    "expected_states": 6000,
+    "hints": [
+      "One absence belongs to the shutter. Another belongs to the plate's thin edge.",
+      "Use the ordinary Post to read the blocked TOP path.",
+      "Then orient the plate from the two sideways shadows."
+    ],
+    "hint_surface": "cause"
+  },
+  {
+    "id": "GR16",
+    "title": "TWO AXES",
+    "posts": 2,
+    "normal_posts": 0,
+    "tall_posts": 0,
+    "plate_posts": 2,
+    "rotatable_plate": true,
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "C2",
+      "C4"
+    ],
+    "solution_post_types": {
+      "C2": "plate_v",
+      "C4": "plate_h"
+    },
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B2": 1,
+          "D2": 1,
+          "C3": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 1200,
+    "hints": [
+      "Two plates can point along different axes.",
+      "Pair each opposite shadow pair with its own midpoint.",
+      "The upper plate answers sideways. The lower plate answers vertically."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR17",
+    "title": "REACH & EDGE",
+    "posts": 2,
+    "normal_posts": 0,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "rotatable_plate": true,
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "C2",
+      "C4"
+    ],
+    "solution_tall": [
+      "C2"
+    ],
+    "solution_post_types": {
+      "C2": "tall",
+      "C4": "plate_h"
+    },
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "C1": 1,
+          "A2": 1,
+          "B2": 1,
+          "D2": 1,
+          "E2": 1,
+          "C3": 2,
+          "C4": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 1200,
+    "hints": [
+      "Long reach and directional reach are different signatures.",
+      "The long horizontal span belongs to the Tall Post.",
+      "The remaining vertical pair identifies the plate and its orientation."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR18",
+    "title": "LIGHT THROUGH A GAP",
+    "posts": 2,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "movable_shutter": true,
+    "free_light_selection": true,
+    "active_light_count": 3,
+    "initial_lights": [],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "B3",
+      "D3"
+    ],
+    "solution_shutter": 1,
+    "solution_post_types": {
+      "B3": "normal",
+      "D3": "normal"
+    },
+    "solution_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "A3": 1,
+          "C3": 2,
+          "E3": 1,
+          "D4": 1
+        }
+      }
+    ],
+    "expected_states": 6000,
+    "hints": [
+      "Global darkness and local blockage leave different fingerprints.",
+      "The whole board tells you which one of four lamps is off.",
+      "Then use the missing TOP shadow from one column to seat the shutter."
+    ],
+    "hint_surface": "cause"
+  },
+  {
+    "id": "GR19",
+    "title": "THREE MATERIALS",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "rotatable_plate": true,
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "B3",
+      "C4",
+      "C3"
+    ],
+    "solution_tall": [
+      "C4"
+    ],
+    "solution_post_types": {
+      "B3": "normal",
+      "C4": "tall",
+      "C3": "plate_h"
+    },
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B2": 1,
+          "C2": 2,
+          "A3": 1,
+          "C3": 2,
+          "A4": 1,
+          "B4": 2,
+          "C4": 1,
+          "D4": 1,
+          "E4": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "hints": [
+      "Three materials leave three different kinds of evidence.",
+      "Find the two-cell reach first, then the full one-cell cross.",
+      "What remains must be explained by the plate's allowed axis."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "GR20",
+    "title": "CALIBRATION",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "rotatable_plate": true,
+    "movable_shutter": true,
+    "free_light_selection": true,
+    "active_light_count": 3,
+    "initial_lights": [],
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "B2",
+      "C1",
+      "C4"
+    ],
+    "solution_shutter": 1,
+    "solution_post_types": {
+      "B2": "normal",
+      "C1": "tall",
+      "C4": "plate_v"
+    },
+    "solution_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "A1": 1,
+          "B1": 1,
+          "D1": 1,
+          "E1": 1,
+          "A2": 1,
+          "C2": 2,
+          "C3": 1,
+          "B4": 1,
+          "D4": 1
+        }
+      }
+    ],
+    "expected_states": 552000,
+    "hints": [
+      "Nothing here is new. Separate the causes you already know.",
+      "Reach identifies height. Local absence identifies the shutter. Directional absence identifies the plate.",
+      "Use those object clues to finish the three-light calibration."
+    ],
+    "hint_surface": "cause"
+  }
+]
