@@ -21,6 +21,10 @@ func _launch(selected: String) -> void:
 		child.queue_free()
 	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03"] else "res://scenes/experiments.tscn"
 	var campaign: Control = (load(path) as PackedScene).instantiate()
+	var requested_stage_index: int = -1
+	if get_tree().root.has_meta("shadow_sum_start_stage"):
+		requested_stage_index = int(get_tree().root.get_meta("shadow_sum_start_stage"))
+		get_tree().root.remove_meta("shadow_sum_start_stage")
 	if selected == "cause-light":
 		campaign.cause_light = true
 	elif selected == "light-height":
@@ -31,6 +35,8 @@ func _launch(selected: String) -> void:
 		campaign.grant14_v02 = true
 	elif selected == "grant20-v03":
 		campaign.grant20_v03 = true
+		if requested_stage_index >= 0:
+			campaign.set("requested_stage_index", requested_stage_index)
 	add_child(campaign)
 
 func _show_selector() -> void:
