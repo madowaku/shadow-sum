@@ -718,7 +718,7 @@ func _refresh(animate: bool = true) -> void:
 		lamp.get_child(0).fixed = not interactive
 		lamp.get_child(0).active = lights.has(direction)
 		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
-		if cause_light or light_height:
+		if cause_light or light_height or flat_plate:
 			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
 			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
