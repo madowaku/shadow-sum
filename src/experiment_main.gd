@@ -744,9 +744,9 @@ func _refresh(animate: bool = true) -> void:
 			types[str(index)] = "tall"
 	current_shadow = Optics.compute_shadow(posts, lights, shutters, types)
 	var near_shadow: Array[int] = Optics.compute_shadow(posts, lights, shutters)
-	var observation: Dictionary = stage()["observations"][observation_index]
-	var target: Dictionary = observation["target"]
-	var hidden_cells: Array = observation.get("hidden_cells", [])
+	var current_observation: Dictionary = stage()["observations"][observation_index]
+	var target: Dictionary = current_observation["target"]
+	var hidden_cells: Array = current_observation.get("hidden_cells", [])
 	var motion: Tween = null
 	if animate:
 		motion = create_tween().set_parallel(true)
