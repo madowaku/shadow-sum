@@ -6,6 +6,7 @@ var kind: String = "socket"
 var value: float = 0.0
 var occupied: bool = false
 var tall: bool = false
+var post_type: String = "normal"
 var fixed: bool = false
 var highlighted: bool = false
 var active: bool = false
@@ -27,14 +28,24 @@ func _draw() -> void:
 		draw_circle(center, minf(size.x, size.y) * 0.32, T.SOCKET_INNER)
 		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else T.SOCKET_RIM, 1.5, true)
 		if occupied:
-			var height: float = 30.0 if tall else 17.0
-			var top: Vector2 = center - Vector2(0, height * 0.5)
-			draw_rect(Rect2(top - Vector2(9, 0), Vector2(18, height)), T.METAL_SIDE)
-			draw_line(top + Vector2(-8, 0), top + Vector2(-8, height), T.METAL_RIM, 1.0)
-			draw_set_transform(top, 0, Vector2(1, 0.38))
-			draw_circle(Vector2.ZERO, 9, T.METAL_RIM)
-			draw_circle(Vector2.ZERO, 7, T.METAL_TOP)
-			draw_set_transform(Vector2.ZERO)
+			if post_type.begins_with("plate_"):
+				var horizontal: bool = post_type == "plate_h"
+				var plate_size: Vector2 = Vector2(30, 7) if horizontal else Vector2(7, 30)
+				var plate_rect: Rect2 = Rect2(center - plate_size * 0.5, plate_size)
+				draw_style_box(_style(T.METAL_SIDE_DARK, T.METAL_RIM, 2), plate_rect)
+				if horizontal:
+					draw_line(Vector2(plate_rect.position.x + 4, center.y - 1), Vector2(plate_rect.end.x - 4, center.y - 1), T.METAL_TOP, 1.0)
+				else:
+					draw_line(Vector2(center.x - 1, plate_rect.position.y + 4), Vector2(center.x - 1, plate_rect.end.y - 4), T.METAL_TOP, 1.0)
+			else:
+				var height: float = 30.0 if tall else 17.0
+				var top: Vector2 = center - Vector2(0, height * 0.5)
+				draw_rect(Rect2(top - Vector2(9, 0), Vector2(18, height)), T.METAL_SIDE)
+				draw_line(top + Vector2(-8, 0), top + Vector2(-8, height), T.METAL_RIM, 1.0)
+				draw_set_transform(top, 0, Vector2(1, 0.38))
+				draw_circle(Vector2.ZERO, 9, T.METAL_RIM)
+				draw_circle(Vector2.ZERO, 7, T.METAL_TOP)
+				draw_set_transform(Vector2.ZERO)
 			if fixed:
 				for sign_value: int in [-1, 1]:
 					draw_circle(center + Vector2(sign_value * 15, 10), 2, T.METAL_RIM)

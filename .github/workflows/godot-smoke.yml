@@ -26,6 +26,8 @@ on:
       - "tools/cause_light_smoke.gd"
       - "tools/validate_light_height.py"
       - "tools/light_height_smoke.gd"
+      - "tools/validate_flat_plate.py"
+      - "tools/flat_plate_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -57,6 +59,8 @@ on:
       - "tools/cause_light_smoke.gd"
       - "tools/validate_light_height.py"
       - "tools/light_height_smoke.gd"
+      - "tools/validate_flat_plate.py"
+      - "tools/flat_plate_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -145,3 +149,10 @@ jobs:
         run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/light_height_smoke.gd
       - name: Boot Light and Height at TP04
         run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign light-height --stage TP04
+
+      - name: Exhaustively validate Flat Plate experiments
+        run: python3 tools/validate_flat_plate.py
+      - name: Exercise all four Flat Plate experiments
+        run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/flat_plate_smoke.gd
+      - name: Boot Flat Plate at P04
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign flat-plate --stage P04
