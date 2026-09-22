@@ -37,11 +37,6 @@ func _draw() -> void:
 
 	_draw_optical_table(w, h)
 
-	var top_fade := Gradient.new()
-	top_fade.colors = PackedColorArray([Color(0.02, 0.03, 0.04, 0.0), Color(0.02, 0.03, 0.04, 0.78)])
-	var top_tex := GradientTexture1D.new()
-	top_tex.gradient = top_fade
-
 	draw_rect(Rect2(0, 0, w, h), Color(0.01, 0.015, 0.02, 0.12))
 	draw_rect(Rect2(0, h * 0.42, w, h * 0.58), Color(0.0, 0.0, 0.0, 0.28))
 
