@@ -8,6 +8,7 @@ const SAVE: String = "user://shadow_sum_grant_experiments_v0_1.json"
 var progress_path: String = SAVE
 var cause_light: bool = false
 var light_height: bool = false
+var flat_plate: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
@@ -36,6 +37,7 @@ var undo_button: Button
 var hint_button: Button
 var inventory: Button
 var tall_inventory: Button
+var plate_inventory: Button
 var rail: HBoxContainer
 var lamps: Dictionary = {}
 var rail_buttons: Array[Button] = []
@@ -71,6 +73,11 @@ func _ready() -> void:
 		data_path = "res://data/light_height_lc01_tp04_v0_1.json"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_light_height_v0_1.json"
+	elif flat_plate:
+		campaign_id = "flat_plate_v0_1"
+		data_path = "res://data/flat_plate_p01_p04_v0_1.json"
+		if progress_path == SAVE:
+			progress_path = "user://shadow_sum_flat_plate_v0_1.json"
 	stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
 	_build_ui()
 	_load_progress()
@@ -118,6 +125,8 @@ func _build_ui() -> void:
 		campaign_label = "C A U S E   &   L I G H T"
 	elif light_height:
 		campaign_label = "L I G H T   &   H E I G H T"
+	elif flat_plate:
+		campaign_label = "F L A T   P L A T E"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
 	title_label = _label(column, "", 15, T.GOLD)
 	count_label = _label(column, "", 12, T.TEXT_SECONDARY)
@@ -216,6 +225,15 @@ func _build_ui() -> void:
 	tall_inventory_surface.tall = true
 	tall_inventory.add_child(tall_inventory_surface)
 	tall_inventory.visible = false
+	plate_inventory = _button("", Vector2(64, 44))
+	plate_inventory.tooltip_text = "Flat Plate inventory"
+	plate_inventory.gui_input.connect(_start_pointer.bind("post", -3))
+	inventory_row.add_child(plate_inventory)
+	var plate_inventory_surface: Control = Surface.new()
+	plate_inventory_surface.kind = "inventory"
+	plate_inventory_surface.post_type = "plate_v"
+	plate_inventory.add_child(plate_inventory_surface)
+	plate_inventory.visible = false
 	status_label = _label(column, "", 12, T.TEXT_SECONDARY)
 	status_label.custom_minimum_size.y = 36
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -286,7 +304,10 @@ func load_stage(index: int) -> void:
 	for code: String in stage().get("fixed_posts", []):
 		var fixed_index: int = Optics.cell(code)
 		posts.append(fixed_index)
-		post_types[str(fixed_index)] = "tall" if stage().get("tall", false) or stage().get("fixed_tall_posts", []).has(code) else "normal"
+		var fixed_type: String = str(stage().get("fixed_post_types", {}).get(code, "normal"))
+		if stage().get("tall", false) or stage().get("fixed_tall_posts", []).has(code):
+			fixed_type = "tall"
+		post_types[str(fixed_index)] = fixed_type
 	shutters = []
 	for slot: Variant in stage().get("fixed_shutters", []):
 		shutters.append(int(slot))
@@ -294,7 +315,11 @@ func load_stage(index: int) -> void:
 		shutters = [0]
 	observation_index = 0
 	lights = stage().get("initial_lights", []).duplicate() if stage().get("free_light_selection", false) else stage()["observations"][0]["active_lights"].duplicate()
-	selected_post_type = "tall" if stage().get("tall", false) or (int(stage().get("normal_posts", 1)) == 0 and int(stage().get("tall_posts", 0)) > 0) else "normal"
+	selected_post_type = "normal"
+	if stage().get("tall", false) or (int(stage().get("normal_posts", 1)) == 0 and int(stage().get("tall_posts", 0)) > 0):
+		selected_post_type = "tall"
+	elif int(stage().get("normal_posts", 0)) == 0 and int(stage().get("tall_posts", 0)) == 0 and int(stage().get("plate_posts", 0)) > 0:
+		selected_post_type = "plate_v"
 	drag_post_type = selected_post_type
 	stage_solved = false
 	hint_level = 0
@@ -332,6 +357,8 @@ func _cancel_motions() -> void:
 		inventory.modulate = Color.WHITE
 	if tall_inventory != null:
 		tall_inventory.modulate = Color.WHITE
+	if plate_inventory != null:
+		plate_inventory.modulate = Color.WHITE
 
 func reset_stage() -> void:
 	var previous: Dictionary = {"resets": resets, "elapsed": elapsed, "first": first_action, "actions": action_count, "hint": hint_max_level}
@@ -422,29 +449,55 @@ func _note_fixed_post_touch() -> void:
 func _post_type(index: int) -> String:
 	return str(post_types.get(str(index), "tall" if stage().get("tall", false) else "normal"))
 
+func _post_category(kind: String) -> String:
+	return "plate" if kind.begins_with("plate_") else kind
+
 func _post_limit(kind: String) -> int:
-	if stage().has("normal_posts") or stage().has("tall_posts"):
-		return int(stage().get("tall_posts", 0) if kind == "tall" else stage().get("normal_posts", 0))
+	var category: String = _post_category(kind)
+	if stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts"):
+		if category == "tall":
+			return int(stage().get("tall_posts", 0))
+		if category == "plate":
+			return int(stage().get("plate_posts", 0))
+		return int(stage().get("normal_posts", 0))
 	if stage().get("tall", false):
-		return int(stage()["posts"]) if kind == "tall" else 0
-	return int(stage()["posts"]) if kind == "normal" else 0
+		return int(stage()["posts"]) if category == "tall" else 0
+	return int(stage()["posts"]) if category == "normal" else 0
 
 func _post_count(kind: String) -> int:
+	var category: String = _post_category(kind)
 	var count: int = 0
 	for index: Variant in posts:
-		if _post_type(int(index)) == kind:
+		if _post_category(_post_type(int(index))) == category:
 			count += 1
 	return count
 
 func _can_add_post(kind: String) -> bool:
 	return posts.size() < int(stage()["posts"]) and _post_count(kind) < _post_limit(kind)
 
+func _is_plate(index: int) -> bool:
+	return _post_type(index).begins_with("plate_")
+
+func rotate_plate(index: int) -> void:
+	if stage_solved or not posts.has(index) or not _is_plate(index) or not stage().get("rotatable_plate", false):
+		return
+	_remember("Plate")
+	post_types[str(index)] = "plate_h" if _post_type(index) == "plate_v" else "plate_v"
+	_click(930)
+	_refresh()
+
 func toggle_post(index: int) -> void:
 	if stage_solved or index < 0 or index >= 25:
 		return
 	if stage().has("fixed_posts"):
-		_note_fixed_post_touch()
-		_click(240)
+		if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
+			rotate_plate(index)
+		else:
+			_note_fixed_post_touch()
+			_click(240)
+		return
+	if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
+		rotate_plate(index)
 		return
 	_remember("Post")
 	if posts.has(index):
@@ -478,14 +531,23 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 	if kind == "shutter" and not stage().get("movable_shutter", false):
 		return
 	if kind == "post" and stage().has("fixed_posts"):
-		_note_fixed_post_touch()
-		_click(240)
+		if index >= 0 and posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
+			rotate_plate(index)
+		else:
+			_note_fixed_post_touch()
+			_click(240)
 		return
 	var source: Control
 	if kind == "shutter":
 		source = rail_buttons[index]
 	else:
-		if index == -2:
+		if index == -3:
+			if not _can_add_post("plate_v"):
+				return
+			selected_post_type = "plate_v"
+			drag_post_type = "plate_v"
+			source = plate_inventory
+		elif index == -2:
 			if not _can_add_post("tall"):
 				return
 			selected_post_type = "tall"
@@ -545,6 +607,7 @@ func _move_pointer(point: Vector2) -> void:
 		if drag_moved and (posts.has(drag_source) or _can_add_post(drag_post_type)):
 			drag_ghost.visible = true
 			drag_ghost.tall = drag_post_type == "tall"
+			drag_ghost.post_type = drag_post_type
 			var center: Vector2 = point - Vector2(0, 18)
 			if drag_preview >= 0:
 				center = center.lerp(sockets[drag_preview].get_global_rect().get_center() - Vector2(0, 6), 0.38)
@@ -634,7 +697,8 @@ func _refresh(animate: bool = true) -> void:
 			live_cells[index].value = float(current_shadow[index])
 		var surface: Control = sockets[index].get_child(0)
 		surface.occupied = posts.has(index)
-		surface.tall = surface.occupied and str(types.get(str(index), "normal")) == "tall"
+		surface.post_type = str(types.get(str(index), "normal")) if surface.occupied else "normal"
+		surface.tall = surface.occupied and surface.post_type == "tall"
 		surface.fixed = stage().has("fixed_posts")
 	for direction: String in lamps:
 		var lamp: Button = lamps[direction]
@@ -667,28 +731,36 @@ func _refresh(animate: bool = true) -> void:
 		surface.highlighted = drag_kind == "shutter" and shutters.has(slot)
 		rail_buttons[slot].disabled = not stage().get("movable_shutter", false) or stage_solved
 	var has_fixed_posts: bool = stage().has("fixed_posts")
-	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts")
+	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts")
 	if mixed_inventory:
-		inventory.visible = not has_fixed_posts and _post_limit("normal") > 0
-		tall_inventory.visible = not has_fixed_posts and _post_limit("tall") > 0
+		inventory.visible = not has_fixed_posts and _post_limit("normal") > _post_count("normal")
+		tall_inventory.visible = not has_fixed_posts and _post_limit("tall") > _post_count("tall")
+		plate_inventory.visible = not has_fixed_posts and _post_limit("plate") > _post_count("plate")
 		inventory.get_child(0).occupied = _can_add_post("normal")
 		inventory.get_child(0).tall = false
+		inventory.get_child(0).post_type = "normal"
 		inventory.get_child(0).highlighted = selected_post_type == "normal" and inventory.visible
 		tall_inventory.get_child(0).occupied = _can_add_post("tall")
+		tall_inventory.get_child(0).post_type = "tall"
 		tall_inventory.get_child(0).highlighted = selected_post_type == "tall" and tall_inventory.visible
+		plate_inventory.get_child(0).occupied = _can_add_post("plate_v")
+		plate_inventory.get_child(0).post_type = "plate_v"
+		plate_inventory.get_child(0).highlighted = selected_post_type.begins_with("plate_") and plate_inventory.visible
 	else:
 		inventory.visible = not has_fixed_posts
 		tall_inventory.visible = false
+		plate_inventory.visible = false
 		inventory.get_child(0).occupied = posts.size() < int(stage()["posts"])
 		inventory.get_child(0).tall = stage().get("tall", false)
+		inventory.get_child(0).post_type = "tall" if stage().get("tall", false) else "normal"
 		inventory.get_child(0).highlighted = false
-	inventory.get_parent().visible = inventory.visible or tall_inventory.visible
+	inventory.get_parent().visible = inventory.visible or tall_inventory.visible or plate_inventory.visible
 	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
 	if mixed_inventory:
-		count_label.text = "N %d/%d    T %d/%d    ·    %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), stage_index + 1, stages.size()]
+		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
 	else:
 		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
-	if light_height:
+	if light_height or flat_plate:
 		var light_denominator: String = "FIXED"
 		if stage().get("free_light_selection", false):
 			light_denominator = str(stage()["active_light_count"]) if stage().has("active_light_count") else "?"
@@ -738,6 +810,8 @@ func next_stage() -> void:
 			status_label.text = "6 CAUSES COMPLETE. Thank you for exploring."
 		elif light_height:
 			status_label.text = "8 LIGHT & HEIGHT EXPERIMENTS COMPLETE."
+		elif flat_plate:
+			status_label.text = "4 FLAT PLATE EXPERIMENTS COMPLETE."
 		else:
 			status_label.text = "10 EXPERIMENTS COMPLETE. Thank you for exploring."
 	else:
@@ -762,7 +836,7 @@ func whisper() -> void:
 	elif surface_name == "shutter_slot":
 		controls = rail_buttons
 	elif surface_name == "socket":
-		controls = [inventory, tall_inventory]
+		controls = [inventory, tall_inventory, plate_inventory]
 	for control: Control in controls:
 		if cause_light and control.modulate.a == 0.0:
 			continue
@@ -787,7 +861,7 @@ func _process(delta: float) -> void:
 		pulse.tween_property(lamp, "scale", Vector2.ONE, 0.35)
 	for surface: Control in target_cells + live_cells:
 		surface.queue_redraw()
-	for button: Button in sockets + rail_buttons + [inventory, tall_inventory]:
+	for button: Button in sockets + rail_buttons + [inventory, tall_inventory, plate_inventory]:
 		button.get_child(0).queue_redraw()
 	for button: Button in lamps.values():
 		button.get_child(0).queue_redraw()
