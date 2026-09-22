@@ -262,6 +262,10 @@ func _build_ui() -> void:
 	footer.alignment = BoxContainer.ALIGNMENT_CENTER
 	footer.add_theme_constant_override("separation", 6)
 	column.add_child(footer)
+	var menu_button: Button = _button("MENU", Vector2(54, 44))
+	menu_button.tooltip_text = "Return to HOME"
+	menu_button.pressed.connect(_go_home)
+	footer.add_child(menu_button)
 	back_button = _button("BACK", Vector2(56, 44))
 	back_button.pressed.connect(func() -> void: load_stage(maxi(0, stage_index - 1)))
 	footer.add_child(back_button)
@@ -966,6 +970,11 @@ func _save_progress() -> void:
 	var file: FileAccess = FileAccess.open(progress_path, FileAccess.WRITE)
 	if file != null:
 		file.store_string(JSON.stringify({"campaign": campaign_id, "completed": completed, "playtest": hint_records}, "\t"))
+
+func _go_home() -> void:
+	if not drag_kind.is_empty():
+		return
+	get_tree().change_scene_to_file("res://scenes/home.tscn")
 
 func _sfx_enabled() -> bool:
 	var settings_path := "user://shadow_sum_settings.json"
