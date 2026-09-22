@@ -4,6 +4,7 @@ const T = preload("res://src/night_tokens.gd")
 var slot_label: String = ""
 var kind: String = "socket"
 var value: float = 0.0
+var unknown: bool = false
 var occupied: bool = false
 var tall: bool = false
 var post_type: String = "normal"
@@ -19,11 +20,18 @@ func _ready() -> void:
 func _draw() -> void:
 	var center: Vector2 = size * 0.5
 	if kind == "shadow":
-		var shade: Color = T.SHADOW_0.lerp(T.SHADOW_3, clampf(value / 3.0, 0.0, 1.0))
-		draw_style_box(_style(shade, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
-		draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))
-		if value > 3.0:
-			draw_string(ThemeDB.fallback_font, Vector2(6, size.y - 6), str(roundi(value)), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_PRIMARY)
+		if unknown:
+			var frost: Color = T.SHADOW_0.lerp(T.TEXT_SECONDARY, 0.28)
+			draw_style_box(_style(frost, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
+			for offset: int in range(5, int(size.x) - 4, 6):
+				draw_line(Vector2(offset, 5), Vector2(maxf(5.0, offset - 8.0), size.y - 5), Color(1, 1, 1, 0.12), 1.0)
+			draw_string(ThemeDB.fallback_font, Vector2(size.x * 0.5 - 4, size.y * 0.5 + 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_MUTED)
+		else:
+			var shade: Color = T.SHADOW_0.lerp(T.SHADOW_3, clampf(value / 3.0, 0.0, 1.0))
+			draw_style_box(_style(shade, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
+			draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))
+			if value > 3.0:
+				draw_string(ThemeDB.fallback_font, Vector2(6, size.y - 6), str(roundi(value)), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_PRIMARY)
 	elif kind == "socket" or kind == "inventory":
 		draw_circle(center, minf(size.x, size.y) * 0.32, T.SOCKET_INNER)
 		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else T.SOCKET_RIM, 1.5, true)
