@@ -74,3 +74,8 @@ LC01-LC04 and TP01-TP04 are available with `--campaign light-height`. They test 
 ## Flat Plate
 
 P01-P04 is available with `--campaign flat-plate`. A Flat Plate casts only along the axis broadside to the light, so tapping it rotates both the physical object and the shadow axis. See [play instructions and validation](docs/FLAT_PLATE.md).
+
+
+## Grant14 v0.2
+
+A curated 14-puzzle Grant candidate is available with `--campaign grant14-v02`. It keeps all reasoning on one optical board and progressively introduces light selection, shutter occlusion, Tall Posts, and Flat Plate orientation before a final integrated calibration puzzle. See [campaign design, launch instructions, and validation](docs/GRANT14_V0_2.md).
