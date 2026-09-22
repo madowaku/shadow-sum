@@ -1,12 +1,12 @@
 extends Control
 
-# Explicit developer selector; ordinary startup remains Grant18.
+# Explicit developer selector; this Grant20 branch boots the current candidate by default.
 func _ready() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.has("--dev-selector"):
 		_show_selector()
 		return
-	var selected: String = "grant18"
+	var selected: String = "grant20-v03"
 	for argument: String in args:
 		if argument.begins_with("--campaign="):
 			selected = argument.trim_prefix("--campaign=")
