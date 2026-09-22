@@ -1,6 +1,6 @@
 # GRANT36 draft generation and review
 
-This milestone produces reviewable puzzle data, not a playable campaign. Start with
+The generator produces reviewable puzzle data. An opt-in Godot draft playtest is now available; see [GRANT36_PLAYTEST.md](GRANT36_PLAYTEST.md). Start the puzzle review with
 [`generated/grant36_selection_report.md`](../generated/grant36_selection_report.md).
 It contains all sixteen target grids, solutions, exact witness traces, score
 components, nearby selection alternatives, neighbor comparisons, and four legal
@@ -201,15 +201,14 @@ Development checks also cover every atomic ray across 25 cells, 4 materials,
 a small unlabelled profile, mirror/lamp/shutter equivalence, corruption rejection,
 and ambiguous targets. The four pre-existing validators are required to remain green.
 
-## Godot integration is intentionally deferred
+## Opt-in Godot playtest
 
-No source under `src/`, scenes, campaign registration, save paths, or original
-GRANT20 data is changed. New stages use one observation and only existing optics.
-`review_only: true` marks the draft. Target dictionaries explicitly include every
-visible zero and omit fog cells; `fog_cells` exists only on FOG stages. Complete
-shadow and exact solution metadata are retained separately for review.
+The default campaign remains GRANT20. The explicit `grant36-draft` mode and
+`scenes/grant36_draft.tscn` load the review-only draft with a separate save file.
+See [GRANT36_PLAYTEST.md](GRANT36_PLAYTEST.md) for launch commands and test coverage.
 
-Before making this playable, the target matcher must skip explicit fog cells,
-the target surface must render unknown cells, and interaction/save/smoke tests must
-cover those changes. Today's `ExperimentOptics.matches` defaults omitted cells to
-zero, so the FOG draft must not be wired directly into the current runtime.
+New stages still use one observation and only existing optics. `review_only: true`
+marks their draft status; it does not prohibit the dedicated test mode. Target
+maps include visible zeros and omit fog cells. The matcher now skips explicit
+`fog_cells`, and the target surface shows `?`; CURRENT always displays real shadows.
+The generator and original GR01–GR20 data remain unchanged in behavior.

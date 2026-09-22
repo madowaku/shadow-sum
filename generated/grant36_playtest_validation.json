@@ -1,0 +1,91 @@
+{
+  "godot_version": "4.7.stable.official.5b4e0cb0f",
+  "draft_playtest_passed": true,
+  "mouse_solved_draft_stages": 16,
+  "near_miss_worlds_rejected": 64,
+  "fog_stages_checked": 4,
+  "campaign_and_save_isolation_checked": true,
+  "stage_menu_input_checked": true,
+  "smoke_tests": [
+    {
+      "script": "res://tools/grant36_draft_smoke.gd",
+      "passed": true,
+      "diagnostic_counts": {
+        "total": 0,
+        "errors": 0,
+        "parse_errors": 0,
+        "warnings": 0
+      }
+    },
+    {
+      "script": "res://tools/grant20_v03_smoke.gd",
+      "passed": true,
+      "diagnostic_counts": {
+        "total": 0,
+        "errors": 0,
+        "parse_errors": 0,
+        "warnings": 0
+      }
+    }
+  ],
+  "cli_boot": {
+    "arguments": [
+      "--campaign",
+      "grant36-draft",
+      "--stage",
+      "GR29"
+    ],
+    "passed": true,
+    "diagnostic_counts": {
+      "total": 0,
+      "errors": 0,
+      "parse_errors": 0,
+      "warnings": 0
+    }
+  },
+  "layout_checks": [
+    {
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "passed": true,
+      "findings": []
+    },
+    {
+      "viewport": {
+        "height": 900,
+        "width": 720
+      },
+      "passed": true,
+      "findings": []
+    }
+  ],
+  "rendered_fog_view": {
+    "viewport": {
+      "width": 405,
+      "height": 900
+    },
+    "passed": true,
+    "visually_reviewed": true
+  },
+  "whole_project_static": {
+    "parse_errors": 0,
+    "errors": 0,
+    "preexisting_warnings": 32,
+    "warnings_in_changed_files": 0,
+    "warning_files": [
+      "res://src/glass_metal_main.gd",
+      "res://src/interaction_main.gd",
+      "res://src/magnetic_main.gd",
+      "res://src/main.gd",
+      "res://src/night_skin_main.gd",
+      "res://src/shadow_ink_main.gd",
+      "res://tools/glass_metal_smoke.gd",
+      "res://tools/shadow_ink_smoke.gd",
+      "res://tools/unknown_smoke.gd"
+    ]
+  },
+  "tooling_note": "The external Godot skill scenario/inspection helpers emit enum-conversion warnings; the project runtime smoke and CLI boot logs are clean.",
+  "draft_data_sha256": "b69fa6f58569f77cbd6f654642f04fc0727229aa69a09413c45833604271a569"
+}

@@ -84,3 +84,10 @@ A curated 14-puzzle Grant candidate is available with `--campaign grant14-v02`. 
 ## Grant20 v0.3
 
 A 20-puzzle curated Grant candidate is available with `--campaign grant20-v03`. It keeps the GRANT14 discovery curve, adds six synthesis puzzles using only already-learned optics, and moves the integrated CALIBRATION finale to GR20. See [campaign structure, launch instructions, and validation](docs/GRANT20_V0_3.md).
+
+### GR21–GR36 draft playtest
+
+Use `--campaign grant36-draft` to test the generated draft independently of GRANT20.
+A fresh draft starts at GR21; use `--stage GR29` for FOG or the in-game TEST STAGE
+picker to jump freely. In the Godot editor, open `scenes/grant36_draft.tscn` and press
+F6. Progress is saved separately. See [launch instructions and verification](docs/GRANT36_PLAYTEST.md).

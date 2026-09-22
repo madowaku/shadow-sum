@@ -28,9 +28,11 @@ static func compute_shadow(posts: Array, active_lights: Array, shutters: Array =
 					result[target.y * 5 + target.x] += 1
 	return result
 
-static func matches(shadow: Array, target: Dictionary) -> bool:
+static func matches(shadow: Array, target: Dictionary, fog_cells: Array = []) -> bool:
 	for index: int in 25:
 		var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
+		if fog_cells.has(code):
+			continue
 		if shadow[index] != int(target.get(code, 0)):
 			return false
 	return true
@@ -65,6 +67,6 @@ static func solved(stage: Dictionary, posts: Array, shutters: Array, lights: Arr
 	for observation: Dictionary in stage["observations"]:
 		var use_live_lights: bool = stage.get("light_puzzle", false) or stage.get("free_light_selection", false)
 		var active: Array = lights if use_live_lights else observation["active_lights"]
-		if not matches(compute_shadow(posts, active, shutters, types), observation["target"]):
+		if not matches(compute_shadow(posts, active, shutters, types), observation["target"], stage.get("fog_cells", [])):
 			return false
 	return true

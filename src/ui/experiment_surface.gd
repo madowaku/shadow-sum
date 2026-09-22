@@ -4,6 +4,7 @@ const T = preload("res://src/night_tokens.gd")
 var slot_label: String = ""
 var kind: String = "socket"
 var value: float = 0.0
+var unknown: bool = false
 var occupied: bool = false
 var tall: bool = false
 var post_type: String = "normal"
@@ -19,6 +20,12 @@ func _ready() -> void:
 func _draw() -> void:
 	var center: Vector2 = size * 0.5
 	if kind == "shadow":
+		if unknown:
+			draw_style_box(_style(T.BG_PANEL, T.GOLD.darkened(0.45), 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
+			draw_line(Vector2(4, size.y - 8), Vector2(8, size.y - 4), T.LINE_MEDIUM, 1.0)
+			draw_line(Vector2(size.x - 8, 4), Vector2(size.x - 4, 8), T.LINE_MEDIUM, 1.0)
+			draw_string(ThemeDB.fallback_font, center + Vector2(-4, 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, T.GOLD)
+			return
 		var shade: Color = T.SHADOW_0.lerp(T.SHADOW_3, clampf(value / 3.0, 0.0, 1.0))
 		draw_style_box(_style(shade, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
 		draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))

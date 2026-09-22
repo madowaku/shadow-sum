@@ -387,7 +387,7 @@ def readable_world(world):
 
 
 def render_report(pool_data, selected, decisions, validation, stages):
-    lines = ["# GR21–GR36 selection for human review", "", "Draft only. Godot runtime/campaign wiring is unchanged.", "",
+    lines = ["# GR21–GR36 selection for human review", "", "Review-only selection. Opt-in Godot playtest: `--campaign grant36-draft`; see `docs/GRANT36_PLAYTEST.md`. Default startup remains GRANT20.", "",
              f"Seed: `{pool_data['seed']}`. Retained exact-unique, deduplicated candidates: **{len(pool_data['candidates'])}**.",
              f"Bucket counts: `{json.dumps(pool_data['bucket_counts'])}`. Independent exhaustive validation: **16/16 passed**.",
              f"Generation: **{pool_data['generation_seconds']:.3f}s**; independent validation: **{validation['total_seconds']:.3f}s**; "
@@ -444,7 +444,7 @@ def render_report(pool_data, selected, decisions, validation, stages):
         for near in c["near_miss_worlds"]:
             rejection = "; ".join(f"{e['cell']}: expected {e['target']}, gets {e['actual']}" for e in near["rejected_by"])
             lines.append(f"- {readable_world(near['world'])}. Distance {near['visible_hamming_distance']}. Rejected by **{rejection}**.")
-    lines += ["", "## Review / integration boundary", "", "No Godot code, playable campaign registration, saves, or existing stage data were changed. The draft preserves parsed GR01–GR20 objects exactly. FOG integration later needs an explicit visibility check in `ExperimentOptics.matches`, unknown target rendering, and UI tests. Loading this draft through today's zero-default target matcher would be incorrect; it is marked review-only.", "",
+    lines += ["", "## Review / integration boundary", "", "The generator preserves parsed GR01–GR20 objects exactly. The review-only draft can now be tested through the explicit `grant36-draft` mode or `scenes/grant36_draft.tscn`, with isolated progress. Its matcher skips explicit fog cells and its target display marks them with `?`. Default startup remains GRANT20; see `docs/GRANT36_PLAYTEST.md` for runtime checks.", "",
               "Review the evidence chains, especially whether the authored-solution labels translate into discoverable deductions. The sequence has no repeated adjacent mechanic+reasoning signature, but its automatic scores are not playtest timings. See `docs/GRANT36_GENERATION.md` for metric definitions, dependencies, and validation boundaries.", ""]
     return "\n".join(lines)
 
