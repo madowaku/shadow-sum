@@ -1,0 +1,111 @@
+[
+  {
+    "id": "P01",
+    "title": "TURN THE PLATE",
+    "posts": 1,
+    "fixed_posts": ["C3"],
+    "fixed_post_types": {"C3": "plate_v"},
+    "rotatable_plate": true,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "solution": ["C3"],
+    "solution_post_types": {"C3": "plate_h"},
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+        "target": {"C2": 1, "C4": 1}
+      }
+    ],
+    "expected_states": 2,
+    "hints": [
+      "The object stays in place.",
+      "Its thin edge does not answer every light.",
+      "Turn the plate ninety degrees."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "P02",
+    "title": "WHERE / WHICH WAY",
+    "posts": 1,
+    "normal_posts": 0,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "rotatable_plate": true,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "solution": ["D4"],
+    "solution_post_types": {"D4": "plate_h"},
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+        "target": {"D3": 1, "D5": 1}
+      }
+    ],
+    "expected_states": 50,
+    "hints": [
+      "Two shadows share one origin.",
+      "Their axis tells you the plate's orientation.",
+      "Place the plate halfway between them."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "P03",
+    "title": "CROSS SECTION",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "rotatable_plate": true,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "solution": ["C3", "D4"],
+    "solution_post_types": {"C3": "normal", "D4": "plate_v"},
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+        "target": {"C2": 1, "B3": 1, "D3": 1, "C4": 2, "E4": 1}
+      }
+    ],
+    "expected_states": 1200,
+    "hints": [
+      "One object answers all four directions. One does not.",
+      "The double shadow at C4 has two causes.",
+      "Use the full cross to locate the round Post, then orient the plate."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "P04",
+    "title": "EDGE OR DARK?",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "fixed_posts": ["C3"],
+    "fixed_post_types": {"C3": "normal"},
+    "rotatable_plate": true,
+    "free_light_selection": true,
+    "active_light_count": 3,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "initial_lights": [],
+    "solution": ["C3", "C1"],
+    "solution_post_types": {"C3": "normal", "C1": "plate_v"},
+    "solution_lights": ["TOP", "LEFT", "RIGHT"],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {"B1": 1, "D1": 1, "B3": 1, "D3": 1, "C4": 1}
+      }
+    ],
+    "expected_states": 192,
+    "hints": [
+      "A missing shadow can belong to the light or to the object's edge.",
+      "The fixed Post tells you which lamps are truly on.",
+      "Then ask which way the plate must face."
+    ],
+    "hint_surface": "cause"
+  }
+]
