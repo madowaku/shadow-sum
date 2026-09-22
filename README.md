@@ -64,3 +64,8 @@ An isolated G01-G10 optical campaign is available with `--campaign experiments`.
 ## Cause & Light
 
 H01-H06 is available with --campaign cause-light. See [play instructions and validation](docs/CAUSE_LIGHT.md). Use --dev-selector to choose among the three campaigns.
+
+
+## Light & Height
+
+LC01-LC04 and TP01-TP04 are available with `--campaign light-height`. They test direct four-lamp combination puzzles and Normal/Tall Post reasoning on a single board, without Observation switching. See [play instructions and validation](docs/LIGHT_HEIGHT.md). `--dev-selector` includes this fourth campaign.
