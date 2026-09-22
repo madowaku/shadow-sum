@@ -1,0 +1,169 @@
+[
+  {
+    "id": "LC01",
+    "title": "TWO SOURCES",
+    "posts": 1,
+    "fixed_posts": ["C3"],
+    "free_light_selection": true,
+    "active_light_count": 2,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "initial_lights": [],
+    "solution": ["C3"],
+    "solution_lights": ["TOP", "LEFT"],
+    "observations": [
+      {"id": "A", "active_lights": [], "target": {"D3": 1, "C4": 1}}
+    ],
+    "expected_states": 6,
+    "hints": [
+      "Two shadows need two sources.",
+      "Trace each shadow back through the Post.",
+      "Only the sources above and left can make this pair."
+    ],
+    "hint_surface": "light"
+  },
+  {
+    "id": "LC02",
+    "title": "INTERFERENCE",
+    "posts": 2,
+    "fixed_posts": ["B2", "D2"],
+    "free_light_selection": true,
+    "active_light_count": 2,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "initial_lights": [],
+    "solution": ["B2", "D2"],
+    "solution_lights": ["LEFT", "RIGHT"],
+    "observations": [
+      {"id": "A", "active_lights": [], "target": {"A2": 1, "C2": 2, "E2": 1}}
+    ],
+    "expected_states": 6,
+    "hints": [
+      "The dark center is made twice.",
+      "Which two directions can meet at C2?",
+      "Look along the row, not above or below it."
+    ],
+    "hint_surface": "light"
+  },
+  {
+    "id": "LC03",
+    "title": "HOW MANY LIGHTS?",
+    "posts": 2,
+    "fixed_posts": ["B2", "D4"],
+    "free_light_selection": true,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "initial_lights": [],
+    "solution": ["B2", "D4"],
+    "solution_lights": ["TOP", "LEFT", "BOTTOM"],
+    "observations": [
+      {"id": "A", "active_lights": [], "target": {"B1": 1, "C2": 1, "B3": 1, "D3": 1, "E4": 1, "D5": 1}}
+    ],
+    "expected_states": 15,
+    "hints": [
+      "The number of lit sources is part of the answer.",
+      "Account for every direction that appears.",
+      "One of the four directions leaves no trace at all."
+    ],
+    "hint_surface": "light"
+  },
+  {
+    "id": "LC04",
+    "title": "LIGHT & POST",
+    "posts": 2,
+    "free_light_selection": true,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "initial_lights": [],
+    "solution": ["B3", "D3"],
+    "solution_lights": ["LEFT", "RIGHT"],
+    "observations": [
+      {"id": "A", "active_lights": [], "target": {"A3": 1, "C3": 2, "E3": 1}}
+    ],
+    "expected_states": 4500,
+    "hints": [
+      "Solve the directions and the objects together.",
+      "The double shadow in the middle has two causes.",
+      "No vertical trace means no vertical source is needed."
+    ],
+    "hint_surface": "light"
+  },
+  {
+    "id": "TP01",
+    "title": "LONG REACH",
+    "posts": 1,
+    "tall": true,
+    "installed_lights": ["TOP", "LEFT", "RIGHT"],
+    "solution": ["C3"],
+    "solution_tall": ["C3"],
+    "observations": [
+      {"id": "A", "active_lights": ["TOP", "LEFT", "RIGHT"], "target": {"A3": 1, "B3": 1, "D3": 1, "E3": 1, "C4": 1, "C5": 1}}
+    ],
+    "expected_states": 25,
+    "hints": [
+      "This Post is not the same height as before.",
+      "Follow one light beyond the nearest cell.",
+      "Its shadow reaches two cells from the Post."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "TP02",
+    "title": "MIXED HEIGHTS",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "installed_lights": ["TOP", "LEFT", "RIGHT"],
+    "solution": ["C3", "D4"],
+    "solution_tall": ["C3"],
+    "observations": [
+      {"id": "A", "active_lights": ["TOP", "LEFT", "RIGHT"], "target": {"A3": 1, "B3": 1, "D3": 1, "E3": 1, "C4": 2, "E4": 1, "C5": 1, "D5": 1}}
+    ],
+    "expected_states": 600,
+    "hints": [
+      "Two kinds of Post leave different reach.",
+      "Find the shadow that continues one cell farther.",
+      "The darker C4 is shared by two different Posts."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "TP03",
+    "title": "DEPTH FIELD",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "installed_lights": ["TOP", "LEFT", "RIGHT"],
+    "solution": ["B2", "C3", "D4"],
+    "solution_tall": ["C3"],
+    "observations": [
+      {"id": "A", "active_lights": ["TOP", "LEFT", "RIGHT"], "target": {"A2": 1, "C2": 1, "A3": 1, "B3": 2, "D3": 1, "E3": 1, "C4": 2, "E4": 1, "C5": 1, "D5": 1}}
+    ],
+    "expected_states": 6900,
+    "hints": [
+      "The long shadow participates in both overlaps.",
+      "Find the one Post that can reach the far cells.",
+      "Then use B3 and C4 to seat the two normal Posts."
+    ],
+    "hint_surface": "socket"
+  },
+  {
+    "id": "TP04",
+    "title": "HEIGHT & LIGHT",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "free_light_selection": true,
+    "installed_lights": ["TOP", "LEFT", "RIGHT", "BOTTOM"],
+    "initial_lights": [],
+    "solution": ["B2", "D2"],
+    "solution_tall": ["B2"],
+    "solution_lights": ["LEFT", "RIGHT"],
+    "observations": [
+      {"id": "A", "active_lights": [], "target": {"A2": 1, "C2": 2, "D2": 1, "E2": 1}}
+    ],
+    "expected_states": 9000,
+    "hints": [
+      "The row tells you both the light and the height.",
+      "Only horizontal sources can explain a purely horizontal trace.",
+      "Which Post must reach two cells instead of one?"
+    ],
+    "hint_surface": "socket"
+  }
+]
