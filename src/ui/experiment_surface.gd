@@ -4,13 +4,13 @@ const T = preload("res://src/night_tokens.gd")
 var slot_label: String = ""
 var kind: String = "socket"
 var value: float = 0.0
-var unknown: bool = false
 var occupied: bool = false
 var tall: bool = false
 var post_type: String = "normal"
 var fixed: bool = false
 var highlighted: bool = false
 var active: bool = false
+var unknown: bool = false
 var glow: float = 1.0
 
 func _ready() -> void:
@@ -21,16 +21,16 @@ func _draw() -> void:
 	var center: Vector2 = size * 0.5
 	if kind == "shadow":
 		if unknown:
-			draw_style_box(_style(T.BG_PANEL, T.GOLD.darkened(0.45), 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
-			draw_line(Vector2(4, size.y - 8), Vector2(8, size.y - 4), T.LINE_MEDIUM, 1.0)
-			draw_line(Vector2(size.x - 8, 4), Vector2(size.x - 4, 8), T.LINE_MEDIUM, 1.0)
-			draw_string(ThemeDB.fallback_font, center + Vector2(-4, 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, T.GOLD)
-			return
-		var shade: Color = T.SHADOW_0.lerp(T.SHADOW_3, clampf(value / 3.0, 0.0, 1.0))
-		draw_style_box(_style(shade, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
-		draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))
-		if value > 3.0:
-			draw_string(ThemeDB.fallback_font, Vector2(6, size.y - 6), str(roundi(value)), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_PRIMARY)
+			draw_style_box(_style(T.BG_PANEL, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
+			for offset: int in range(-int(size.y), int(size.x), 7):
+				draw_line(Vector2(offset, size.y - 3), Vector2(offset + size.y, 3), Color(T.TEXT_MUTED, 0.16), 1.0)
+			draw_string(ThemeDB.fallback_font, Vector2(size.x * 0.5 - 4, size.y * 0.5 + 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, T.TEXT_MUTED)
+		else:
+			var shade: Color = T.SHADOW_0.lerp(T.SHADOW_3, clampf(value / 3.0, 0.0, 1.0))
+			draw_style_box(_style(shade, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
+			draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))
+			if value > 3.0:
+				draw_string(ThemeDB.fallback_font, Vector2(6, size.y - 6), str(roundi(value)), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_PRIMARY)
 	elif kind == "socket" or kind == "inventory":
 		draw_circle(center, minf(size.x, size.y) * 0.32, T.SOCKET_INNER)
 		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else T.SOCKET_RIM, 1.5, true)

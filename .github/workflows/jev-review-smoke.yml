@@ -1,0 +1,46 @@
+name: Jev Review Campaign Smoke
+
+on:
+  push:
+    paths:
+      - "src/campaign_main.gd"
+      - "src/experiment_main.gd"
+      - "src/experiment_optics.gd"
+      - "src/ui/experiment_surface.gd"
+      - "generated/grant36_candidates.json"
+      - "data/grant36_v0_4_draft.json"
+      - "tools/validate_grant36_draft.py"
+      - "tools/jev_review_smoke.gd"
+      - ".github/workflows/jev-review-smoke.yml"
+  pull_request:
+    paths:
+      - "src/campaign_main.gd"
+      - "src/experiment_main.gd"
+      - "src/experiment_optics.gd"
+      - "src/ui/experiment_surface.gd"
+      - "generated/grant36_candidates.json"
+      - "data/grant36_v0_4_draft.json"
+      - "tools/validate_grant36_draft.py"
+      - "tools/jev_review_smoke.gd"
+      - ".github/workflows/jev-review-smoke.yml"
+
+jobs:
+  review-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+      - name: Import project
+        run: bash tools/godot_checked.sh --headless --path . --editor --quit
+      - name: Independently validate GR21-GR36 draft
+        run: python3 tools/validate_grant36_draft.py
+      - name: Exercise focused Jev A/B review campaign
+        run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/jev_review_smoke.gd
+      - name: Boot Jev review campaign
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 4 -- --campaign jev-review --stage RV01

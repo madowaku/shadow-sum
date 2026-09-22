@@ -5,6 +5,18 @@ const Surface = preload("res://src/ui/experiment_surface.gd")
 const T = preload("res://src/night_tokens.gd")
 const DATA: String = "res://data/grant_experiments_v0_1.json"
 const SAVE: String = "user://shadow_sum_grant_experiments_v0_1.json"
+const JEV_REVIEW_POOL: String = "res://generated/grant36_candidates.json"
+const JEV_REVIEW_SEQUENCE: Array = [
+	{"id": "RV01", "slot": "GR28", "variant": "A", "candidate": "three_plate_light_shutter-005"},
+	{"id": "RV02", "slot": "GR28", "variant": "B", "candidate": "three_plate_light_shutter-006"},
+	{"id": "RV03", "slot": "GR30", "variant": "CHECK", "candidate": "fog_plate_shutter-010"},
+	{"id": "RV04", "slot": "GR31", "variant": "A", "candidate": "fog_height_light-007"},
+	{"id": "RV05", "slot": "GR31", "variant": "B", "candidate": "fog_height_light-006"},
+	{"id": "RV06", "slot": "GR34", "variant": "A", "candidate": "dense_height_plate_shutter-017"},
+	{"id": "RV07", "slot": "GR34", "variant": "B", "candidate": "dense_height_plate_shutter-004"},
+	{"id": "RV08", "slot": "GR36", "variant": "A", "candidate": "finale-015"},
+	{"id": "RV09", "slot": "GR36", "variant": "B", "candidate": "finale-010"}
+]
 var progress_path: String = SAVE
 var cause_light: bool = false
 var light_height: bool = false
@@ -13,6 +25,7 @@ var grant14_v02: bool = false
 var grant20_v03: bool = false
 @export var grant36_draft: bool = false
 var stage_picker: OptionButton
+var jev_review: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
@@ -98,7 +111,14 @@ func _ready() -> void:
 		data_path = "res://data/grant36_v0_4_draft.json"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_grant36_v0_4_draft.json"
-	stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
+	elif jev_review:
+		campaign_id = "jev_review_v0_1"
+		if progress_path == SAVE:
+			progress_path = "user://shadow_sum_jev_review_v0_1.json"
+	if jev_review:
+		stages = _build_jev_review_stages()
+	else:
+		stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
 	_build_ui()
 	_load_progress()
 	var resume: int = 20 if grant36_draft else 0
@@ -111,6 +131,90 @@ func _ready() -> void:
 			if stages[index]["id"] == args[stage_flag + 1]:
 				resume = index
 	load_stage(resume)
+
+func _build_jev_review_stages() -> Array:
+	var raw_pool: Variant = JSON.parse_string(FileAccess.get_file_as_string(JEV_REVIEW_POOL))
+	if typeof(raw_pool) != TYPE_DICTIONARY:
+		push_error("Jev review pool is missing or invalid: " + JEV_REVIEW_POOL)
+		return []
+	var pool: Dictionary = raw_pool
+	var lookup: Dictionary = {}
+	for raw_candidate: Variant in pool.get("candidates", []):
+		var candidate: Dictionary = raw_candidate
+		lookup[str(candidate.get("id", ""))] = candidate
+	var review_stages: Array = []
+	for raw_spec: Variant in JEV_REVIEW_SEQUENCE:
+		var spec: Dictionary = raw_spec
+		var candidate_id: String = str(spec["candidate"])
+		if not lookup.has(candidate_id):
+			push_error("Jev review candidate missing: " + candidate_id)
+			continue
+		review_stages.append(_review_stage_from_candidate(spec, lookup[candidate_id]))
+	return review_stages
+
+func _review_stage_from_candidate(spec: Dictionary, candidate: Dictionary) -> Dictionary:
+	var profile: Dictionary = candidate["profile"]
+	var world: Dictionary = candidate["solution"]
+	var solution: Array = []
+	var solution_post_types: Dictionary = {}
+	var solution_tall: Array = []
+	for raw_object: Variant in world["objects"]:
+		var object: Dictionary = raw_object
+		var code: String = str(object["cell"])
+		var kind: String = str(object["type"])
+		solution.append(code)
+		solution_post_types[code] = kind
+		if kind == "tall":
+			solution_tall.append(code)
+
+	var target: Dictionary = {}
+	var complete_shadow: Array = candidate["complete_shadow"]
+	var visible_mask: Array = candidate["visible_mask"]
+	for index: int in 25:
+		if bool(visible_mask[index]):
+			var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
+			target[code] = int(complete_shadow[index])
+
+	var light_count: int = int(profile.get("light_count", 0))
+	var fixed_lights: Array = profile.get("fixed_lights", []).duplicate()
+	var installed_lights: Array = ["TOP", "LEFT", "RIGHT", "BOTTOM"] if light_count > 0 else fixed_lights.duplicate()
+	var review_stage: Dictionary = {
+		"id": str(spec["id"]),
+		"title": "%s / VARIANT %s" % [str(spec["slot"]), str(spec["variant"])],
+		"posts": int(profile.get("normal", 0)) + int(profile.get("tall", 0)) + int(profile.get("plate", 0)),
+		"normal_posts": int(profile.get("normal", 0)),
+		"tall_posts": int(profile.get("tall", 0)),
+		"plate_posts": int(profile.get("plate", 0)),
+		"installed_lights": installed_lights,
+		"solution": solution,
+		"solution_post_types": solution_post_types,
+		"observations": [{"id": "A", "active_lights": [] if light_count > 0 else fixed_lights.duplicate(), "target": target}],
+		"expected_states": int(profile.get("expected_states", 0)),
+		"expected_solutions": 1,
+		"generator_candidate_id": str(candidate["id"]),
+		"generator_profile": profile.duplicate(true),
+		"reasoning_signature": str(candidate.get("reasoning_signature", "")),
+		"solution_complete_shadow": complete_shadow.duplicate(),
+		"review_only": true,
+		"review_slot": str(spec["slot"]),
+		"review_variant": str(spec["variant"])
+	}
+	if not solution_tall.is_empty():
+		review_stage["solution_tall"] = solution_tall
+	if int(profile.get("plate", 0)) > 0:
+		review_stage["rotatable_plate"] = true
+	if light_count > 0:
+		review_stage["free_light_selection"] = true
+		review_stage["active_light_count"] = light_count
+		review_stage["initial_lights"] = []
+		review_stage["solution_lights"] = world["lights"].duplicate()
+	if bool(profile.get("shutter", false)):
+		review_stage["movable_shutter"] = true
+		review_stage["solution_shutter"] = int(world["shutter"])
+	var fog_cells: Array = candidate.get("fog_cells", []).duplicate()
+	if not fog_cells.is_empty():
+		review_stage["fog_cells"] = fog_cells
+	return review_stage
 
 func _build_ui() -> void:
 	var background: ColorRect = ColorRect.new()
@@ -136,10 +240,10 @@ func _build_ui() -> void:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or grant14_v02 or grant20_v03 or grant36_draft else 16)
+		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or grant14_v02 or grant20_v03 or grant36_draft or jev_review else 16)
 	add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 4 if cause_light or grant14_v02 or grant20_v03 or grant36_draft else 8)
+	column.add_theme_constant_override("separation", 4 if cause_light or grant14_v02 or grant20_v03 or grant36_draft or jev_review else 8)
 	margin.add_child(column)
 	_label(column, "SHADOW SUM", 25, T.TEXT_PRIMARY)
 	var campaign_label: String = "G R A N T   /   E X P E R I M E N T S"
@@ -155,6 +259,8 @@ func _build_ui() -> void:
 		campaign_label = "G R A N T   2 0   /   v 0 . 3"
 	elif grant36_draft:
 		campaign_label = "G R A N T   3 6   /   D R A F T   P L A Y T E S T"
+	elif jev_review:
+		campaign_label = "D E E P   C A L I B R A T I O N   /   A B"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
 	if grant36_draft:
 		var picker_row: HBoxContainer = HBoxContainer.new()
@@ -198,7 +304,7 @@ func _build_ui() -> void:
 		screen_column.add_child(grid)
 		for index: int in 25:
 			var holder: Control = Control.new()
-			holder.custom_minimum_size = Vector2(26, 26) if cause_light or grant14_v02 or grant20_v03 or grant36_draft else Vector2(28, 28)
+			holder.custom_minimum_size = Vector2(26, 26) if cause_light or grant14_v02 or grant20_v03 or grant36_draft or jev_review else Vector2(28, 28)
 			grid.add_child(holder)
 			var surface: Control = Surface.new()
 			surface.kind = "shadow"
@@ -448,7 +554,7 @@ func undo_move() -> void:
 	_refresh()
 
 func tap_light(direction: String) -> void:
-	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate and not grant14_v02 and not grant20_v03 and not grant36_draft):
+	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate and not grant14_v02 and not grant20_v03 and not grant36_draft and not jev_review):
 		return
 	if stage().get("free_light_selection", false):
 		if not stage().get("installed_lights", []).has(direction):
@@ -813,7 +919,7 @@ func _refresh(animate: bool = true) -> void:
 		lamp.get_child(0).fixed = not interactive
 		lamp.get_child(0).active = lights.has(direction)
 		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
-		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_draft:
+		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_draft or jev_review:
 			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
 			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
@@ -861,11 +967,13 @@ func _refresh(animate: bool = true) -> void:
 		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
 	else:
 		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
-	if light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_draft:
+	if light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_draft or jev_review:
 		var light_denominator: String = "FIXED"
 		if stage().get("free_light_selection", false):
 			light_denominator = str(int(stage()["active_light_count"])) if stage().has("active_light_count") else "?"
 		observation_label.text = "LIGHTS  %d / %s" % [lights.size(), light_denominator]
+		if jev_review and not stage().get("fog_cells", []).is_empty():
+			observation_label.text += "    ·    FOG %d" % stage().get("fog_cells", []).size()
 	else:
 		observation_label.text = "OBSERVATION  " + str(stage()["observations"][observation_index]["id"])
 	if not fog_cells.is_empty():
