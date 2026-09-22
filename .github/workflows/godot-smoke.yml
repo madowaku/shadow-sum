@@ -28,6 +28,8 @@ on:
       - "tools/light_height_smoke.gd"
       - "tools/validate_flat_plate.py"
       - "tools/flat_plate_smoke.gd"
+      - "tools/validate_grant14_v02.py"
+      - "tools/grant14_v02_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -61,6 +63,8 @@ on:
       - "tools/light_height_smoke.gd"
       - "tools/validate_flat_plate.py"
       - "tools/flat_plate_smoke.gd"
+      - "tools/validate_grant14_v02.py"
+      - "tools/grant14_v02_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -156,3 +160,10 @@ jobs:
         run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/flat_plate_smoke.gd
       - name: Boot Flat Plate at P04
         run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign flat-plate --stage P04
+
+      - name: Exhaustively validate Grant14 v0.2
+        run: python3 tools/validate_grant14_v02.py
+      - name: Exercise all 14 Grant14 v0.2 puzzles
+        run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/grant14_v02_smoke.gd
+      - name: Boot Grant14 final calibration
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign grant14-v02 --stage GR14
