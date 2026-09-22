@@ -120,10 +120,10 @@ func _build_ui() -> void:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 8 if cause_light else 16)
+		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or grant14_v02 else 16)
 	add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 4 if cause_light else 8)
+	column.add_theme_constant_override("separation", 4 if cause_light or grant14_v02 else 8)
 	margin.add_child(column)
 	_label(column, "SHADOW SUM", 25, T.TEXT_PRIMARY)
 	var campaign_label: String = "G R A N T   /   E X P E R I M E N T S"
@@ -163,7 +163,7 @@ func _build_ui() -> void:
 		screen_column.add_child(grid)
 		for index: int in 25:
 			var holder: Control = Control.new()
-			holder.custom_minimum_size = Vector2(26, 26) if cause_light else Vector2(28, 28)
+			holder.custom_minimum_size = Vector2(26, 26) if cause_light or grant14_v02 else Vector2(28, 28)
 			grid.add_child(holder)
 			var surface: Control = Surface.new()
 			surface.kind = "shadow"
@@ -841,7 +841,7 @@ func whisper() -> void:
 	var controls: Array = []
 	if surface_name == "cause":
 		controls = lamps.values() + rail_buttons
-		if hint_level == 2:
+		if hint_level == 2 and stage().has("hint_targets"):
 			controls = []
 			for code: String in stage()["hint_targets"]:
 				controls.append(target_cells[Optics.cell(code)])
