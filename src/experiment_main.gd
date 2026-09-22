@@ -21,6 +21,7 @@ var shutters: Array = []
 var lights: Array = []
 var observation_index: int = 0
 var completed: Dictionary = {}
+var clear_seal: Control
 var stage_solved: bool = false
 var hint_level: int = 0
 var hint_max_level: int = 0
@@ -280,6 +281,8 @@ func _build_ui() -> void:
 	add_child(drag_ghost)
 	drag_ghost.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	drag_ghost.size = Vector2(48, 48)
+	clear_seal = preload("res://src/ui/clear_seal.gd").new()
+	add_child(clear_seal)
 	sound_player = AudioStreamPlayer.new()
 	add_child(sound_player)
 
@@ -362,6 +365,15 @@ func load_stage(index: int) -> void:
 		ignition.tween_property(bottom, "glow", 1.0, 0.3)
 
 func _cancel_motions() -> void:
+	if clear_seal != null:
+		clear_seal.reset()
+	if status_label != null:
+		status_label.modulate = Color.WHITE
+		status_label.remove_theme_color_override("font_color")
+	if next_button != null:
+		next_button.scale = Vector2.ONE
+		next_button.text = "NEXT"
+		next_button.remove_theme_color_override("font_color")
 	for motion: Tween in motions:
 		if motion.is_valid():
 			motion.kill()
@@ -841,42 +853,35 @@ func _check_solve() -> void:
 	next_button.disabled = true
 	undo_button.disabled = true
 	hint_button.disabled = true
+	# Commit before the presentation: resetting or leaving must never lose a solve.
+	completed[stage()["id"]] = true
+	hint_records[stage()["id"]] = {"hint": hint_max_level, "first_action": first_action, "solve_seconds": elapsed, "actions": action_count, "resets": resets}
+	_save_progress()
+	clear_seal.play(target_cells, live_cells)
+	status_label.text = ""
 	var solve_motion: Tween = create_tween()
 	motions.append(solve_motion)
-	solve_motion.tween_interval(0.45)
+	solve_motion.tween_interval(0.32)
 	solve_motion.tween_callback(func() -> void:
-		status_label.text = "LIGHT KEPT"
-		for surface: Control in live_cells:
-			var reveal: Tween = create_tween()
-			motions.append(reveal)
-			reveal.tween_property(surface, "modulate", Color(1.08, 1.05, 1.0), 0.2)
-			reveal.tween_property(surface, "modulate", Color.WHITE, 0.25)
-		completed[stage()["id"]] = true
-		hint_records[stage()["id"]] = {"hint": hint_max_level, "first_action": first_action, "solve_seconds": elapsed, "actions": action_count, "resets": resets}
-		_save_progress())
-	solve_motion.tween_interval(0.2)
-	solve_motion.tween_callback(_click.bind(440))
+		var final_stage: bool = stage_index == stages.size() - 1
+		status_label.text = ("CALIBRATION COMPLETE" if final_stage else "LIGHT KEPT") + "\n%02d / %02d  ·  %s" % [stage_index + 1, stages.size(), "Every shadow in place." if final_stage else "A perfect alignment."]
+		status_label.add_theme_color_override("font_color", T.GOLD)
+		status_label.modulate.a = 0.0
+		_click(660))
+	solve_motion.tween_property(status_label, "modulate:a", 1.0, 0.28)
 	solve_motion.tween_interval(0.25)
-	solve_motion.tween_callback(func() -> void: next_button.disabled = false)
+	solve_motion.tween_callback(func() -> void:
+		next_button.text = "REPLAY" if stage_index == stages.size() - 1 else "NEXT"
+		next_button.disabled = false
+		next_button.add_theme_color_override("font_color", T.GOLD)
+		next_button.pivot_offset = next_button.size * 0.5
+		next_button.scale = Vector2.ONE * 0.96)
+	solve_motion.tween_property(next_button, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func next_stage() -> void:
 	if next_button.disabled:
 		return
-	if stage_index == stages.size() - 1:
-		if cause_light:
-			status_label.text = "6 CAUSES COMPLETE. Thank you for exploring."
-		elif light_height:
-			status_label.text = "8 LIGHT & HEIGHT EXPERIMENTS COMPLETE."
-		elif flat_plate:
-			status_label.text = "4 FLAT PLATE EXPERIMENTS COMPLETE."
-		elif grant14_v02:
-			status_label.text = "GRANT14 CALIBRATION COMPLETE."
-		elif grant20_v03:
-			status_label.text = "GRANT20 CALIBRATION COMPLETE."
-		else:
-			status_label.text = "10 EXPERIMENTS COMPLETE. Thank you for exploring."
-	else:
-		load_stage(stage_index + 1)
+	load_stage(0 if stage_index == stages.size() - 1 else stage_index + 1)
 
 func whisper() -> void:
 	if stage_solved or hint_level >= 3:

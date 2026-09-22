@@ -474,9 +474,3 @@ func _refresh_sound() -> void:
 	sound_button.text = "OFF" if muted else "SFX"
 	sound_button.tooltip_text = L.copy("sound_off", language_code) if muted else L.copy("sound_on", language_code)
 	sound_button.accessibility_name = L.copy("unmute", language_code) if muted else L.copy("mute", language_code)
-
-
-
-
-
-
