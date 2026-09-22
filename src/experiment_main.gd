@@ -475,6 +475,26 @@ func _post_count(kind: String) -> int:
 func _can_add_post(kind: String) -> bool:
 	return posts.size() < int(stage()["posts"]) and _post_count(kind) < _post_limit(kind)
 
+func _fixed_post_count(kind: String) -> int:
+	var category: String = _post_category(kind)
+	var count: int = 0
+	for index: Variant in posts:
+		var post_index: int = int(index)
+		if _is_fixed_post(post_index) and _post_category(_post_type(post_index)) == category:
+			count += 1
+	return count
+
+func _has_movable_inventory(kind: String) -> bool:
+	return _post_limit(kind) > _fixed_post_count(kind)
+
+func _inventory_for_type(kind: String) -> Button:
+	var category: String = _post_category(kind)
+	if category == "tall":
+		return tall_inventory
+	if category == "plate":
+		return plate_inventory
+	return inventory
+
 func _is_plate(index: int) -> bool:
 	return _post_type(index).begins_with("plate_")
 
@@ -646,6 +666,19 @@ func _nearest_socket(point: Vector2) -> int:
 			distance = gap
 	return nearest
 
+func _return_dragged_post_to_inventory(point: Vector2) -> bool:
+	if drag_source < 0 or not posts.has(drag_source) or _is_fixed_post(drag_source):
+		return false
+	var target_inventory: Button = _inventory_for_type(drag_post_type)
+	if target_inventory == null or not target_inventory.visible or not target_inventory.get_global_rect().has_point(point):
+		return false
+	_remember("Post")
+	posts.erase(drag_source)
+	post_types.erase(str(drag_source))
+	selected_post_type = drag_post_type
+	_click(520)
+	return true
+
 func _finish_pointer(point: Vector2) -> void:
 	var kind: String = drag_kind
 	drag_ghost.visible = false
@@ -659,6 +692,8 @@ func _finish_pointer(point: Vector2) -> void:
 			elif drag_source < 0:
 				selected_post_type = drag_post_type
 				_refresh()
+		elif _return_dragged_post_to_inventory(point):
+			pass
 		elif destination >= 0 and destination != drag_source and not posts.has(destination):
 			if posts.has(drag_source) or _can_add_post(drag_post_type):
 				_remember("Post")
@@ -737,9 +772,11 @@ func _refresh(animate: bool = true) -> void:
 	var has_fixed_posts: bool = stage().has("fixed_posts")
 	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts")
 	if mixed_inventory:
-		inventory.visible = _post_limit("normal") > _post_count("normal")
-		tall_inventory.visible = _post_limit("tall") > _post_count("tall")
-		plate_inventory.visible = _post_limit("plate") > _post_count("plate")
+		# Keep movable inventory sockets visible even after a piece is placed so
+		# dragging a board piece back to its socket can remove it from the board.
+		inventory.visible = _has_movable_inventory("normal")
+		tall_inventory.visible = _has_movable_inventory("tall")
+		plate_inventory.visible = _has_movable_inventory("plate")
 		inventory.get_child(0).occupied = _can_add_post("normal")
 		inventory.get_child(0).tall = false
 		inventory.get_child(0).post_type = "normal"
