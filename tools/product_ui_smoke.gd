@@ -56,6 +56,9 @@ func _case(viewport_size: Vector2i) -> void:
 	root.add_child(viewport)
 	var game: Control = await _new(viewport, save_path)
 	var ui: Control = game.product_ui
+	check(game.audio_manager != null and game.audio_manager.bgm_player != null and game.audio_manager.bgm_player.stream != null, "BGM did not load")
+	var bgm_stream: AudioStreamMP3 = game.audio_manager.bgm_player.stream as AudioStreamMP3
+	check(bgm_stream != null and bgm_stream.loop, "BGM is not configured to loop")
 	_bounds(game, Rect2(Vector2.ZERO, Vector2(viewport_size)))
 	for button: Button in ui._background_buttons():
 		check(button.size.x >= 44 and button.size.y >= 44, "small touch target: " + str(button.name))
@@ -88,6 +91,7 @@ func _case(viewport_size: Vector2i) -> void:
 	check(game.posts[0][0], "Ctrl+Z did not undo")
 	await _tap(viewport, ui.sound_button.get_global_rect().get_center())
 	check(ui.muted and ui.sound_button.text == "OFF", "sound toggle failed")
+	check(game.audio_manager.bgm_player.volume_db <= -79.0, "mute did not silence BGM")
 	await _tap(viewport, ui.language_button.get_global_rect().get_center())
 	check(ui.language_code == "ja" and "初めての光" in game.stage_label.text, "Japanese language toggle failed")
 	check(ui.help_kicker.text == "遊び方", "help copy did not switch to Japanese")
@@ -118,6 +122,7 @@ func _case(viewport_size: Vector2i) -> void:
 	check(game.product_ui.language_code == "en" and "Overlap" in game.stage_label.text, "language preference did not switch after restart")
 	await _key(viewport, KEY_M)
 	check(not game.product_ui.muted, "M did not restore sound")
+	check(game.audio_manager.bgm_player.volume_db > -79.0, "unmute did not restore BGM")
 	viewport.queue_free()
 	await _settle()
 	print("Product UI verified at %s" % viewport_size)

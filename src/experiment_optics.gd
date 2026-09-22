@@ -40,7 +40,7 @@ static func solved(stage: Dictionary, posts: Array, shutters: Array, lights: Arr
 		return false
 	if stage.get("movable_shutter", false) and shutters.size() != 1:
 		return false
-	if stage.get("light_puzzle", false) and stage.has("active_light_count") and lights.size() != int(stage["active_light_count"]):
+	if (stage.get("light_puzzle", false) or stage.get("free_light_selection", false)) and stage.has("active_light_count") and lights.size() != int(stage["active_light_count"]):
 		return false
 	if stage.get("free_light_selection", false) and lights.is_empty():
 		return false
