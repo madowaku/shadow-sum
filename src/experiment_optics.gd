@@ -13,8 +13,13 @@ static func compute_shadow(posts: Array, active_lights: Array, shutters: Array =
 	for raw: Variant in posts:
 		var index: int = int(raw)
 		var origin: Vector2i = Vector2i(index % 5, int(index / 5.0))
-		var reach: int = 2 if post_types.get(str(index), "normal") == "tall" else 1
+		var post_type: String = str(post_types.get(str(index), "normal"))
+		var reach: int = 2 if post_type == "tall" else 1
 		for light: String in active_lights:
+			if post_type == "plate_v" and light not in ["LEFT", "RIGHT"]:
+				continue
+			if post_type == "plate_h" and light not in ["TOP", "BOTTOM"]:
+				continue
 			if light == "TOP" and shutters.has(origin.x):
 				continue
 			for distance: int in range(1, reach + 1):
@@ -43,15 +48,19 @@ static func solved(stage: Dictionary, posts: Array, shutters: Array, lights: Arr
 	if stage.get("tall", false):
 		for index: Variant in posts:
 			types[str(index)] = "tall"
-	if stage.has("normal_posts") or stage.has("tall_posts"):
+	if stage.has("normal_posts") or stage.has("tall_posts") or stage.has("plate_posts"):
 		var normal_count: int = 0
 		var tall_count: int = 0
+		var plate_count: int = 0
 		for index: Variant in posts:
-			if types.get(str(index), "normal") == "tall":
+			var post_type: String = str(types.get(str(index), "normal"))
+			if post_type == "tall":
 				tall_count += 1
+			elif post_type.begins_with("plate_"):
+				plate_count += 1
 			else:
 				normal_count += 1
-		if normal_count != int(stage.get("normal_posts", 0)) or tall_count != int(stage.get("tall_posts", 0)):
+		if normal_count != int(stage.get("normal_posts", 0)) or tall_count != int(stage.get("tall_posts", 0)) or plate_count != int(stage.get("plate_posts", 0)):
 			return false
 	for observation: Dictionary in stage["observations"]:
 		var use_live_lights: bool = stage.get("light_puzzle", false) or stage.get("free_light_selection", false)
