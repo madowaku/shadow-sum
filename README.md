@@ -69,3 +69,8 @@ H01-H06 is available with --campaign cause-light. See [play instructions and val
 ## Light & Height
 
 LC01-LC04 and TP01-TP04 are available with `--campaign light-height`. They test direct four-lamp combination puzzles and Normal/Tall Post reasoning on a single board, without Observation switching. See [play instructions and validation](docs/LIGHT_HEIGHT.md). `--dev-selector` includes this fourth campaign.
+
+
+## Flat Plate
+
+P01-P04 is available with `--campaign flat-plate`. A Flat Plate casts only along the axis broadside to the light, so tapping it rotates both the physical object and the shadow axis. See [play instructions and validation](docs/FLAT_PLATE.md).
