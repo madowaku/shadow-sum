@@ -98,6 +98,16 @@ func _run() -> void:
 		check(game.completed.has(game.stage()["id"]), "completion saved " + game.stage()["id"])
 		check(not game.next_button.disabled, "NEXT breath complete " + game.stage()["id"])
 
+	# GR14 regression: every movable piece, especially the Flat Plate, must be able
+	# to leave the board again instead of becoming trapped after placement.
+	game.load_stage(13)
+	await process_frame
+	_drag(game.plate_inventory, game.sockets[Optics.cell("C4")])
+	check(game.plate_inventory.visible, "GR14 plate inventory remains visible after placement")
+	_drag(game.sockets[Optics.cell("C4")], game.plate_inventory)
+	check(not game.posts.has(Optics.cell("C4")), "GR14 Flat Plate can return to inventory")
+	check(game.plate_inventory.get_child(0).occupied, "GR14 returned Flat Plate becomes available")
+
 	# Final calibration must reject plausible wrong causes.
 	game.load_stage(13)
 	await process_frame
