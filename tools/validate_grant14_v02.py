@@ -87,7 +87,10 @@ def object_states(stage):
         elif stage.get("tall"):
             requested = {"normal": 0, "tall": wanted_total, "plate": 0}
         else:
-            requested = {"normal": wanted_total, "tall": 0, "plate": 0}
+            # Fixed special objects count toward the total even when the stage
+            # does not declare an explicit inventory mix (GR11 fixed plate).
+            requested = dict(fixed_counts)
+            requested["normal"] += wanted_total - len(fixed)
 
         remaining_counts = {name: requested[name] - fixed_counts[name] for name in requested}
         if any(value < 0 for value in remaining_counts.values()):
