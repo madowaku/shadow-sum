@@ -19,7 +19,7 @@ func _launch(selected: String) -> void:
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
-	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03"] else "res://scenes/experiments.tscn"
+	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "jev-review"] else "res://scenes/experiments.tscn"
 	var campaign: Control = (load(path) as PackedScene).instantiate()
 	if selected == "cause-light":
 		campaign.cause_light = true
@@ -31,6 +31,8 @@ func _launch(selected: String) -> void:
 		campaign.grant14_v02 = true
 	elif selected == "grant20-v03":
 		campaign.grant20_v03 = true
+	elif selected == "jev-review":
+		campaign.jev_review = true
 	add_child(campaign)
 
 func _show_selector() -> void:
@@ -39,8 +41,8 @@ func _show_selector() -> void:
 	add_child(center)
 	var column: VBoxContainer = VBoxContainer.new()
 	center.add_child(column)
-	var labels: Array[String] = ["GRANT18", "G01–G10 EXPERIMENTS", "H01–H06 CAUSE & LIGHT", "LC01–TP04 LIGHT & HEIGHT", "P01–P04 FLAT PLATE", "GRANT14 v0.2", "GRANT20 v0.3"]
-	var campaigns: Array[String] = ["grant18", "experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03"]
+	var labels: Array[String] = ["GRANT18", "G01–G10 EXPERIMENTS", "H01–H06 CAUSE & LIGHT", "LC01–TP04 LIGHT & HEIGHT", "P01–P04 FLAT PLATE", "GRANT14 v0.2", "GRANT20 v0.3", "JEV REVIEW A/B"]
+	var campaigns: Array[String] = ["grant18", "experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "jev-review"]
 	for index: int in labels.size():
 		var button: Button = Button.new()
 		button.text = labels[index]
