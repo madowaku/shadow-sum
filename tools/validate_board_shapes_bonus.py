@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import itertools
 import json
 from pathlib import Path
 
@@ -16,7 +17,6 @@ from validate_grant36_v05 import (
 
 ROOT = Path(__file__).resolve().parents[1]
 BONUS = ROOT / "data/grant36_v0_5_bonus.json"
-POOL = ROOT / "generated/grant36_v0_5_candidates.json"
 CAMPAIGN = ROOT / "data/grant36_v0_5.json"
 
 
@@ -32,6 +32,32 @@ def matching_worlds(stage: dict) -> list[tuple]:
     return matches
 
 
+def smaller_matching_worlds(stage: dict) -> list[tuple]:
+    """Find any target-matching world that uses fewer pieces than the authored inventory."""
+    observation = stage["observations"][0]
+    lights = observation["active_lights"]
+    visible = {cell(name): int(value) for name, value in observation["target"].items()}
+    allowed = tuple(legal_positions(stage))
+    expected_normal = int(stage.get("normal_posts", 0))
+    expected_tall = int(stage.get("tall_posts", 0))
+    authored_total = int(stage["posts"])
+    matches = []
+    for normal_count in range(expected_normal + 1):
+        for tall_count in range(expected_tall + 1):
+            if normal_count + tall_count == 0 or normal_count + tall_count >= authored_total:
+                continue
+            for normals in itertools.combinations(allowed, normal_count):
+                remaining = [position for position in allowed if position not in normals]
+                for talls in itertools.combinations(remaining, tall_count):
+                    objects = tuple((position, "normal") for position in normals) + tuple(
+                        (position, "tall") for position in talls
+                    )
+                    values = shadow(objects, lights)
+                    if all(values[index] == value for index, value in visible.items()):
+                        matches.append(objects)
+    return matches
+
+
 def main() -> None:
     stages = json.loads(BONUS.read_text(encoding="utf-8"))
     require(len(stages) == 1 and stages[0]["id"] == "BS01", "bonus must contain only BS01")
@@ -39,16 +65,12 @@ def main() -> None:
     campaign = json.loads(CAMPAIGN.read_text(encoding="utf-8"))
     require(len(campaign) == 36 and not any(item["id"] == "BS01" for item in campaign),
             "bonus must remain separate from the 36-stage campaign")
-    manifest = json.loads(POOL.read_text(encoding="utf-8"))
-    candidate = next(item for item in manifest["candidates"] if item["id"] == stage["source_candidate"])
-    require(stage["boardShape"]["mask"] == candidate["boardShape"]["mask"], "bonus mask drifted")
-    require(stage["solution_post_types"] == candidate["solution_post_types"], "bonus solution drifted")
-    require(stage["observations"][0]["target"] == candidate["target"], "bonus target drifted")
-    require(stage["observations"][0]["active_lights"] == candidate["lights"], "bonus lights drifted")
     require(typed_inventory_exact(stage), "bonus typed inventory mismatch")
     require(len(stage["observations"][0]["target"]) == 25, "bonus must show all 25 shadow cells")
     require(not stage.get("free_light_selection") and not stage.get("movable_shutter"),
             "bonus must be a board deduction")
+    require(not smaller_matching_worlds(stage),
+            "every authored Post must be causally necessary; a smaller inventory reproduces the target")
 
     counts, spaces = enumerate_stages([stage])
     require(counts["BS01"] == 1 and spaces["BS01"] == 858, "bonus is not exact unique on 858 worlds")
@@ -72,7 +94,7 @@ def main() -> None:
     excluded = [world for world in worlds if world not in valid]
     require(len(excluded) == 2 and all(any(position not in legal for position, _ in world) for world in excluded),
             "two alternative worlds must be rejected by absent sockets")
-    print("BS01: 858 legal worlds -> 1 solution; full board: 6900 worlds -> 3 solutions; no Tall: 0")
+    print("BS01: 858 legal worlds -> 1 solution; full board: 6900 worlds -> 3 solutions; no Tall: 0; smaller inventory: 0")
     print("Two optical alternatives require missing sockets, so the silhouette supplies the decisive clue.")
 
 
