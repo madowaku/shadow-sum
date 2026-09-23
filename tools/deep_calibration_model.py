@@ -143,22 +143,32 @@ def world_key(world):
 class StateIndex:
     """One enumeration per profile; a signature reverse index and compact world IDs."""
 
-    def __init__(self, profile):
+    def __init__(self, profile, legal_positions=None):
         self.profile = profile
+        if legal_positions is None:
+            positions = tuple(range(25))
+        else:
+            positions = tuple(int(position) for position in legal_positions)
+            if len(set(positions)) != len(positions) or any(position < 0 or position >= 25 for position in positions):
+                raise ValueError("legal_positions must be unique board indices in [0, 24]")
+            positions = tuple(sorted(positions))
+        self.legal_positions = positions
         rows = []
-        for normals in combinations(range(25), profile.normal):
-            remaining = [p for p in range(25) if p not in normals]
+        for normals in combinations(positions, profile.normal):
+            remaining = [p for p in positions if p not in normals]
             for talls in combinations(remaining, profile.tall):
                 rest = [p for p in remaining if p not in talls]
                 for plates in combinations(rest, profile.plate):
                     for orientations in product((2, 3), repeat=profile.plate):
                         rows.append((*normals, *(25 + p for p in talls),
                                      *(25 * k + p for p, k in zip(plates, orientations))))
-        self.placements = np.asarray(rows, dtype=np.uint8)
+        width = profile.normal + profile.tall + profile.plate
+        self.placements = np.asarray(rows, dtype=np.uint8).reshape((len(rows), width))
         self.placement_count = len(rows)
         del rows
         self.configs = profile.configurations
-        self.shadows = np.empty((profile.states, 25), dtype=np.uint8)
+        self.state_count = self.placement_count * len(self.configs)
+        self.shadows = np.empty((self.state_count, 25), dtype=np.uint8)
         for config, (lights, shutter) in enumerate(self.configs):
             atoms = np.asarray([rays([(p, kind)], lights, shutter)[0]
                                 for kind in KINDS for p in range(25)], dtype=np.uint8)
@@ -167,10 +177,23 @@ class StateIndex:
             for slot in range(self.placements.shape[1]):
                 target += atoms[self.placements[:, slot]]
         signatures = self.shadows.view(np.dtype((np.void, 25))).ravel()
-        _, first, counts = np.unique(signatures, return_index=True, return_counts=True)
+        self.unique_signatures, first, counts = np.unique(signatures, return_index=True, return_counts=True)
+        self.signature_counts = counts
         self.unique_ids = first[counts == 1]
         self.signature_count = len(counts)
         self.full_unique_count = len(self.unique_ids)
+
+    def match_count(self, shadow, visible=None):
+        """Count exact worlds matching a full or partially observed target."""
+        if visible is None or len(visible) == 25:
+            signature = np.asarray(shadow, dtype=np.uint8).reshape((1, 25)).view(np.dtype((np.void, 25))).ravel()[0]
+            match = int(np.searchsorted(self.unique_signatures, signature))
+            if match < len(self.unique_signatures) and self.unique_signatures[match] == signature:
+                return int(self.signature_counts[match])
+            return 0
+        columns = np.asarray(visible, dtype=np.int64)
+        values = np.asarray(shadow, dtype=np.uint8)[columns]
+        return int(np.count_nonzero(np.all(self.shadows[:, columns] == values, axis=1)))
 
     def world(self, world_id):
         config, placement = divmod(int(world_id), self.placement_count)

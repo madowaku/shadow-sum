@@ -24,12 +24,14 @@ var flat_plate: bool = false
 var grant14_v02: bool = false
 var grant20_v03: bool = false
 var jev_review: bool = false
+var grant36_v05: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
 var stage_index: int = 0
 var posts: Array = []
 var post_types: Dictionary = {}
+var board_mask: PackedByteArray = PackedByteArray()
 var shutters: Array = []
 var lights: Array = []
 var observation_index: int = 0
@@ -108,6 +110,11 @@ func _ready() -> void:
 		campaign_id = "jev_review_v0_1"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_jev_review_v0_1.json"
+	elif grant36_v05:
+		campaign_id = "grant36-v05"
+		data_path = "res://data/grant36_v0_5.json"
+		if progress_path == SAVE:
+			progress_path = "user://shadow_sum_grant36_v0_5.json"
 	if jev_review:
 		stages = _build_jev_review_stages()
 	else:
@@ -250,6 +257,8 @@ func _build_ui() -> void:
 		campaign_label = "G R A N T   2 0   /   v 0 . 3"
 	elif jev_review:
 		campaign_label = "D E E P   C A L I B R A T I O N   /   A B"
+	elif grant36_v05:
+		campaign_label = "G R A N T   3 6   /   v 0 . 5   B O A R D   S H A P E S"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
 	title_label = _label(column, "", 15, T.GOLD)
 	count_label = _label(column, "", 12, T.TEXT_SECONDARY)
@@ -426,12 +435,23 @@ func load_stage(index: int) -> void:
 	stage_index = clampi(index, 0, stages.size() - 1)
 	posts.clear()
 	post_types.clear()
+	board_mask = Optics.board_shape_mask(stage())
+	if board_mask.size() != 25:
+		push_error("Invalid boardShape mask in " + str(stage().get("id", "unknown stage")))
+		board_mask.resize(25)
+		board_mask.fill(0)
 	for code: String in stage().get("fixed_posts", []):
 		var fixed_index: int = Optics.cell(code)
-		posts.append(fixed_index)
 		var fixed_type: String = str(stage().get("fixed_post_types", {}).get(code, "normal"))
 		if stage().get("tall", false) or stage().get("fixed_tall_posts", []).has(code):
 			fixed_type = "tall"
+		if fixed_index < 0 or fixed_index >= 25 or not _socket_enabled(fixed_index):
+			push_error("Fixed Post has no board socket: " + str(stage().get("id", "unknown stage")) + " " + code)
+			continue
+		if not Optics.valid_post_type(fixed_type):
+			push_error("Invalid fixed Post type: " + fixed_type)
+			continue
+		posts.append(fixed_index)
 		post_types[str(fixed_index)] = fixed_type
 	shutters = []
 	for slot: Variant in stage().get("fixed_shutters", []):
@@ -518,7 +538,17 @@ func undo_move() -> void:
 	var previous: Dictionary = history.pop_back()
 	posts = previous["posts"]
 	var restored_types: Dictionary = previous.get("post_types", {})
-	post_types = restored_types.duplicate()
+	var legal_posts: Array = []
+	post_types = {}
+	for raw_index: Variant in previous.get("posts", []):
+		var post_index: int = int(raw_index)
+		var key: String = str(post_index)
+		if not _socket_enabled(post_index) or legal_posts.has(post_index):
+			continue
+		legal_posts.append(post_index)
+		if restored_types.has(key):
+			post_types[key] = restored_types[key]
+	posts = legal_posts
 	shutters = previous["shutters"]
 	lights = previous["lights"]
 	observation_index = previous["observation"]
@@ -584,16 +614,24 @@ func _post_type(index: int) -> String:
 	return str(post_types.get(str(index), "tall" if stage().get("tall", false) else "normal"))
 
 func _post_category(kind: String) -> String:
-	return "plate" if kind.begins_with("plate_") else kind
+	if kind == "plate_v" or kind == "plate_h":
+		return "plate"
+	if kind == "normal" or kind == "tall":
+		return kind
+	return "invalid"
 
 func _post_limit(kind: String) -> int:
 	var category: String = _post_category(kind)
+	if category == "invalid":
+		return 0
 	if stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts"):
 		if category == "tall":
 			return int(stage().get("tall_posts", 0))
 		if category == "plate":
 			return int(stage().get("plate_posts", 0))
-		return int(stage().get("normal_posts", 0))
+		if category == "normal":
+			return int(stage().get("normal_posts", 0))
+		return 0
 	if stage().get("tall", false):
 		return int(stage()["posts"]) if category == "tall" else 0
 	return int(stage()["posts"]) if category == "normal" else 0
@@ -607,7 +645,7 @@ func _post_count(kind: String) -> int:
 	return count
 
 func _can_add_post(kind: String) -> bool:
-	return posts.size() < int(stage()["posts"]) and _post_count(kind) < _post_limit(kind)
+	return Optics.valid_post_type(kind) and posts.size() < int(stage()["posts"]) and _post_count(kind) < _post_limit(kind)
 
 func _fixed_post_count(kind: String) -> int:
 	var category: String = _post_category(kind)
@@ -627,7 +665,9 @@ func _inventory_for_type(kind: String) -> Button:
 		return tall_inventory
 	if category == "plate":
 		return plate_inventory
-	return inventory
+	if category == "normal":
+		return inventory
+	return null
 
 func _is_plate(index: int) -> bool:
 	return _post_type(index).begins_with("plate_")
@@ -635,6 +675,9 @@ func _is_plate(index: int) -> bool:
 func _is_fixed_post(index: int) -> bool:
 	var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
 	return stage().get("fixed_posts", []).has(code)
+
+func _socket_enabled(index: int) -> bool:
+	return index >= 0 and index < board_mask.size() and board_mask[index] == 1
 
 func rotate_plate(index: int) -> void:
 	if stage_solved or not posts.has(index) or not _is_plate(index) or not stage().get("rotatable_plate", false):
@@ -645,7 +688,7 @@ func rotate_plate(index: int) -> void:
 	_refresh()
 
 func toggle_post(index: int) -> void:
-	if stage_solved or index < 0 or index >= 25:
+	if stage_solved or index < 0 or index >= 25 or not _socket_enabled(index):
 		return
 	if _is_fixed_post(index):
 		if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
@@ -687,6 +730,8 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 	if event is InputEventMouseButton and event.device == -1:
 		return
 	if kind == "shutter" and not stage().get("movable_shutter", false):
+		return
+	if kind == "post" and index >= 0 and not _socket_enabled(index):
 		return
 	if kind == "post" and index >= 0 and _is_fixed_post(index):
 		if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
@@ -759,9 +804,9 @@ func _move_pointer(point: Vector2) -> void:
 		var slot: int = clampi(roundi((point.x - rail_buttons[0].get_global_rect().get_center().x) / 50.0), 0, 4)
 		move_shutter(slot, false)
 	else:
-		drag_preview = _nearest_socket(point)
+		drag_preview = _drop_destination(point)
 		for index: int in 25:
-			sockets[index].get_child(0).highlighted = index == drag_preview
+			sockets[index].get_child(0).highlighted = _socket_enabled(index) and index == drag_preview
 		if drag_moved and (posts.has(drag_source) or _can_add_post(drag_post_type)):
 			drag_ghost.visible = true
 			drag_ghost.tall = drag_post_type == "tall"
@@ -794,11 +839,19 @@ func _nearest_socket(point: Vector2) -> int:
 	var nearest: int = -1
 	var distance: float = 36.0
 	for index: int in 25:
+		if not _socket_enabled(index):
+			continue
 		var gap: float = sockets[index].get_global_rect().get_center().distance_to(point)
 		if gap < distance:
 			nearest = index
 			distance = gap
 	return nearest
+
+func _drop_destination(point: Vector2) -> int:
+	for index: int in 25:
+		if sockets[index].get_global_rect().has_point(point):
+			return index if _socket_enabled(index) else -1
+	return _nearest_socket(point)
 
 func _return_dragged_post_to_inventory(point: Vector2) -> bool:
 	if drag_source < 0 or not posts.has(drag_source) or _is_fixed_post(drag_source):
@@ -819,7 +872,7 @@ func _finish_pointer(point: Vector2) -> void:
 	drag_kind = ""
 	pointer_id = -2
 	if kind == "post":
-		var destination: int = _nearest_socket(point)
+		var destination: int = _drop_destination(point)
 		if not drag_moved:
 			if drag_source >= 0 and destination == drag_source:
 				toggle_post(destination)
@@ -871,8 +924,13 @@ func _refresh(animate: bool = true) -> void:
 		else:
 			target_cells[index].value = float(target.get(code, 0))
 			live_cells[index].value = float(current_shadow[index])
-		var surface: Control = sockets[index].get_child(0)
-		surface.occupied = posts.has(index)
+		var socket_button: Button = sockets[index]
+		var socket_available: bool = _socket_enabled(index)
+		socket_button.disabled = not socket_available or stage_solved
+		socket_button.mouse_filter = Control.MOUSE_FILTER_STOP if socket_available else Control.MOUSE_FILTER_IGNORE
+		var surface: Control = socket_button.get_child(0)
+		surface.kind = "socket" if socket_available else "socket_missing"
+		surface.occupied = socket_available and posts.has(index)
 		surface.post_type = str(types.get(str(index), "normal")) if surface.occupied else "normal"
 		surface.tall = surface.occupied and surface.post_type == "tall"
 		surface.fixed = _is_fixed_post(index)
@@ -913,7 +971,7 @@ func _refresh(animate: bool = true) -> void:
 		# dragging a board piece back to its socket can remove it from the board.
 		inventory.visible = _has_movable_inventory("normal")
 		tall_inventory.visible = _has_movable_inventory("tall")
-		plate_inventory.visible = _has_movable_inventory("plate")
+		plate_inventory.visible = _has_movable_inventory("plate_v")
 		inventory.get_child(0).occupied = _can_add_post("normal")
 		inventory.get_child(0).tall = false
 		inventory.get_child(0).post_type = "normal"
@@ -935,15 +993,15 @@ func _refresh(animate: bool = true) -> void:
 	inventory.get_parent().visible = inventory.visible or tall_inventory.visible or plate_inventory.visible
 	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
 	if mixed_inventory:
-		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
+		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate_v"), _post_limit("plate_v"), stage_index + 1, stages.size()]
 	else:
 		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
-	if light_height or flat_plate or grant14_v02 or grant20_v03 or jev_review:
+	if light_height or flat_plate or grant14_v02 or grant20_v03 or jev_review or grant36_v05:
 		var light_denominator: String = "FIXED"
 		if stage().get("free_light_selection", false):
 			light_denominator = str(stage()["active_light_count"]) if stage().has("active_light_count") else "?"
 		observation_label.text = "LIGHTS  %d / %s" % [lights.size(), light_denominator]
-		if jev_review and not stage().get("fog_cells", []).is_empty():
+		if (jev_review or grant36_v05) and not stage().get("fog_cells", []).is_empty():
 			observation_label.text += "    ·    FOG %d" % stage().get("fog_cells", []).size()
 	else:
 		observation_label.text = "OBSERVATION  " + str(stage()["observations"][observation_index]["id"])

@@ -19,7 +19,7 @@ func _launch(selected: String) -> void:
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
-	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "jev-review"] else "res://scenes/experiments.tscn"
+	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "jev-review", "grant36-v05"] else "res://scenes/experiments.tscn"
 	var campaign: Control = (load(path) as PackedScene).instantiate()
 	if selected == "cause-light":
 		campaign.cause_light = true
@@ -33,6 +33,8 @@ func _launch(selected: String) -> void:
 		campaign.grant20_v03 = true
 	elif selected == "jev-review":
 		campaign.jev_review = true
+	elif selected == "grant36-v05":
+		campaign.grant36_v05 = true
 	add_child(campaign)
 
 func _show_selector() -> void:

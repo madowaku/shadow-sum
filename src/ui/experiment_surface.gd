@@ -31,6 +31,14 @@ func _draw() -> void:
 			draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))
 			if value > 3.0:
 				draw_string(ThemeDB.fallback_font, Vector2(6, size.y - 6), str(roundi(value)), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_PRIMARY)
+	elif kind == "socket_missing":
+		var plug_rect: Rect2 = Rect2(Vector2(5, 5), size - Vector2(10, 10))
+		draw_style_box(_style(T.METAL_SIDE_DARK, T.LINE_SOFT, 3), plug_rect)
+		var muted: Color = Color(T.METAL_RIM, 0.55)
+		draw_line(center + Vector2(-5, -5), center + Vector2(5, 5), muted, 1.0)
+		draw_line(center + Vector2(-5, 5), center + Vector2(5, -5), muted, 1.0)
+		for offset: Vector2 in [Vector2(8, 8), Vector2(size.x - 8, 8), Vector2(8, size.y - 8), Vector2(size.x - 8, size.y - 8)]:
+			draw_circle(offset, 1.3, T.METAL_RIM)
 	elif kind == "socket" or kind == "inventory":
 		draw_circle(center, minf(size.x, size.y) * 0.32, T.SOCKET_INNER)
 		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else T.SOCKET_RIM, 1.5, true)
