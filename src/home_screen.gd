@@ -2,6 +2,7 @@ extends Control
 
 const T = preload("res://src/night_tokens.gd")
 const LabBackground = preload("res://src/ui/home_lab_background.gd")
+const NOX_SIT: Texture2D = preload("res://assets/nox/nox_sit.svg")
 
 const CAMPAIGN_SCENE := "res://scenes/campaign.tscn"
 const STAGE_DATA := "res://data/grant20_v0_3.json"
@@ -96,7 +97,7 @@ func _build_ui() -> void:
 	margin.add_child(column)
 
 	var title := Label.new()
-	title.text = "SHADOW SUM"
+	title.text = "NOXSUM"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_override("font", T.display_font())
 	title.add_theme_font_size_override("font_size", 39)
@@ -111,7 +112,7 @@ func _build_ui() -> void:
 	column.add_child(axis)
 
 	var subtitle := Label.new()
-	subtitle.text = "A PUZZLE OF LIGHT, SHADOW, AND ALIGNMENT"
+	subtitle.text = "RECONSTRUCT THE PAST FROM THE SHADOWS"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_override("font", T.instrument_font())
 	subtitle.add_theme_font_size_override("font_size", 9)
@@ -126,8 +127,33 @@ func _build_ui() -> void:
 	showcase.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(showcase)
 
+	var nox_center := CenterContainer.new()
+	nox_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	nox_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.add_child(nox_center)
+	var nox := TextureRect.new()
+	nox.texture = NOX_SIT
+	nox.custom_minimum_size = Vector2(150, 190)
+	nox.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	nox.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	nox.modulate = Color(1, 1, 1, 0.84)
+	nox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	nox_center.add_child(nox)
+
+	var memory_line := Label.new()
+	memory_line.text = "NOX is gone. The shadows remember."
+	memory_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	memory_line.add_theme_font_override("font", T.display_font())
+	memory_line.add_theme_font_size_override("font_size", 14)
+	memory_line.add_theme_color_override("font_color", Color(T.TEXT_SECONDARY, 0.82))
+	memory_line.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	memory_line.offset_bottom = -5
+	memory_line.offset_top = -30
+	memory_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.add_child(memory_line)
+
 	var readout := Label.new()
-	readout.text = "OPTICAL CALIBRATION ARRAY  /  READY"
+	readout.text = "NOX TRACE ARRAY  /  READY"
 	readout.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	readout.add_theme_font_override("font", T.instrument_font())
 	readout.add_theme_font_size_override("font_size", 9)
@@ -171,7 +197,7 @@ func _build_ui() -> void:
 	_update_progress_readout()
 
 	var footer := Label.new()
-	footer.text = "PROTOTYPE v0.3   |   GRANT DEMO   |   © madowaku"
+	footer.text = "NOXSUM  ·  PROTOTYPE v0.3  ·  GRANT DEMO  ·  © madowaku"
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.add_theme_font_override("font", T.instrument_font())
 	footer.add_theme_font_size_override("font_size", 8)
@@ -258,9 +284,9 @@ func _update_progress_readout() -> void:
 		continue_info.text = "Campaign data unavailable"
 		return
 	if done <= 0:
-		continue_info.text = "No calibration record yet"
+		continue_info.text = "No reconstructed moments yet"
 	elif done >= stages.size():
-		continue_info.text = "Progress %02d / %02d   ·   Calibration complete" % [done, stages.size()]
+		continue_info.text = "Progress %02d / %02d   ·   Reconstruction complete" % [done, stages.size()]
 	else:
 		var stage_id := str(stages[resume]["id"])
 		continue_info.text = "Progress %02d / %02d   ·   Next %s" % [done, stages.size(), stage_id]
@@ -305,7 +331,7 @@ func _build_level_overlay() -> void:
 	_overlay_title(column, "LEVEL SELECT")
 
 	var progress := Label.new()
-	progress.text = "CALIBRATION RECORD  %02d / %02d" % [_completed_count(), stages.size()]
+	progress.text = "NOX TRACE RECORD  %02d / %02d" % [_completed_count(), stages.size()]
 	progress.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	progress.add_theme_font_override("font", T.instrument_font())
 	progress.add_theme_font_size_override("font_size", 9)
