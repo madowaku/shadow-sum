@@ -183,6 +183,19 @@ func _test_mask_interaction() -> void:
 	_check(game.posts.is_empty() and game.posts.all(func(post: int) -> bool: return game.board_mask[post] == 1),
 		"reset leaves only legal board state")
 
+func _test_bottom_light_input() -> void:
+	game.load_stage(_stage_index("GR22"))
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var bottom: Button = game.lamps["BOTTOM"]
+	_check(bottom.visible and bottom.modulate.a > 0.9, "GR22 installed BOTTOM light is visible")
+	_check(not bottom.disabled, "GR22 installed BOTTOM light is interactive")
+	_check(not game.lights.has("BOTTOM"), "GR22 BOTTOM starts inactive")
+	await _tap(bottom)
+	_check(game.lights.has("BOTTOM"), "GR22 mouse tap activates BOTTOM light")
+	await _tap(bottom)
+	_check(not game.lights.has("BOTTOM"), "GR22 second mouse tap deactivates BOTTOM light")
+
 func _test_plate_return() -> void:
 	game.load_stage(_stage_index("GR28"))
 	await get_tree().process_frame
@@ -274,6 +287,7 @@ func _run() -> void:
 	_check(game.stage()["id"] == "GR01", "clean isolated save starts at GR01")
 	_p0_regression()
 	await _test_campaign_route()
+	await _test_bottom_light_input()
 	await _test_mask_interaction()
 	await _test_plate_return()
 
@@ -309,7 +323,7 @@ func _run() -> void:
 	var report: Dictionary = {
 		"failures": failures, "failure_labels": failure_labels,
 		"campaign_id": "grant36-v05", "mouse_solved_replacements": 8,
-		"mask_interactions": true, "plate_return": true, "fog_unknown": true,
+		"bottom_light_input": true, "mask_interactions": true, "plate_return": true, "fog_unknown": true,
 		"layout_sizes": ["405x900", "720x900"],
 	}
 	var output: FileAccess = FileAccess.open(P0_RESULT, FileAccess.WRITE)
