@@ -1,12 +1,12 @@
 extends Control
 
-# Explicit developer selector; this Grant20 branch boots the current candidate by default.
+# Developer campaigns require explicit arguments; the NOXSUM product uses the final Grant36 campaign.
 func _ready() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.has("--dev-selector"):
 		_show_selector()
 		return
-	var selected: String = "grant20-v03"
+	var selected: String = "grant36-v05"
 	for argument: String in args:
 		if argument.begins_with("--campaign="):
 			selected = argument.trim_prefix("--campaign=")
@@ -19,7 +19,7 @@ func _launch(selected: String) -> void:
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
-	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03"] else "res://scenes/experiments.tscn"
+	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "grant36-v05"] else "res://scenes/experiments.tscn"
 	var campaign: Control = (load(path) as PackedScene).instantiate()
 	var requested_stage_index: int = -1
 	if get_tree().root.has_meta("shadow_sum_start_stage"):
@@ -35,8 +35,10 @@ func _launch(selected: String) -> void:
 		campaign.grant14_v02 = true
 	elif selected == "grant20-v03":
 		campaign.grant20_v03 = true
-		if requested_stage_index >= 0:
-			campaign.set("requested_stage_index", requested_stage_index)
+	elif selected == "grant36-v05":
+		campaign.grant36_v05 = true
+	if requested_stage_index >= 0 and selected in ["grant20-v03", "grant36-v05"]:
+		campaign.set("requested_stage_index", requested_stage_index)
 	add_child(campaign)
 
 func _show_selector() -> void:

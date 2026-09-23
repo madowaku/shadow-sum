@@ -32,6 +32,11 @@ on:
       - "tools/grant14_v02_smoke.gd"
       - "tools/validate_grant20_v03.py"
       - "tools/grant20_v03_smoke.gd"
+      - "tools/validate_grant36_v05.py"
+      - "tools/validate_noxsum_grant36_sync.py"
+      - "tools/grant36_v05_smoke.gd"
+      - "tools/grant36_v05_smoke.tscn"
+      - "tools/noxsum_grant36_sync_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -69,6 +74,11 @@ on:
       - "tools/grant14_v02_smoke.gd"
       - "tools/validate_grant20_v03.py"
       - "tools/grant20_v03_smoke.gd"
+      - "tools/validate_grant36_v05.py"
+      - "tools/validate_noxsum_grant36_sync.py"
+      - "tools/grant36_v05_smoke.gd"
+      - "tools/grant36_v05_smoke.tscn"
+      - "tools/noxsum_grant36_sync_smoke.gd"
       - "tools/validate_stages.py"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
@@ -178,3 +188,16 @@ jobs:
         run: bash tools/godot_checked.sh --headless --path . -d --ignore-error-breaks --script res://tools/grant20_v03_smoke.gd
       - name: Boot Grant20 final calibration
         run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign grant20-v03 --stage GR20
+
+      - name: Validate final Grant36 v0.5 campaign
+        run: python3 tools/validate_grant36_v05.py
+      - name: Guard NOXSUM final campaign sync
+        run: python3 tools/validate_noxsum_grant36_sync.py
+      - name: Exercise Grant36 v0.5 runtime
+        run: bash tools/godot_checked.sh --headless --path . res://tools/grant36_v05_smoke.tscn
+      - name: Exercise NOXSUM HOME and Grant36 integration
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/noxsum_grant36_sync_smoke.gd --quit-after 1200
+      - name: Exercise explicit Grant36 and GR28 developer route
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/noxsum_grant36_sync_smoke.gd --quit-after 300 -- --sync-dev-route --campaign=grant36-v05 --stage GR28
+      - name: Exercise GR28 developer route with default campaign
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/noxsum_grant36_sync_smoke.gd --quit-after 300 -- --sync-dev-route --stage GR28

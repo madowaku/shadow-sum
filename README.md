@@ -1,5 +1,11 @@
 # SHADOW SUM
 
+## Current family-test product: NOXSUM
+
+The default Godot 4.7 launch opens NOXSUM HOME and the final 36-stage GRANT36 v0.5 campaign. PLAY, CONTINUE, and LEVEL SELECT use the same isolated progress file. The Web release build is exported with `NOXSUM Web` to `builds/web/index.html`.
+
+Run the final sync checks with `python tools/validate_grant36_v05.py`, `python tools/validate_noxsum_grant36_sync.py`, and Godot's `res://tools/noxsum_grant36_sync_smoke.gd`. See [the final sync report](docs/NOXSUM_GRANT36_V0_5_SYNC_REPORT.md) for the campaign source and verification.
+
 A minimalist logic puzzle about placing posts so that three directional lights create the target shadow intensities.
 
 ## Core rule

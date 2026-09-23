@@ -67,12 +67,37 @@ def fixed_variants(stage):
 
 
 def category(kind: str) -> str:
-    return "plate" if kind.startswith("plate_") else kind
+    if kind in ("plate_v", "plate_h"):
+        return "plate"
+    if kind in ("normal", "tall"):
+        return kind
+    raise ValueError(f"unknown post type: {kind}")
+
+
+def legal_positions(stage):
+    if "boardShape" not in stage:
+        return tuple(range(25))
+    board_shape = stage["boardShape"]
+    if not isinstance(board_shape, dict) or not isinstance(board_shape.get("mask"), list):
+        raise ValueError("boardShape.mask must be a 5-row array")
+    rows = board_shape["mask"]
+    if len(rows) != 5:
+        raise ValueError("boardShape.mask must have exactly five rows")
+    result = []
+    for row_index, row in enumerate(rows):
+        if not isinstance(row, str) or len(row) != 5 or any(char not in "01" for char in row):
+            raise ValueError("boardShape.mask rows must be exactly five 0/1 characters")
+        result.extend(row_index * 5 + column for column, char in enumerate(row) if char == "1")
+    return tuple(result)
 
 
 def object_states(stage):
     wanted_total = int(stage["posts"])
+    allowed = legal_positions(stage)
+    allowed_set = set(allowed)
     for fixed in fixed_variants(stage):
+        if any(index not in allowed_set for index, _ in fixed) or len({index for index, _ in fixed}) != len(fixed):
+            continue
         used = {index for index, _ in fixed}
         fixed_counts = {"normal": 0, "tall": 0, "plate": 0}
         for _, kind in fixed:
@@ -96,7 +121,7 @@ def object_states(stage):
         if any(value < 0 for value in remaining_counts.values()):
             continue
 
-        available = [index for index in range(25) if index not in used]
+        available = [index for index in allowed if index not in used]
         normal_count = remaining_counts["normal"]
         tall_count = remaining_counts["tall"]
         plate_count = remaining_counts["plate"]

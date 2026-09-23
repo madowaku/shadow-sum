@@ -5,8 +5,8 @@ const LabBackground = preload("res://src/ui/home_lab_background.gd")
 const NOX_SIT: Texture2D = preload("res://assets/nox/nox_sit.svg")
 
 const CAMPAIGN_SCENE := "res://scenes/campaign.tscn"
-const STAGE_DATA := "res://data/grant20_v0_3.json"
-const PROGRESS_PATH := "user://shadow_sum_grant20_v0_3.json"
+const STAGE_DATA := "res://data/grant36_v0_5.json"
+const PROGRESS_PATH := "user://shadow_sum_grant36_v0_5.json"
 const SETTINGS_PATH := "user://shadow_sum_settings.json"
 
 var stages: Array = []
@@ -57,7 +57,7 @@ func _load_progress() -> void:
 	if not FileAccess.file_exists(PROGRESS_PATH):
 		return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(PROGRESS_PATH))
-	if parsed is Dictionary and parsed.get("campaign", "") == "grant20_v0_3":
+	if parsed is Dictionary and parsed.get("campaign", "") == "grant36-v05":
 		completed = parsed.get("completed", {}).duplicate()
 
 func _load_settings() -> void:
@@ -324,7 +324,7 @@ func _start_campaign(index: int) -> void:
 
 func _build_level_overlay() -> void:
 	level_overlay = _overlay_shell()
-	var panel := _overlay_panel(level_overlay, Vector2(330, 470))
+	var panel := _overlay_panel(level_overlay, Vector2(330, 550))
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	panel.add_child(column)
@@ -338,21 +338,23 @@ func _build_level_overlay() -> void:
 	progress.add_theme_color_override("font_color", T.TEXT_MUTED)
 	column.add_child(progress)
 
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size.y = 350
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
 	var grid := GridContainer.new()
 	grid.columns = 4
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 8)
-	column.add_child(grid)
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	scroll.add_child(grid)
 
-	var resume := _resume_index()
 	for index: int in stages.size():
 		var button := Button.new()
-		button.text = "%02d" % [index + 1]
-		button.custom_minimum_size = Vector2(62, 46)
+		button.text = "%02d/%02d" % [index + 1, stages.size()]
+		button.custom_minimum_size = Vector2(55, 44)
 		button.add_theme_font_override("font", T.instrument_font())
 		var id := str(stages[index]["id"])
-		var unlocked := index <= resume or completed.has(id)
-		button.disabled = not unlocked
 		button.tooltip_text = "%s / %s" % [id, str(stages[index].get("title", ""))]
 		button.pressed.connect(_start_campaign.bind(index))
 		button.pressed.connect(_play_click)
