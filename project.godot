@@ -14,6 +14,10 @@ config/name="SHADOW SUM"
 run/main_scene="res://scenes/campaign.tscn"
 config/features=PackedStringArray("4.7")
 
+[autoload]
+
+BgmPlaylist="*res://src/ui/bgm_playlist.gd"
+
 [display]
 
 window/size/viewport_width=405
