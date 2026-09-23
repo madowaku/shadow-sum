@@ -291,6 +291,22 @@ func _test_bonus() -> void:
 	_check(game.campaign_id == "grant36-v05-bonus" and game.stages.size() == 1 and game.stage()["id"] == "BS01",
 		"one-stage bonus campaign loads independently")
 	_check(game.status_label.text.find("staircase") >= 0, "bonus intro explains the silhouette")
+	var bonus_stage: Dictionary = game.stage()
+	var authored_posts: Array = []
+	var authored_types: Dictionary = {}
+	for cell_code: String in bonus_stage["solution"]:
+		var post_index: int = Optics.cell(cell_code)
+		authored_posts.append(post_index)
+		authored_types[str(post_index)] = str(bonus_stage["solution_post_types"][cell_code])
+	for removed_index: int in authored_posts:
+		var reduced_posts: Array = authored_posts.duplicate()
+		reduced_posts.erase(removed_index)
+		var reduced_types: Dictionary = authored_types.duplicate()
+		reduced_types.erase(str(removed_index))
+		var reduced_shadow: Array[int] = Optics.compute_shadow(
+			reduced_posts, bonus_stage["observations"][0]["active_lights"], [], reduced_types)
+		_check(not Optics.matches(reduced_shadow, bonus_stage["observations"][0]["target"]),
+			"BS01 target visibly needs every authored Post; removing " + str(removed_index) + " changes the shadow")
 	await _tap(game.hint_button)
 	_check(game.hint_level == 1 and game.status_label.text.find("outline") >= 0,
 		"bonus first Whisper focuses on board shape")
