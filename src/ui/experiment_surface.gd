@@ -40,14 +40,19 @@ func _draw() -> void:
 					draw_line(Vector2(plate_rect.position.x + 4, center.y - 1), Vector2(plate_rect.end.x - 4, center.y - 1), T.METAL_TOP, 1.0)
 				else:
 					draw_line(Vector2(center.x - 1, plate_rect.position.y + 4), Vector2(center.x - 1, plate_rect.end.y - 4), T.METAL_TOP, 1.0)
+				if kind == "inventory":
+					draw_string(ThemeDB.fallback_font, Vector2(4, size.y - 3), "PLATE", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(T.TEXT_MUTED, 0.82))
 			else:
 				var cat_texture: Texture2D = NOX_STAND if tall else NOX_SIT
-				var cat_size: Vector2 = Vector2(36, 46) if tall else Vector2(40, 40)
-				var cat_rect := Rect2(center - cat_size * 0.5 + Vector2(0, 1 if tall else 2), cat_size)
-				var cat_alpha: float = 1.0 if kind == "inventory" else 0.82
+				var cat_size: Vector2 = Vector2(40, 48) if tall else Vector2(43, 43)
+				var cat_rect := Rect2(center - cat_size * 0.5 + Vector2(0, 0 if tall else 1), cat_size)
+				var cat_alpha: float = 1.0 if kind == "inventory" else 0.90
 				if highlighted:
-					draw_circle(center, 21, Color(T.CYAN, 0.10))
+					draw_circle(center, 22, Color(T.CYAN, 0.11))
 				draw_texture_rect(cat_texture, cat_rect, false, Color(1, 1, 1, cat_alpha))
+				if kind == "inventory":
+					var type_label := "STAND" if tall else "SIT"
+					draw_string(ThemeDB.fallback_font, Vector2(4, size.y - 3), type_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(T.TEXT_MUTED, 0.82))
 			if fixed:
 				for sign_value: int in [-1, 1]:
 					draw_circle(center + Vector2(sign_value * 15, 10), 2, T.METAL_RIM)
@@ -68,7 +73,7 @@ func _draw() -> void:
 		if active:
 			draw_line(Vector2(center.x, 0), Vector2(center.x, center.y if occupied else size.y), Color(T.CYAN, 0.22), 5)
 		if occupied:
-			var sleep_size := Vector2(38, 23)
+			var sleep_size := Vector2(42, 25)
 			var sleep_rect := Rect2(center - sleep_size * 0.5 - Vector2(0, 4 if highlighted else 1), sleep_size)
 			if highlighted:
 				draw_circle(center - Vector2(0, 1), 21, Color(T.CYAN, 0.10))
