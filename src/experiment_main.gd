@@ -25,7 +25,6 @@ var grant14_v02: bool = false
 var grant20_v03: bool = false
 var jev_review: bool = false
 var grant36_v05: bool = false
-var grant36_v05_bonus: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
@@ -81,8 +80,6 @@ var action_count: int = 0
 var sound_player: AudioStreamPlayer
 
 func _ready() -> void:
-	if grant36_v05_bonus:
-		grant36_v05 = true
 	var data_path: String = DATA
 	if cause_light:
 		campaign_id = "cause_light_v0_1"
@@ -114,10 +111,10 @@ func _ready() -> void:
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_jev_review_v0_1.json"
 	elif grant36_v05:
-		campaign_id = "grant36-v05-bonus" if grant36_v05_bonus else "grant36-v05"
-		data_path = "res://data/grant36_v0_5_bonus.json" if grant36_v05_bonus else "res://data/grant36_v0_5.json"
+		campaign_id = "grant36-v05"
+		data_path = "res://data/grant36_v0_5.json"
 		if progress_path == SAVE:
-			progress_path = "user://shadow_sum_grant36_v0_5_bonus.json" if grant36_v05_bonus else "user://shadow_sum_grant36_v0_5.json"
+			progress_path = "user://shadow_sum_grant36_v0_5.json"
 	if jev_review:
 		stages = _build_jev_review_stages()
 	else:
@@ -260,8 +257,6 @@ func _build_ui() -> void:
 		campaign_label = "G R A N T   2 0   /   v 0 . 3"
 	elif jev_review:
 		campaign_label = "D E E P   C A L I B R A T I O N   /   A B"
-	elif grant36_v05_bonus:
-		campaign_label = "B O A R D   S H A P E S   /   B O N U S"
 	elif grant36_v05:
 		campaign_label = "G R A N T   3 6   /   v 0 . 5   B O A R D   S H A P E S"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
@@ -485,7 +480,7 @@ func load_stage(index: int) -> void:
 	first_action = ""
 	resets = 0
 	action_count = 0
-	status_label.text = str(stage().get("intro", ""))
+	status_label.text = ""
 	next_button.disabled = true
 	_refresh(false)
 	if lights.has("BOTTOM"):

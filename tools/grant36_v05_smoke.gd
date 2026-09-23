@@ -5,7 +5,6 @@ const Campaign: GDScript = preload("res://src/campaign_main.gd")
 const Optics: GDScript = preload("res://src/experiment_optics.gd")
 const P0_RESULT: String = "user://grant36_v05_smoke_result.json"
 const SMOKE_SAVE: String = "user://grant36_v05_smoke_only.json"
-const BONUS_SMOKE_SAVE: String = "user://grant36_v05_bonus_smoke_only.json"
 
 var failures: int = 0
 var failure_labels: Array[String] = []
@@ -262,83 +261,10 @@ func _test_save_reload() -> void:
 	resumed.queue_free()
 	await get_tree().process_frame
 
-func _test_bonus() -> void:
-	var selector: Control = Campaign.new()
-	selector.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(selector)
-	await get_tree().process_frame
-	selector.call("_launch", "grant36-v05-bonus")
-	await get_tree().process_frame
-	await get_tree().process_frame
-	var routed: Node = selector.get_child(0)
-	_check(bool(routed.get("grant36_v05_bonus")) and str(routed.get("campaign_id")) == "grant36-v05-bonus",
-		"bonus selector routes to its own campaign")
-	selector.queue_free()
-	await get_tree().process_frame
-
-	if FileAccess.file_exists(BONUS_SMOKE_SAVE):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(BONUS_SMOKE_SAVE))
-	var previous_game: Control = game
-	var bonus: Control = Experiment.new()
-	bonus.grant36_v05_bonus = true
-	bonus.progress_path = BONUS_SMOKE_SAVE
-	bonus.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(bonus)
-	game = bonus
-	get_tree().root.size = Vector2i(405, 900)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_check(game.campaign_id == "grant36-v05-bonus" and game.stages.size() == 1 and game.stage()["id"] == "BS01",
-		"one-stage bonus campaign loads independently")
-	_check(game.status_label.text.find("staircase") >= 0, "bonus intro explains the silhouette")
-	var bonus_stage: Dictionary = game.stage()
-	var authored_posts: Array = []
-	var authored_types: Dictionary = {}
-	for cell_code: String in bonus_stage["solution"]:
-		var post_index: int = Optics.cell(cell_code)
-		authored_posts.append(post_index)
-		authored_types[str(post_index)] = str(bonus_stage["solution_post_types"][cell_code])
-	for removed_index: int in authored_posts:
-		var reduced_posts: Array = authored_posts.duplicate()
-		reduced_posts.erase(removed_index)
-		var reduced_types: Dictionary = authored_types.duplicate()
-		reduced_types.erase(str(removed_index))
-		var reduced_shadow: Array[int] = Optics.compute_shadow(
-			reduced_posts, bonus_stage["observations"][0]["active_lights"], [], reduced_types)
-		_check(not Optics.matches(reduced_shadow, bonus_stage["observations"][0]["target"]),
-			"BS01 target visibly needs every authored Post; removing " + str(removed_index) + " changes the shadow")
-	await _tap(game.hint_button)
-	_check(game.hint_level == 1 and game.status_label.text.find("outline") >= 0,
-		"bonus first Whisper focuses on board shape")
-	await _tap(game.hint_button)
-	await _tap(game.hint_button)
-	_check(game.hint_level == 3 and game.hint_button.disabled, "all three bonus Whispers remain usable")
-	var missing: int = Optics.cell("C5")
-	_check(game.board_mask[missing] == 0 and game.sockets[missing].disabled,
-		"decisive missing C5 socket is unavailable")
-	await _tap(game.sockets[missing])
-	_check(game.posts.is_empty(), "mouse cannot place on decisive missing socket")
-	await _solve_replacement("BS01")
-	_check(game.next_button.text == "REPLAY", "bonus completion offers replay")
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(BONUS_SMOKE_SAVE))
-	_check(parsed is Dictionary and parsed.get("campaign", "") == "grant36-v05-bonus"
-		and parsed.get("completed", {}).has("BS01"), "bonus progress uses isolated campaign identity")
-	_bounds(game, Rect2(Vector2.ZERO, Vector2(405, 900)))
-	get_tree().root.size = Vector2i(720, 900)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_bounds(game, Rect2(Vector2.ZERO, Vector2(720, 900)))
-	game = previous_game
-	bonus.queue_free()
-	await get_tree().process_frame
-	if FileAccess.file_exists(BONUS_SMOKE_SAVE):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(BONUS_SMOKE_SAVE))
-
 func _run() -> void:
 	var protected_paths: Array[String] = [
 		"user://shadow_sum_grant20_v0_3.json",
 		"user://shadow_sum_grant36_v0_5.json",
-		"user://shadow_sum_grant36_v0_5_bonus.json",
 		"user://shadow_sum_jev_review_v0_1.json",
 		"user://shadow_sum_grant36_v0_4_draft.json"
 	]
@@ -388,7 +314,6 @@ func _run() -> void:
 			_bounds(game, Rect2(Vector2.ZERO, Vector2(dimensions)))
 
 	await _test_save_reload()
-	await _test_bonus()
 	for index: int in protected_paths.size():
 		var path: String = protected_paths[index]
 		var after: String = FileAccess.get_file_as_string(path) if FileAccess.file_exists(path) else "<absent>"
@@ -397,7 +322,7 @@ func _run() -> void:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SMOKE_SAVE))
 	var report: Dictionary = {
 		"failures": failures, "failure_labels": failure_labels,
-		"campaign_id": "grant36-v05", "mouse_solved_replacements": 8, "mouse_solved_bonus": 1,
+		"campaign_id": "grant36-v05", "mouse_solved_replacements": 8,
 		"bottom_light_input": true, "mask_interactions": true, "plate_return": true, "fog_unknown": true,
 		"layout_sizes": ["405x900", "720x900"],
 	}

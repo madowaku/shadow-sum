@@ -419,6 +419,7 @@ def write_report(selected, stats, generation_seconds, validation_seconds, fixtur
     lines = [
         "# GRANT36 v0.5 BOARD SHAPES report", "",
         "This build replaces GR24/25/28/29/32/34/35/36. GR01–20 and the eight human KEEP stages are copied unchanged from v0.4.",
+        "Grant submission set: GR01–GR36 only.",
         "All replacement stages use fixed lights, exact typed inventory, and legal socket masks. None adds free lamp selection or a movable shutter. Adjacent replacements use different first-evidence categories wherever the candidate pool permits.", "",
         "## Candidate pool", "",
         f"Generated {sum(row['candidate_count'] for row in stats)} exact-unique candidates in {generation_seconds:.2f}s.", "",
