@@ -135,7 +135,7 @@ func _build_ui() -> void:
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 4 if cause_light or grant14_v02 or grant20_v03 else 8)
 	margin.add_child(column)
-	_label(column, "SHADOW SUM", 25, T.TEXT_PRIMARY)
+	_label(column, "NOXSUM", 25, T.TEXT_PRIMARY)
 	var campaign_label: String = "G R A N T   /   E X P E R I M E N T S"
 	if cause_light:
 		campaign_label = "C A U S E   &   L I G H T"
@@ -146,7 +146,7 @@ func _build_ui() -> void:
 	elif grant14_v02:
 		campaign_label = "G R A N T   1 4   /   v 0 . 2"
 	elif grant20_v03:
-		campaign_label = "G R A N T   2 0   /   v 0 . 3"
+		campaign_label = "N O X   /   S H A D O W   R E C O N S T R U C T I O N"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
 	title_label = _label(column, "", 15, T.GOLD)
 	count_label = _label(column, "", 12, T.TEXT_SECONDARY)
@@ -164,10 +164,10 @@ func _build_ui() -> void:
 	screens.alignment = BoxContainer.ALIGNMENT_CENTER
 	screens.add_theme_constant_override("separation", 16)
 	column.add_child(screens)
-	for screen_name: String in ["TARGET", "CURRENT"]:
+	for screen_name: String in ["RECORDED SHADOW", "RECONSTRUCTION"]:
 		var screen_column: VBoxContainer = VBoxContainer.new()
 		screens.add_child(screen_column)
-		_label(screen_column, screen_name, 10, T.GOLD if screen_name == "TARGET" else T.CYAN)
+		_label(screen_column, screen_name, 10, T.GOLD if screen_name == "RECORDED SHADOW" else T.CYAN)
 		var grid: GridContainer = GridContainer.new()
 		grid.columns = 5
 		grid.add_theme_constant_override("h_separation", 2)
@@ -180,7 +180,7 @@ func _build_ui() -> void:
 			var surface: Control = Surface.new()
 			surface.kind = "shadow"
 			holder.add_child(surface)
-			if screen_name == "TARGET":
+			if screen_name == "RECORDED SHADOW":
 				target_cells.append(surface)
 			else:
 				live_cells.append(surface)
@@ -194,7 +194,7 @@ func _build_ui() -> void:
 	rail_center.add_child(rail)
 	for slot: int in 5:
 		var button: Button = _button("", Vector2(48, 44))
-		button.tooltip_text = "Shutter " + String.chr(65 + slot)
+		button.tooltip_text = "SLEEP trace · blocks TOP light · column " + String.chr(65 + slot)
 		button.gui_input.connect(_start_pointer.bind("shutter", slot))
 		rail.add_child(button)
 		var surface: Control = Surface.new()
@@ -223,21 +223,21 @@ func _build_ui() -> void:
 	var bottom_center: CenterContainer = CenterContainer.new()
 	column.add_child(bottom_center)
 	bottom_center.add_child(_lamp("BOTTOM"))
-	_label(column, "PLACEMENT BOARD", 10, T.TEXT_MUTED)
+	_label(column, "WHERE WAS NOX?", 10, T.TEXT_MUTED)
 	var inventory_center: CenterContainer = CenterContainer.new()
 	column.add_child(inventory_center)
 	var inventory_row: HBoxContainer = HBoxContainer.new()
 	inventory_row.add_theme_constant_override("separation", 10)
 	inventory_center.add_child(inventory_row)
 	inventory = _button("", Vector2(64, 44))
-	inventory.tooltip_text = "Normal Post inventory"
+	inventory.tooltip_text = "SIT trace · NOX sitting at this moment"
 	inventory.gui_input.connect(_start_pointer.bind("post", -1))
 	inventory_row.add_child(inventory)
 	var inventory_surface: Control = Surface.new()
 	inventory_surface.kind = "inventory"
 	inventory.add_child(inventory_surface)
 	tall_inventory = _button("", Vector2(64, 44))
-	tall_inventory.tooltip_text = "Tall Post inventory"
+	tall_inventory.tooltip_text = "STAND trace · NOX standing at this moment"
 	tall_inventory.gui_input.connect(_start_pointer.bind("post", -2))
 	inventory_row.add_child(tall_inventory)
 	var tall_inventory_surface: Control = Surface.new()
@@ -246,7 +246,7 @@ func _build_ui() -> void:
 	tall_inventory.add_child(tall_inventory_surface)
 	tall_inventory.visible = false
 	plate_inventory = _button("", Vector2(64, 44))
-	plate_inventory.tooltip_text = "Flat Plate inventory"
+	plate_inventory.tooltip_text = "OPTICAL PLATE · apparatus element"
 	plate_inventory.gui_input.connect(_start_pointer.bind("post", -3))
 	inventory_row.add_child(plate_inventory)
 	var plate_inventory_surface: Control = Surface.new()
@@ -833,9 +833,9 @@ func _refresh(animate: bool = true) -> void:
 	inventory.get_parent().visible = inventory.visible or tall_inventory.visible or plate_inventory.visible
 	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
 	if mixed_inventory:
-		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
+		count_label.text = "SIT %d/%d  STAND %d/%d  PLATE %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
 	else:
-		count_label.text = "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
+		count_label.text = "NOX TRACES  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
 	if light_height or flat_plate or grant14_v02 or grant20_v03:
 		var light_denominator: String = "FIXED"
 		if stage().get("free_light_selection", false):
@@ -871,7 +871,7 @@ func _check_solve() -> void:
 	solve_motion.tween_interval(0.32)
 	solve_motion.tween_callback(func() -> void:
 		var final_stage: bool = stage_index == stages.size() - 1
-		status_label.text = ("CALIBRATION COMPLETE" if final_stage else "LIGHT KEPT") + "\n%02d / %02d  ·  %s" % [stage_index + 1, stages.size(), "Every shadow in place." if final_stage else "A perfect alignment."]
+		status_label.text = ("RECONSTRUCTION COMPLETE" if final_stage else "TRACE MATCHED") + "\n%02d / %02d  ·  %s" % [stage_index + 1, stages.size(), "Every remembered shadow agrees." if final_stage else "One moment of NOX recovered."]
 		status_label.add_theme_color_override("font_color", T.GOLD)
 		status_label.modulate.a = 0.0
 		_click(660))
