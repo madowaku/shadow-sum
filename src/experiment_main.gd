@@ -556,7 +556,7 @@ func undo_move() -> void:
 	_refresh()
 
 func tap_light(direction: String) -> void:
-	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate and not grant14_v02 and not grant20_v03 and not jev_review):
+	if stage_solved or (direction == "BOTTOM" and not cause_light and not light_height and not flat_plate and not grant14_v02 and not grant20_v03 and not jev_review and not grant36_v05):
 		return
 	if stage().get("free_light_selection", false):
 		if not stage().get("installed_lights", []).has(direction):
