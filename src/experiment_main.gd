@@ -275,7 +275,7 @@ func _build_ui() -> void:
 	undo_button = _button("UNDO", Vector2(56, 44))
 	undo_button.pressed.connect(undo_move)
 	footer.add_child(undo_button)
-	hint_button = _button("WHISPER", Vector2(76, 44))
+	hint_button = _button("OBSERVE", Vector2(76, 44))
 	hint_button.pressed.connect(whisper)
 	footer.add_child(hint_button)
 	next_button = _button("NEXT", Vector2(56, 44))
@@ -364,6 +364,8 @@ func load_stage(index: int) -> void:
 	status_label.text = ""
 	next_button.disabled = true
 	_refresh(false)
+	if grant20_v03:
+		status_label.text = "Reconstruct NOX's past. Each trace is one moment; their shadows add together."
 	if lights.has("BOTTOM"):
 		var bottom: Control = lamps["BOTTOM"].get_child(0)
 		bottom.glow = 0
@@ -890,10 +892,22 @@ func next_stage() -> void:
 		return
 	load_stage(0 if stage_index == stages.size() - 1 else stage_index + 1)
 
+func _nox_hint(raw: String) -> String:
+	var text := raw
+	text = text.replace("Tall Post", "STAND trace")
+	text = text.replace("ordinary Post", "SIT trace")
+	text = text.replace("Normal Post", "SIT trace")
+	text = text.replace("Posts", "NOX traces")
+	text = text.replace("Post", "NOX trace")
+	text = text.replace("the shutter", "the SLEEP trace")
+	text = text.replace("The metal plate", "Sleeping NOX")
+	text = text.replace("shutter", "SLEEP trace")
+	return text
+
 func whisper() -> void:
 	if stage_solved or hint_level >= 3:
 		return
-	status_label.text = "WHISPER " + ["I", "II", "III"][hint_level] + "  ·  " + stage()["hints"][hint_level]
+	status_label.text = "OBSERVATION " + ["I", "II", "III"][hint_level] + "  ·  " + _nox_hint(str(stage()["hints"][hint_level]))
 	hint_level += 1
 	hint_max_level = maxi(hint_max_level, hint_level)
 	var surface_name: String = stage()["hint_surface"]
