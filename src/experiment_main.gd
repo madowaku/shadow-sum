@@ -194,7 +194,7 @@ func _build_ui() -> void:
 	rail_center.add_child(rail)
 	for slot: int in 5:
 		var button: Button = _button("", Vector2(48, 44))
-		button.tooltip_text = "SLEEP trace · blocks TOP light · column " + String.chr(65 + slot)
+		button.tooltip_text = "SLEEP · blocks TOP light · " + String.chr(65 + slot)
 		button.gui_input.connect(_start_pointer.bind("shutter", slot))
 		rail.add_child(button)
 		var surface: Control = Surface.new()
@@ -230,14 +230,14 @@ func _build_ui() -> void:
 	inventory_row.add_theme_constant_override("separation", 10)
 	inventory_center.add_child(inventory_row)
 	inventory = _button("", Vector2(64, 44))
-	inventory.tooltip_text = "SIT trace · NOX sitting at this moment"
+	inventory.tooltip_text = "SIT · NOX sat here"
 	inventory.gui_input.connect(_start_pointer.bind("post", -1))
 	inventory_row.add_child(inventory)
 	var inventory_surface: Control = Surface.new()
 	inventory_surface.kind = "inventory"
 	inventory.add_child(inventory_surface)
 	tall_inventory = _button("", Vector2(64, 44))
-	tall_inventory.tooltip_text = "STAND trace · NOX standing at this moment"
+	tall_inventory.tooltip_text = "STAND · NOX stood here"
 	tall_inventory.gui_input.connect(_start_pointer.bind("post", -2))
 	inventory_row.add_child(tall_inventory)
 	var tall_inventory_surface: Control = Surface.new()
@@ -246,7 +246,7 @@ func _build_ui() -> void:
 	tall_inventory.add_child(tall_inventory_surface)
 	tall_inventory.visible = false
 	plate_inventory = _button("", Vector2(64, 44))
-	plate_inventory.tooltip_text = "OPTICAL PLATE · apparatus element"
+	plate_inventory.tooltip_text = "PLATE · optical apparatus"
 	plate_inventory.gui_input.connect(_start_pointer.bind("post", -3))
 	inventory_row.add_child(plate_inventory)
 	var plate_inventory_surface: Control = Surface.new()
@@ -809,6 +809,9 @@ func _refresh(animate: bool = true) -> void:
 	var has_fixed_posts: bool = stage().has("fixed_posts")
 	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts")
 	if mixed_inventory:
+		inventory.tooltip_text = "SIT · NOX sat here"
+		tall_inventory.tooltip_text = "STAND · NOX stood here"
+		plate_inventory.tooltip_text = "PLATE · optical apparatus"
 		# Keep movable inventory sockets visible even after a piece is placed so
 		# dragging a board piece back to its socket can remove it from the board.
 		inventory.visible = _has_movable_inventory("normal")
@@ -828,9 +831,11 @@ func _refresh(animate: bool = true) -> void:
 		inventory.visible = not has_fixed_posts
 		tall_inventory.visible = false
 		plate_inventory.visible = false
+		var tall_only: bool = bool(stage().get("tall", false))
+		inventory.tooltip_text = "STAND · NOX stood here" if tall_only else "SIT · NOX sat here"
 		inventory.get_child(0).occupied = posts.size() < int(stage()["posts"])
-		inventory.get_child(0).tall = stage().get("tall", false)
-		inventory.get_child(0).post_type = "tall" if stage().get("tall", false) else "normal"
+		inventory.get_child(0).tall = tall_only
+		inventory.get_child(0).post_type = "tall" if tall_only else "normal"
 		inventory.get_child(0).highlighted = false
 	inventory.get_parent().visible = inventory.visible or tall_inventory.visible or plate_inventory.visible
 	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
