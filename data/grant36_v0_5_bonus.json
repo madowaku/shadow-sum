@@ -1,0 +1,93 @@
+[
+  {
+    "id": "BS01",
+    "title": "THE EMPTY STAIR",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "solution": [
+      "D4",
+      "E5",
+      "D3"
+    ],
+    "solution_post_types": {
+      "D4": "normal",
+      "E5": "normal",
+      "D3": "tall"
+    },
+    "solution_tall": [
+      "D3"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "A1": 0,
+          "B1": 0,
+          "C1": 0,
+          "D1": 0,
+          "E1": 0,
+          "A2": 0,
+          "B2": 0,
+          "C2": 0,
+          "D2": 0,
+          "E2": 0,
+          "A3": 0,
+          "B3": 0,
+          "C3": 0,
+          "D3": 0,
+          "E3": 1,
+          "A4": 0,
+          "B4": 0,
+          "C4": 0,
+          "D4": 1,
+          "E4": 1,
+          "A5": 0,
+          "B5": 0,
+          "C5": 0,
+          "D5": 2,
+          "E5": 0
+        }
+      }
+    ],
+    "expected_states": 858,
+    "expected_solutions": 1,
+    "boardShape": {
+      "mask": [
+        "11000",
+        "11100",
+        "01110",
+        "00111",
+        "00011"
+      ]
+    },
+    "reasoning_signature": "OVERLAP/TALL",
+    "shape_required": true,
+    "typed_inventory_exact": true,
+    "tall_required": true,
+    "plate_required": false,
+    "shape_without_mask_survivors": 3,
+    "intro": "Gaps hold no Posts, but shadows pass through. Read the staircase.",
+    "hints": [
+      "The missing sockets cannot hold a Post. First narrow the possible causes by the outline.",
+      "D5 shows an overlap of two shadows. Trace both fixed lamps back through legal sockets.",
+      "The target zeros matter too. Use them to reject the remaining stair sockets."
+    ],
+    "hint_surface": "socket",
+    "hint_targets": [
+      "D5"
+    ],
+    "source_candidate": "gr25-006"
+  }
+]
