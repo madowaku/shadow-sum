@@ -69,6 +69,8 @@ func _load_stage(index: int) -> void:
 	_save_session()
 
 func _toggle_post(r: int, c: int) -> void:
+	if not is_socket_enabled(r, c):
+		return
 	var before: Array = posts.duplicate(true)
 	super._toggle_post(r, c)
 	_record_move(before)
@@ -116,7 +118,7 @@ func _undo_move() -> void:
 			motion.kill()
 	_reset_hint_visuals()
 	_cancel_ink_presentation()
-	posts = undo_history.pop_back()
+	posts = board_shape.filter_posts(undo_history.pop_back())
 	ink_immediate = false
 	_update_all()
 	_refresh_hint_button()
@@ -134,6 +136,7 @@ func _clear_signature() -> String:
 
 func _stage_signature(index: int) -> String:
 	var stage: Dictionary = stages[index]
+	# A mask-only revision filters saved positions instead of discarding the session.
 	return JSON.stringify([stage["id"], stage["posts"], stage["clues"], stage["solution"]]).sha256_text()
 
 func _save_session() -> void:
@@ -186,6 +189,9 @@ func _restore_session() -> void:
 		for value: Variant in row:
 			if not value is bool:
 				return
+	var saved_shape: RefCounted = BoardShape.new()
+	saved_shape.load_stage(stages[saved_index])
+	board = saved_shape.filter_posts(board)
 	var count: int = ShadowRules.count_posts(board)
 	var required: int = int(stages[saved_index]["posts"])
 	if count > required:

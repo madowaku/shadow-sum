@@ -1,0 +1,64 @@
+{
+  "target": "asset",
+  "mode": "sheet",
+  "prompt": "",
+  "role": "",
+  "input": "C:\\Users\\hiro\\.codex\\generated_images\\01a0ccd8-54f6-7702-b593-52e673aca044\\exec-c44fa8b2-325a-4474-8b37-92f25e0b5d9a.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 1,
+  "cols": 1,
+  "cell_size": 1024,
+  "fit_scale": 0.8,
+  "trim_border": 0,
+  "edge_clean_depth": 0,
+  "align": "bottom",
+  "shared_scale": false,
+  "component_mode": "all",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "nox_sleep-1"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "component_mode": "all",
+      "component_count": 624,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        0,
+        21,
+        1226,
+        1254
+      ],
+      "edge_touch": true,
+      "output_size": [
+        814,
+        819
+      ],
+      "paste_position": [
+        105,
+        103
+      ]
+    }
+  ],
+  "edge_touch_frames": [
+    [
+      0,
+      0
+    ]
+  ]
+}

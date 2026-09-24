@@ -91,6 +91,12 @@ const UI := {
 }
 
 const STAGE_TITLES := {
+	"CROSS": "十字",
+	"NARROW": "狭い帯",
+	"STAIR": "階段",
+	"CORNER": "片隅",
+	"HOLLOW": "中空",
+	"BRIDGE": "橋",
 	"FIRST LIGHT": "初めての光",
 	"OVERLAP": "重なり",
 	"BLACK CORE": "黒い核",
@@ -112,6 +118,7 @@ const STAGE_TITLES := {
 }
 
 const TIERS := {
+	"VARIANT": "変形プレート",
 	"INTRO": "はじめに",
 	"FOG": "霧",
 	"LINKS": "つながり",

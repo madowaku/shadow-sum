@@ -134,7 +134,10 @@ func _run() -> void:
 	var router: Control = Router.new()
 	root.add_child(router)
 	await process_frame
-	check(router.get_child(0).grant20_v03, "default remains GRANT20")
+	check(router.get_child(0).name == "NoxHome", "default opens NOXSUM home")
+	router._launch("grant20-v03")
+	await process_frame
+	check(router.get_child(0).grant20_v03, "legacy GRANT20 route remains available")
 	router._launch("grant36-draft")
 	await process_frame
 	var routed: Control = router.get_child(0)
@@ -146,6 +149,11 @@ func _run() -> void:
 		var path: String = protected_paths[index]
 		var after: String = FileAccess.get_file_as_string(path) if FileAccess.file_exists(path) else "<absent>"
 		check(before[index] == after, "player save unchanged " + path)
+	var music: Node = root.get_node_or_null("BgmPlaylist")
+	if music != null:
+		music.music_player.stop()
+		music.music_player.stream = null
+	await create_timer(0.15).timeout
 	DirAccess.remove_absolute(SMOKE_SAVE)
 	print("Grant36 draft smoke: %d failures; 16 mouse solutions, 64 wrong worlds, 4 FOG stages" % failures)
 	quit(1 if failures else 0)

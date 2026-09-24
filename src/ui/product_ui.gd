@@ -152,8 +152,10 @@ func style_controls() -> void:
 		button.add_theme_color_override("font_hover_color", T.TEXT_PRIMARY)
 		button.add_theme_color_override("font_pressed_color", T.TEXT_PRIMARY)
 		button.add_theme_color_override("font_disabled_color", Color("657079"))
-	for button: Button in game.post_buttons:
-		button.focus_mode = Control.FOCUS_NONE if help_overlay.visible else Control.FOCUS_ALL
+	for index: int in game.post_buttons.size():
+		var button: Button = game.post_buttons[index]
+		var enabled: bool = game.is_socket_enabled(int(index / 5.0), index % 5)
+		button.focus_mode = Control.FOCUS_NONE if help_overlay.visible or not enabled else Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		button.add_theme_stylebox_override("focus", _focus_style())
 	game.undo_button.tooltip_text = L.copy("undo_tooltip", language_code)
@@ -300,9 +302,24 @@ func _apply_language() -> void:
 	_refresh_sound()
 	for index: int in game.post_buttons.size():
 		var button: Button = game.post_buttons[index]
+		var enabled: bool = game.is_socket_enabled(int(index / 5.0), index % 5)
+		button.focus_mode = Control.FOCUS_ALL if enabled and not help_overlay.visible else Control.FOCUS_NONE
+		if not enabled:
+			button.tooltip_text = ""
+			continue
 		var occupied: bool = game.posts[int(index / 5.0)][index % 5]
 		var action_copy: String = L.copy("move_post", language_code) if occupied else L.copy("place_post", language_code)
 		button.tooltip_text = "%s%d · %s" % [String.chr(65 + index % 5), int(index / 5.0) + 1, action_copy]
+		var directions: Array[Vector2i] = [Vector2i.LEFT, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN]
+		for side: int in directions.size():
+			var cell: Vector2i = Vector2i(index % 5, int(index / 5.0)) + directions[side]
+			var neighbor: int = index
+			while cell.x >= 0 and cell.x < 5 and cell.y >= 0 and cell.y < 5:
+				if game.is_socket_enabled(cell.y, cell.x):
+					neighbor = cell.y * 5 + cell.x
+					break
+				cell += directions[side]
+			button.set_focus_neighbor(side, button.get_path_to(game.post_buttons[neighbor]))
 
 func _draw_collection() -> void:
 	var track_width: float = minf(320, collection.size.x)

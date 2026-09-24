@@ -11,7 +11,7 @@ const FEEL_WHITE := Color("#f3ffff")
 const SAMPLE_RATE := 44100
 
 func _toggle_post(r: int, c: int) -> void:
-	if stage_solved or stages.is_empty():
+	if stage_solved or stages.is_empty() or not is_socket_enabled(r, c):
 		return
 
 	var before_occupied := bool(posts[r][c])

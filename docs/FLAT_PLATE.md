@@ -7,6 +7,19 @@ A four-puzzle experiment campaign for a directional object:
 
 The plate stays on the same 5×5 board as other SHADOW SUM pieces. Its orientation changes which light directions can produce a shadow.
 
+## NOXSUM character presentation: WALK
+
+The NOX art direction maps this directional piece to **WALK**, based on the calm classic walking pose with a low tail. The body axis communicates the plate orientation.
+
+| Logical state | NOX view | Light response |
+|---|---|---|
+| `plate_h` | Side-profile walk, heading right | TOP / BOTTOM |
+| `plate_v` | Rear/depth walk, heading away | LEFT / RIGHT |
+
+The pair is provided as [horizontal](../assets/nox/v0.1/board/nox_walk.png) and [depth](../assets/nox/v0.1/board/nox_walk_v.png) transparent assets. A visual 90-degree turn should swap these views around a stable ground anchor. Keep the existing logical keys, two-state rotation, and optical rules.
+
+This is the asset-to-rule mapping. The experiment's current renderer still draws geometric plates; the NOX presentation has not been connected to the live scene. See the [NOX asset README](../assets/nox/v0.1/README.md) for export and placement details.
+
 ## Launch
 
 ```powershell

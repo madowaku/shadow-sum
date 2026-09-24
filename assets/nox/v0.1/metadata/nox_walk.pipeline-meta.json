@@ -1,0 +1,67 @@
+{
+  "target": "asset",
+  "mode": "sheet",
+  "prompt": "",
+  "role": "",
+  "input": "C:\\Users\\hiro\\.codex\\generated_images\\01a0ccd8-54f6-7702-b593-52e673aca044\\exec-8cd7eefc-5a72-4407-b18f-b280c95eef59.png",
+  "threshold": 0,
+  "edge_threshold": 0,
+  "duration": 200,
+  "rows": 1,
+  "cols": 1,
+  "cell_size": 1024,
+  "fit_scale": 0.8,
+  "trim_border": 0,
+  "edge_clean_depth": 0,
+  "align": "bottom",
+  "shared_scale": false,
+  "component_mode": "largest",
+  "component_padding": 8,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "nox_walk-1"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 450,
+      "selected_component_area": 399512,
+      "selected_component_bbox": [
+        37,
+        334,
+        1244,
+        1015
+      ],
+      "crop_bbox": [
+        29,
+        326,
+        1252,
+        1023
+      ],
+      "edge_touch": false,
+      "output_size": [
+        819,
+        466
+      ],
+      "paste_position": [
+        102,
+        456
+      ]
+    }
+  ],
+  "edge_touch_frames": [],
+  "exported_frame": "nox_walk-1.png",
+  "export_note": "Individual frame used to retain native alpha without additional sheet compositing.",
+  "prompt_file": "prompts/nox_walk.txt"
+}

@@ -7,6 +7,7 @@ checked independently by validate_stages.py.
 """
 from __future__ import annotations
 import argparse
+from board_shape import enabled_cells
 import json
 from pathlib import Path
 
@@ -29,7 +30,11 @@ def sources(i):
 
 
 def constraints(stage):
-    return [(sources(r*5+c), value, code(r*5+c)) for r, row in enumerate(stage['clues']) for c, value in enumerate(row) if value >= 0] + [(ALL, stage['posts'], 'COUNT')]
+    enabled = sum(1 << i for i in enabled_cells(stage))
+    equations = [(sources(r*5+c) & enabled, value, code(r*5+c)) for r, row in enumerate(stage['clues']) for c, value in enumerate(row) if value >= 0] + [(enabled, stage['posts'], 'COUNT')]
+    if enabled != ALL:
+        equations.append((ALL ^ enabled, 0, 'BOARD'))
+    return equations
 
 
 def propagate(equations, filled=0, empty=0, subsets=False):

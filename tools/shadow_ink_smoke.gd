@@ -58,6 +58,8 @@ func _run() -> void:
 	scene._update_live_cell(cell, 3)
 	var first: Tween = glass.ink_tween
 	var first_color: Tween = cell.get_meta("semantic_tween") as Tween
+	# Tween registration starts on the next frame; do not time the setup frame.
+	await process_frame
 	await create_timer(0.06).timeout
 	var midway: float = glass.display_level
 	check(midway > 0.0 and midway < 3.0, "ink did not interpolate")
@@ -101,6 +103,10 @@ func _run() -> void:
 				old.append(visual.ink_tween)
 		scene._set_drag_target(target)
 	check(scene.posts == before, "preview mutated Posts")
+	# All crossings above occur synchronously in one expensive frame. Wait for
+	# its delta to drain and Tween registration to finish before timing motion.
+	await process_frame
+	await process_frame
 	await create_timer(0.12).timeout
 	for tween in old:
 		check(not running(tween), "preview tween backlog")

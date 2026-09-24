@@ -2,6 +2,7 @@
 """Exhaustive fixed-Post-count verification, independent of the teaching solver."""
 from __future__ import annotations
 import itertools
+from board_shape import enabled_cells
 import json
 from pathlib import Path
 
@@ -33,7 +34,9 @@ def validate_stage(stage):
     assert type(required) is int and 1 <= required <= 25, 'Invalid Post count'
     assert len(clues)==5 and all(isinstance(row,list) and len(row)==5 for row in clues), 'Invalid board dimensions'
     assert all(type(v) is int and -1 <= v <= 3 for row in clues for v in row), 'Invalid clue'
+    candidates = enabled_cells(stage)
     solution = tuple(coord_to_index(c) for c in stage['solution'])
+    assert set(solution) <= set(candidates), 'Authored solution uses disabled socket'
     assert len(set(solution)) == len(solution) == required, 'Duplicate/missing solution Posts'
     assert matches_visible(solution,clues), 'Authored solution does not match'
     # Enumerate EVERY placement with this Post count. No inference/trace reused.
@@ -48,13 +51,14 @@ def validate_stage(stage):
             masks.append((source,value))
     masks.sort(key=lambda x:(x[1]!=0,x[0].bit_count()))
     matches = []
-    for candidate in itertools.combinations(range(25),required):
+    for candidate in itertools.combinations(candidates,required):
         placement = sum(1 << i for i in candidate)
         if all((placement & mask).bit_count()==value for mask,value in masks):
             matches.append(candidate)
             if len(matches)>1: break
     assert len(matches)==1, f'Expected 1 solution, found {len(matches)}'
     assert set(matches[0])==set(solution), 'Unique solution differs from authored solution'
+    return matches
 
 
 def main():

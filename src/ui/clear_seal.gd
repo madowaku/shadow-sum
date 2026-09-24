@@ -40,6 +40,18 @@ func _draw() -> void:
 		if progress < 1.0:
 			var sweep_y: float = rect.position.y + rect.size.y * progress
 			draw_line(Vector2(rect.position.x, sweep_y), Vector2(rect.end.x, sweep_y), Color(T.GOLD, alpha), 2.0, true)
+		for index: int in 25:
+			if index % 3 != 0 or float(cells[index].get("value")) < 0.5:
+				continue
+			var arrival: float = float(index) / 30.0 + float(index % 5) / 22.0
+			var bloom: float = clampf((progress - arrival) * 5.0, 0.0, 1.0)
+			var glint: float = sin(bloom * PI) * 0.78
+			if glint <= 0.0:
+				continue
+			var point: Vector2 = cells[index].get_global_rect().get_center() - global_position
+			draw_circle(point, 2.8 + glint * 2.0, Color(T.GOLD, glint))
+			draw_line(point + Vector2(-7, 0), point + Vector2(7, 0), Color(T.GOLD, glint * 0.55), 1.0, true)
+			draw_line(point + Vector2(0, -7), point + Vector2(0, 7), Color(T.GOLD, glint * 0.55), 1.0, true)
 		var length: float = 8.0 * progress
 		for corner: Vector2 in [rect.position, rect.end]:
 			var sign_value: float = 1.0 if corner == rect.position else -1.0

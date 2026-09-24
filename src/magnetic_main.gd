@@ -28,6 +28,8 @@ func _pointer_move(position: Vector2) -> void:
 		_update_drag_ghost(position)
 		if _is_valid_drag_target(hover_index) and hover_index != drag_target_index:
 			_set_drag_target(hover_index)
+		elif not _is_valid_drag_target(hover_index) and _pointer_over_disabled_plate(position):
+			_clear_drag_preview()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -44,7 +46,7 @@ func _pointer_up(position: Vector2) -> void:
 	if drag_active:
 		var release_index := _drag_target_at(position)
 		if not _is_valid_drag_target(release_index):
-			release_index = drag_source_index
+			release_index = _post_index_at(position) if _pointer_over_disabled_plate(position) else drag_source_index
 		_finish_post_drag(release_index)
 		snapped_pointer_index = -1
 		get_viewport().set_input_as_handled()
@@ -76,6 +78,10 @@ func _set_drag_target(index: int) -> bool:
 	return true
 
 
+func _clear_drag_preview() -> void:
+	super._clear_drag_preview()
+	_apply_drag_socket_readability(-1)
+
 func _animate_socket_capture(button: Button) -> void:
 	button.pivot_offset = button.size * 0.5
 	button.scale = Vector2(1.02, 1.02)
@@ -93,6 +99,9 @@ func _finish_post_drag(index: int) -> bool:
 func _drag_target_at(position: Vector2) -> int:
 	# Exact socket hit always wins.
 	var direct := _post_index_at(position)
+	# Unmachined plate never magnetically acquires an adjacent socket.
+	if direct >= 0 and not is_socket_enabled(int(direct / 5.0), direct % 5):
+		return -1
 	if _is_valid_drag_target(direct):
 		return direct
 

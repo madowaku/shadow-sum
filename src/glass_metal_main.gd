@@ -36,6 +36,7 @@ func _apply_post_button_style(button: Button, occupied: bool) -> void:
 	var post := post_visuals[index] as Control
 	socket.set_state(occupied, bool(socket.get_meta("active", false)))
 	post.set_state(occupied, false, occupied)
+	_apply_socket_availability(button, index)
 
 func _update_clue_cell(cell: PanelContainer, clue: int) -> void:
 	super._update_clue_cell(cell, clue)
@@ -93,6 +94,7 @@ func _apply_glass_metal_skin() -> void:
 		var occupied := _post_is_occupied(index)
 		(button.get_node("SocketVisual") as Control).set_state(occupied, false)
 		(button.get_node("PostVisual") as Control).set_state(occupied, false, occupied)
+		_apply_socket_availability(button, index)
 
 	for index in clue_cells.size():
 		var clue := int(stages[stage_index]["clues"][index / ShadowRules.BOARD_SIZE][index % ShadowRules.BOARD_SIZE]) if not stages.is_empty() else 0
@@ -154,6 +156,7 @@ func _on_socket_hover(index: int, hovering: bool) -> void:
 func _set_socket_active(index: int, active: bool) -> void:
 	if index < 0 or index >= socket_visuals.size():
 		return
+	active = active and is_socket_enabled(int(index / 5.0), index % 5)
 	var socket = socket_visuals[index]
 	if socket == null:
 		return

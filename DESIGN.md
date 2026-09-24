@@ -1,4 +1,10 @@
-# SHADOW SUM Design Context
+# NOXSUM Grant Direction
+
+The Grant-facing product is **NOXSUM**, a 36-moment reconstruction of NOX the cat's movement through one night. The default HOME screen is a memory archive; each stage asks the player to align recorded light traces with NOX's sitting, standing, or walking pose. The optical rules remain the deduction engine, while NOX and the recovered night provide the visible story.
+
+Use [NOXSUM Grant 36](docs/NOXSUM_GRANT_36.md) as the current presentation and launch reference. The older material direction below documents the puzzle prototype and still informs glass contrast, tactile controls, and restrained motion. Its SHADOW SUM title and 18-stage Grant description are historical.
+
+# SHADOW SUM Prototype Design Context (Legacy)
 
 ## Product identity
 

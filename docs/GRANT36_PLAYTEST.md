@@ -1,7 +1,7 @@
 # GR21–GR36 draft playtest
 
-The generated draft now has an opt-in Godot test mode. Default F5/startup still
-loads GRANT20; original stage data and original save files are unchanged.
+This page documents the retained opt-in Godot review mode. Default F5/startup now
+opens NOXSUM's 36-moment HOME; draft stage data and save files remain separate.
 
 ## Start from the Godot editor
 
@@ -11,7 +11,7 @@ loads GRANT20; original stage data and original save files are unchanged.
 
 A fresh draft starts at **GR21**. The **TEST STAGE** picker jumps freely to any of
 the 36 stages, including GR01–GR20 for comparison. FOG stages are labelled in the
-picker. F5 still runs the ordinary GRANT20 campaign.
+picker. F5 opens NOXSUM; `--campaign grant20-v03` opens the earlier Grant20 campaign.
 
 ## Start from PowerShell
 

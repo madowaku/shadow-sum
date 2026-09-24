@@ -66,7 +66,7 @@ func _play_solve_beat() -> void:
 
 	super._play_solve_beat()
 
-	if first_clear and unlocked_after > unlocked_before:
+	if stage_path == STAGE_PATH and first_clear and unlocked_after > unlocked_before:
 		_show_tier_unlock(unlocked_after - 1)
 	_refresh_progress_ui()
 
@@ -79,7 +79,7 @@ func _next_stage() -> void:
 	var max_index := _highest_unlocked_stage_index()
 	if stage_index >= max_index:
 		if _all_stages_completed():
-			status_label.text = "18 SHADOWS KEPT. Thank you for playing."
+			status_label.text = "%d SHADOWS KEPT. Thank you for playing." % stages.size()
 		return
 	_load_stage(stage_index + 1)
 

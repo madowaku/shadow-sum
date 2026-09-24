@@ -61,7 +61,7 @@ func _pointer_down(position: Vector2) -> void:
 	if drag_active:
 		return
 	var index := _post_index_at(position)
-	if index < 0 or not _post_is_occupied(index):
+	if index < 0 or not is_socket_enabled(int(index / 5.0), index % 5) or not _post_is_occupied(index):
 		drag_candidate_index = -1
 		return
 
@@ -77,6 +77,8 @@ func _pointer_move(position: Vector2) -> void:
 		var hover_index := _post_index_at(position)
 		if _is_valid_drag_target(hover_index) and hover_index != drag_target_index:
 			_set_drag_target(hover_index)
+		elif not _is_valid_drag_target(hover_index) and _pointer_over_disabled_plate(position):
+			_clear_drag_preview()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -93,7 +95,7 @@ func _pointer_up(position: Vector2) -> void:
 	if drag_active:
 		var release_index := _post_index_at(position)
 		if not _is_valid_drag_target(release_index):
-			release_index = drag_source_index
+			release_index = _post_index_at(position) if _pointer_over_disabled_plate(position) else drag_source_index
 		_finish_post_drag(release_index)
 		get_viewport().set_input_as_handled()
 	else:
@@ -101,7 +103,7 @@ func _pointer_up(position: Vector2) -> void:
 
 
 func _begin_post_drag(index: int, pointer_position := Vector2(-1.0, -1.0)) -> bool:
-	if drag_active or stage_solved or not _post_is_occupied(index):
+	if drag_active or stage_solved or not is_socket_enabled(int(index / 5.0), index % 5) or not _post_is_occupied(index):
 		return false
 
 	drag_active = true
@@ -159,7 +161,8 @@ func _finish_post_drag(index: int) -> bool:
 	if not moved:
 		_clear_drag_state()
 		_update_all()
-		_play_micro_tone(520.0, 410.0, 0.050, 0.09, -22.0)
+		if index < 0 or is_socket_enabled(int(index / 5.0), index % 5):
+			_play_micro_tone(520.0, 410.0, 0.050, 0.09, -22.0)
 		return false
 
 	var before_shadow := ShadowRules.compute_shadow(posts)
@@ -193,10 +196,18 @@ func _animate_drag_seat(target: int) -> void:
 	settle.tween_property(target_button, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
+func _clear_drag_preview() -> void:
+	if drag_target_index == -1:
+		return
+	drag_target_index = -1
+	_render_drag_preview(-1)
+
 func _render_drag_preview(target: int) -> void:
 	if not drag_active:
 		return
 
+	if not _is_valid_drag_target(target):
+		target = -1
 	var preview: Array = posts.duplicate(true)
 	var source_r := drag_source_index / ShadowRules.BOARD_SIZE
 	var source_c := drag_source_index % ShadowRules.BOARD_SIZE
@@ -262,6 +273,8 @@ func _emit_drag_result_feedback(before_shadow: Array) -> void:
 func _is_valid_drag_target(index: int) -> bool:
 	if index < 0 or index >= post_buttons.size() or drag_source_index < 0:
 		return false
+	if not is_socket_enabled(int(index / 5.0), index % 5):
+		return false
 	if index == drag_source_index:
 		return true
 	return not _post_is_occupied(index)
@@ -274,6 +287,10 @@ func _post_is_occupied(index: int) -> bool:
 	var c := index % ShadowRules.BOARD_SIZE
 	return bool(posts[r][c])
 
+
+func _pointer_over_disabled_plate(point: Vector2) -> bool:
+	var index: int = _post_index_at(point)
+	return index >= 0 and not is_socket_enabled(int(index / 5.0), index % 5)
 
 func _post_index_at(position: Vector2) -> int:
 	for index in post_buttons.size():

@@ -1,6 +1,8 @@
-# SHADOW SUM
+# NOXSUM
 
-A minimalist logic puzzle about placing posts so that three directional lights create the target shadow intensities.
+Reconstruct where NOX the cat was from the shadows kept by the Nocturnal Optical Archive. One plate can hold several moments; darker squares reveal overlap, without revealing their order.
+
+The default Godot launch opens the [36-record Grant presentation](docs/NOXSUM_GRANT_36.md). The [Godot Web export](docs/NOXSUM_WEB_EXPORT.md) is built for a 720×900 PC browser viewport and remains usable at 405×900. The [NOX character lock](assets/nox/CHARACTER_LOCK_v0.1.md) governs every pose and HOME visual. Earlier SHADOW SUM experiments and review campaigns remain available through CLI campaign flags.
 
 ## Core rule
 
@@ -59,7 +61,7 @@ Implementation sprint started September 2026.
 
 ## Grant experiments
 
-An isolated G01-G10 optical campaign is available with `--campaign experiments`. See [play instructions and validation](docs/GRANT_EXPERIMENTS.md). Default startup remains Grant18.
+An isolated G01-G10 optical campaign is available with `--campaign experiments`. See [play instructions and validation](docs/GRANT_EXPERIMENTS.md). Default startup opens NOXSUM; use `--campaign grant18` for that legacy build.
 
 ## Cause & Light
 
@@ -91,3 +93,14 @@ Use `--campaign grant36-draft` to test the generated draft independently of GRAN
 A fresh draft starts at GR21; use `--stage GR29` for FOG or the in-game TEST STAGE
 picker to jump freely. In the Godot editor, open `scenes/grant36_draft.tscn` and press
 F6. Progress is saved separately. See [launch instructions and verification](docs/GRANT36_PLAYTEST.md).
+
+
+## Variant Boards v0.1
+
+Six puzzles using only the original three-light rules are available with `--campaign variants`. The same 5x5 scene reads a placement-only `boardShape` mask; light and shadow remain unchanged. Use `--dev-selector` and choose **VAR01–VAR06 VARIANT BOARDS**, or run:
+
+```powershell
+& 'C:\Users\hiro\tools\godot-4.7\Godot_v4.7-stable_win64_console.exe' --path . -- --campaign variants
+```
+
+See [data format, verification and completion report](docs/VARIANT_BOARD_IMPLEMENTATION_REPORT.md).

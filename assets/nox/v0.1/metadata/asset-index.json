@@ -1,0 +1,162 @@
+{
+  "project": "NOXSUM",
+  "character": "NOX",
+  "version": "0.1",
+  "generated_on": "2026-09-23",
+  "generator": "OpenAI ImageGen in Codex",
+  "reference": "User-provided ChatGPT Image 2026年9月23日 14_58_22.png",
+  "third_party_assets": [],
+  "color_profile": "No embedded ICC profile; intended for standard sRGB import in Godot.",
+  "processor": "generate2dsprite.py process; single-cell transparent export",
+  "assets": [
+    {
+      "file": "board/nox_sit.png",
+      "raw_artifact": "exec-83f076fb-cbd7-4bc1-961e-c2d2c7578cab.png",
+      "prompt": "prompts/nox_sit.txt",
+      "size_px": [
+        1024,
+        1024
+      ],
+      "color_mode": "RGBA",
+      "alpha": "transparent",
+      "fit_scale": 0.76,
+      "anchor": "bottom",
+      "sha256": "5954e913e441deb94a3b56bcb6e31874a50eb0d5d6eada8fd8b11b80b2039874"
+    },
+    {
+      "file": "board/nox_stand.png",
+      "raw_artifact": "exec-830abcaa-f49b-4f9e-abde-745822d7d312.png",
+      "prompt": "prompts/nox_stand.txt",
+      "size_px": [
+        1024,
+        1024
+      ],
+      "color_mode": "RGBA",
+      "alpha": "transparent",
+      "fit_scale": 0.8,
+      "anchor": "bottom",
+      "sha256": "9f3fd3f67dfd4fd7e92cdc8784fb828914b7eb490b0e169fc968321055963ab2",
+      "superseded_raw_artifacts": [
+        "exec-3e980887-f606-4edb-addf-deae6b39d0f0.png",
+        "exec-19efa262-953d-47bb-b4a3-a508950cec92.png",
+        "exec-55becc2a-15f2-4d48-86e3-f48a9a4b69a8.png"
+      ],
+      "superseded_prompt": "prompts/nox_stand.upholstered-stool.txt",
+      "pose": "NOX standing upright on hind legs in a three-quarter side profile, option A, without stool",
+      "revision_reason": "Changed from the stool pose to option A upright stand per user direction.",
+      "superseded_prompt_history": [
+        "prompts/nox_stand.original.txt",
+        "prompts/nox_stand.simple-stool.txt"
+      ],
+      "reference_note": "User-provided STAND PIECE COMPARISON, option A, 2026-09-23"
+    },
+    {
+      "file": "board/nox_sleep.png",
+      "raw_artifact": "exec-c44fa8b2-325a-4474-8b37-92f25e0b5d9a.png",
+      "prompt": "prompts/nox_sleep.txt",
+      "size_px": [
+        1024,
+        1024
+      ],
+      "color_mode": "RGBA",
+      "alpha": "transparent",
+      "fit_scale": 0.8,
+      "anchor": "bottom",
+      "sha256": "a8b716ad80cdf2fe4a64378cc694a44943df60ef618c5614d25d08defb1a12f5"
+    },
+    {
+      "file": "ui/nox_bust_neutral.png",
+      "raw_artifact": "exec-0851102e-693f-424d-9b21-64aeb09ba015.png",
+      "revised_from": "exec-59959164-ecf8-4d12-8420-31d1e6cf671d.png",
+      "prompt": "prompts/nox_bust_neutral.txt",
+      "initial_prompt": "prompts/nox_bust_neutral.initial.txt",
+      "size_px": [
+        1024,
+        1024
+      ],
+      "color_mode": "RGBA",
+      "alpha": "transparent",
+      "fit_scale": 0.8,
+      "anchor": "center",
+      "sha256": "62c7b1df8ed6f7b64e074e419b84dab233c57136b90b4878f6bffdc0b5d1855a"
+    },
+    {
+      "file": "ui/nox_silhouette.png",
+      "raw_artifact": "exec-febece76-d14d-4ecf-afd7-b534c651b7fa.png",
+      "prompt": "prompts/nox_silhouette.txt",
+      "size_px": [
+        512,
+        512
+      ],
+      "color_mode": "RGBA",
+      "alpha": "transparent",
+      "fit_scale": 0.8,
+      "anchor": "bottom",
+      "sha256": "4083b6c883d70580e92cdf1d30a5bfa0614bb19d91669ed2ef0b8289746090c9"
+    },
+    {
+      "file": "brand/noxsum_app_icon_master.png",
+      "raw_artifact": "exec-135ab875-cae3-45d8-bb6c-5f68bc2e418a.png",
+      "prompt": "prompts/noxsum_app_icon_master.txt",
+      "size_px": [
+        1024,
+        1024
+      ],
+      "color_mode": "RGBA",
+      "alpha": "opaque",
+      "fit_scale": 1.0,
+      "anchor": "center",
+      "sha256": "52e928160d1553a30a33ccdad0a5eb0f7c4f72e6b411aa74607636d71b6262dc"
+    },
+    {
+      "file": "board/nox_walk.png",
+      "raw_artifact": "exec-8cd7eefc-5a72-4407-b18f-b280c95eef59.png",
+      "prompt": "prompts/nox_walk.txt",
+      "size_px": [
+        1024,
+        1024
+      ],
+      "color_mode": "RGBA",
+      "alpha": "transparent",
+      "fit_scale": 0.8,
+      "anchor": "bottom",
+      "sha256": "db0ad9733d1570315751ae8820b0b7bd73068a3656a793bb8ddd5c0fa594e544",
+      "pose": "WALK",
+      "logical_piece_type": "plate_h",
+      "orientation": "horizontal; walking right",
+      "active_light_directions": [
+        "TOP",
+        "BOTTOM"
+      ],
+      "rotation_partner": "board/nox_walk_v.png",
+      "animation_frames": 1,
+      "integration_status": "source_asset_only",
+      "reference_note": "User-supplied NOX character sheets and WALK PIECE CONCEPTS, classic WALK A posture."
+    },
+    {
+      "file": "board/nox_walk_v.png",
+      "raw_artifact": "exec-85bdcad3-f439-4a6c-a2ba-184bcd2b777f.png",
+      "prompt": "prompts/nox_walk_v.txt",
+      "size_px": [
+        1024,
+        1024
+      ],
+      "color_mode": "RGBA",
+      "alpha": "transparent",
+      "fit_scale": 0.8,
+      "anchor": "bottom",
+      "sha256": "1533621444d533ec23e06f2ddb66417608385bbcf441f270f58120834e46e22c",
+      "pose": "WALK",
+      "logical_piece_type": "plate_v",
+      "orientation": "depth; walking away",
+      "active_light_directions": [
+        "LEFT",
+        "RIGHT"
+      ],
+      "rotation_partner": "board/nox_walk.png",
+      "animation_frames": 1,
+      "integration_status": "source_asset_only",
+      "reference_note": "User-supplied NOX character sheets and WALK PIECE CONCEPTS, classic WALK A posture."
+    }
+  ]
+}

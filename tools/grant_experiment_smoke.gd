@@ -78,7 +78,8 @@ func _run() -> void:
 	for motion: Tween in old:
 		check(not motion.is_valid(), "reset retained tween")
 	await create_timer(0.95).timeout
-	check(not game.stage_solved and game.next_button.disabled and not game.completed.has("G01"), "stale solve callback")
+	# A clear is now committed before presentation; reset cancels only the animation.
+	check(not game.stage_solved and game.next_button.disabled and game.completed.has("G01"), "reset lost committed clear or retained solve callback")
 	_touch(game.sockets[12])
 	check(game.stage_solved, "touch C3 solves")
 	game.load_stage(1)
@@ -179,7 +180,7 @@ func _run() -> void:
 			for motion: Tween in old:
 				check(not motion.is_valid(), "NEXT retained old tween")
 	check(game.completed.size() == 10, "ten completions")
-	check(game.status_label.text.begins_with("10 EXPERIMENTS"), "ending")
+	check(game.stage_index == 0 and not game.stage_solved and not game.clear_seal.visible, "final REPLAY starts clean")
 	var after: String = FileAccess.get_file_as_string(grant_path) if FileAccess.file_exists(grant_path) else "<absent>"
 	check(before == after, "Grant18 save touched")
 	game.load_stage(9)

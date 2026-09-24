@@ -2,6 +2,10 @@ extends Control
 
 const ShadowRules = preload("res://src/shadow_rules.gd")
 const STAGE_PATH := "res://data/stages_v0_1.json"
+const BoardShape = preload("res://src/board_shape.gd")
+
+@export var stage_path: String = STAGE_PATH
+var board_shape: RefCounted = BoardShape.new()
 
 const CELL_SIZE := 48.0
 const POST_CELL_SIZE := 58.0
@@ -40,9 +44,9 @@ func _ready() -> void:
 	_load_stage(0)
 
 func _load_stages() -> void:
-	var file := FileAccess.open(STAGE_PATH, FileAccess.READ)
+	var file := FileAccess.open(stage_path, FileAccess.READ)
 	if file == null:
-		push_error("Could not open stage data: %s" % STAGE_PATH)
+		push_error("Could not open stage data: %s" % stage_path)
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
 	if parsed is Array:
@@ -281,6 +285,7 @@ func _load_stage(index: int) -> void:
 	if stages.is_empty():
 		return
 	stage_index = clampi(index, 0, stages.size() - 1)
+	board_shape.load_stage(stages[stage_index])
 	posts = ShadowRules.make_empty_posts()
 	stage_solved = false
 	var stage: Dictionary = stages[stage_index]
@@ -302,8 +307,29 @@ func _next_stage() -> void:
 		return
 	_load_stage(stage_index + 1)
 
+func is_socket_enabled(row: int, column: int) -> bool:
+	return board_shape.is_socket_enabled(row, column)
+
+func _apply_socket_availability(button: Button, index: int) -> void:
+	var enabled: bool = is_socket_enabled(int(index / 5.0), index % 5)
+	# Keep the Control in the GridContainer so the plate and spacing stay 5x5.
+	button.self_modulate.a = 1.0 if enabled else 0.0
+	button.disabled = stage_solved or not enabled
+	button.mouse_filter = Control.MOUSE_FILTER_STOP if enabled else Control.MOUSE_FILTER_IGNORE
+	if not enabled:
+		button.release_focus()
+		button.focus_mode = Control.FOCUS_NONE
+		button.tooltip_text = ""
+	var socket: CanvasItem = button.get_node_or_null("SocketVisual") as CanvasItem
+	if socket != null:
+		socket.visible = enabled
+	# PostVisual owns occupancy/preview visibility; only suppress absent sockets.
+	var post: CanvasItem = button.get_node_or_null("PostVisual") as CanvasItem
+	if post != null and not enabled:
+		post.visible = false
+
 func _toggle_post(r: int, c: int) -> void:
-	if stage_solved:
+	if stage_solved or not is_socket_enabled(r, c):
 		return
 	var stage: Dictionary = stages[stage_index]
 	var required := int(stage["posts"])
@@ -340,7 +366,7 @@ func _update_all() -> void:
 			_update_clue_cell(clue_cells[i], clue)
 			_update_live_cell(live_cells[i], int(shadow[r][c]))
 			_apply_post_button_style(post_buttons[i], bool(posts[r][c]))
-			post_buttons[i].disabled = stage_solved
+			_apply_socket_availability(post_buttons[i], i)
 
 	var shadows_match := ShadowRules.matches_visible_clues(shadow, clues)
 	stage_solved = placed == required and shadows_match

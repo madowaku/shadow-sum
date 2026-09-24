@@ -10,9 +10,12 @@ config_version=5
 
 [application]
 
-config/name="SHADOW SUM"
+config/name="NOXSUM"
 run/main_scene="res://scenes/campaign.tscn"
 config/features=PackedStringArray("4.7")
+boot_splash/bg_color=Color(0.075, 0.078, 0.09, 1)
+boot_splash/image="res://assets/nox/v0.5/app_icon.png"
+config/icon="res://assets/nox/v0.5/app_icon.png"
 
 [autoload]
 
@@ -20,11 +23,10 @@ BgmPlaylist="*res://src/ui/bgm_playlist.gd"
 
 [display]
 
-window/size/viewport_width=405
+window/size/viewport_width=720
 window/size/viewport_height=900
 window/size/window_width_override=720
 window/size/window_height_override=900
-window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [gui]

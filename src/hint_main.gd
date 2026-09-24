@@ -70,6 +70,8 @@ func _cancel_active_whisper() -> void:
 	_reset_hint_visuals()
 
 func _toggle_post(r: int, c: int) -> void:
+	if not is_socket_enabled(r, c):
+		return
 	_cancel_active_whisper()
 	super._toggle_post(r, c)
 
@@ -78,7 +80,7 @@ func _begin_post_drag(index: int, pointer_position: Vector2 = Vector2(-1.0, -1.0
 	return super._begin_post_drag(index, pointer_position)
 
 func _current_whispers() -> Array:
-	if stages.is_empty():
+	if stages.is_empty() or stage_path != STAGE_PATH:
 		return []
 	var key := str(int(stages[stage_index]["id"]))
 	var value = whisper_catalog.get(key, [])

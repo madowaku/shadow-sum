@@ -16,7 +16,7 @@ func _load_stage(index: int) -> void:
 func _maybe_start_unknown_intro() -> void:
 	if unknown_intro_shown_this_session or stages.is_empty() or stage_solved:
 		return
-	if int(stages[stage_index]["id"]) != 4:
+	if stage_path != STAGE_PATH or int(stages[stage_index]["id"]) != 4:
 		return
 	unknown_clear_index = -1
 	unknown_fog_index = -1
@@ -87,6 +87,8 @@ func _cancel_unknown_intro(restore_status: bool) -> void:
 		_update_all()
 
 func _toggle_post(r: int, c: int) -> void:
+	if not is_socket_enabled(r, c):
+		return
 	_cancel_unknown_intro(true)
 	super._toggle_post(r, c)
 

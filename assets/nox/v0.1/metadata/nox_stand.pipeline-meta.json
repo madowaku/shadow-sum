@@ -1,0 +1,67 @@
+{
+  "target": "asset",
+  "mode": "sheet",
+  "prompt": "",
+  "role": "",
+  "input": "C:\\Users\\hiro\\.codex\\generated_images\\01a0ccd8-54f6-7702-b593-52e673aca044\\exec-830abcaa-f49b-4f9e-abde-745822d7d312.png",
+  "threshold": 0,
+  "edge_threshold": 0,
+  "duration": 200,
+  "rows": 1,
+  "cols": 1,
+  "cell_size": 1024,
+  "fit_scale": 0.8,
+  "trim_border": 0,
+  "edge_clean_depth": 0,
+  "align": "bottom",
+  "shared_scale": false,
+  "component_mode": "largest",
+  "component_padding": 8,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "nox_stand-1"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 635,
+      "selected_component_area": 352557,
+      "selected_component_bbox": [
+        258,
+        26,
+        933,
+        1226
+      ],
+      "crop_bbox": [
+        250,
+        18,
+        941,
+        1234
+      ],
+      "edge_touch": false,
+      "output_size": [
+        465,
+        819
+      ],
+      "paste_position": [
+        279,
+        103
+      ]
+    }
+  ],
+  "edge_touch_frames": [],
+  "exported_frame": "nox_stand-1.png",
+  "prompt_file": "prompts/nox_stand.txt",
+  "export_note": "Individual frame, native alpha preserved; largest component with 8px padding."
+}
