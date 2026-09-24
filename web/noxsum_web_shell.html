@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<base href="/">
+	$GODOT_HEAD_INCLUDE
+	<title>$GODOT_PROJECT_NAME</title>
+	<style>
+		html, body {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			overflow: hidden;
+			background: #080b13;
+		}
+		canvas {
+			display: block;
+			width: 100%;
+			height: 100%;
+			touch-action: none;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<script src="$GODOT_URL"></script>
+	<script>
+		const noxsumLocale = null;
+		const engine = new Engine($GODOT_CONFIG);
+		engine.startGame(noxsumLocale ? { locale: noxsumLocale } : {});
+	</script>
+</body>
+</html>

@@ -39,3 +39,9 @@ Godot references: [Exporting for the Web](https://docs.godotengine.org/en/4.7/tu
 The verified Grant package is `builds/NOXSUM_Grant_Web_2026-09-23.zip` (51,740,573 bytes). It contains the nine Web runtime files at the ZIP root, including `index.html`, `index.wasm`, and `index.pck`, plus three OFL notices in `licenses/` for the bundled fonts. SHA-256: `50681440598361D4306B77CAE4AB7593A40F1D72BAF575793CC2140B96B0367A`.
 
 The app icon is assets/nox/v0.5/app_icon.png, selected from the front-facing NOX concept. The exported browser icon and boot splash have pixel-identical RGBA content.
+
+## Localized OGP pages
+
+The Web export uses the custom HTML shell at web/noxsum_web_shell.html and has English OGP metadata on the root page. After each export, run py tools/build_noxsum_ogp_pages.py.
+
+The script copies the OGP images into the public export and creates /en/ and /ja/ share pages with language-specific metadata and images. Deploy builds/web/ as the Netlify publish directory. The canonical share URLs are https://noxsum.netlify.app/en/ and https://noxsum.netlify.app/ja/.

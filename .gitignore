@@ -21,3 +21,6 @@ __pycache__/
 /.playwright-cli/
 /docs/previews/**/*.import
 /generated/*.translation
+
+# Local Netlify folder
+.netlify
