@@ -19,7 +19,7 @@ func _launch(selected: String) -> void:
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
-	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "grant36-v05"] else "res://scenes/experiments.tscn"
+	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "grant36-v05", "placement-gimmicks"] else "res://scenes/experiments.tscn"
 	var campaign: Control = (load(path) as PackedScene).instantiate()
 	var requested_stage_index: int = -1
 	if get_tree().root.has_meta("shadow_sum_start_stage"):
@@ -37,6 +37,8 @@ func _launch(selected: String) -> void:
 		campaign.grant20_v03 = true
 	elif selected == "grant36-v05":
 		campaign.grant36_v05 = true
+	elif selected == "placement-gimmicks":
+		campaign.placement_gimmicks = true
 	if requested_stage_index >= 0 and selected in ["grant20-v03", "grant36-v05"]:
 		campaign.set("requested_stage_index", requested_stage_index)
 	add_child(campaign)
@@ -47,8 +49,8 @@ func _show_selector() -> void:
 	add_child(center)
 	var column: VBoxContainer = VBoxContainer.new()
 	center.add_child(column)
-	var labels: Array[String] = ["GRANT18", "G01–G10 EXPERIMENTS", "H01–H06 CAUSE & LIGHT", "LC01–TP04 LIGHT & HEIGHT", "P01–P04 FLAT PLATE", "GRANT14 v0.2", "GRANT20 v0.3"]
-	var campaigns: Array[String] = ["grant18", "experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03"]
+	var labels: Array[String] = ["GRANT18", "G01–G10 EXPERIMENTS", "H01–H06 CAUSE & LIGHT", "LC01–TP04 LIGHT & HEIGHT", "P01–P04 FLAT PLATE", "GRANT14 v0.2", "GRANT20 v0.3", "PP01–PP12 PURE PLACEMENT"]
+	var campaigns: Array[String] = ["grant18", "experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "placement-gimmicks"]
 	for index: int in labels.size():
 		var button: Button = Button.new()
 		button.text = labels[index]
