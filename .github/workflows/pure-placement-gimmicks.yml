@@ -1,0 +1,52 @@
+name: Pure Placement Gimmick Lab
+
+on:
+  push:
+    paths:
+      - "data/pure_placement_gimmicks_v0_1.json"
+      - "docs/PURE_PLACEMENT_GIMMICKS_v0.1.md"
+      - "src/experiment_optics.gd"
+      - "src/experiment_main.gd"
+      - "src/ui/experiment_surface.gd"
+      - "src/campaign_main.gd"
+      - "src/home_screen.gd"
+      - "tools/validate_pure_placement_gimmicks.py"
+      - "tools/pure_placement_gimmicks_smoke.gd"
+      - ".github/workflows/pure-placement-gimmicks.yml"
+  pull_request:
+    paths:
+      - "data/pure_placement_gimmicks_v0_1.json"
+      - "docs/PURE_PLACEMENT_GIMMICKS_v0.1.md"
+      - "src/experiment_optics.gd"
+      - "src/experiment_main.gd"
+      - "src/ui/experiment_surface.gd"
+      - "src/campaign_main.gd"
+      - "tools/validate_pure_placement_gimmicks.py"
+      - "tools/pure_placement_gimmicks_smoke.gd"
+      - ".github/workflows/pure-placement-gimmicks.yml"
+
+jobs:
+  validate-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+
+      - name: Exhaustively validate PP01-PP12
+        run: python3 tools/validate_pure_placement_gimmicks.py
+
+      - name: Import project
+        run: bash tools/godot_checked.sh --headless --path . --editor --quit
+
+      - name: Exercise runtime optics and UI
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/pure_placement_gimmicks_smoke.gd --quit-after 300
+
+      - name: Boot PP10 through developer route
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign placement-gimmicks --stage PP10

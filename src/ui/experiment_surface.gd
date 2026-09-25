@@ -15,6 +15,8 @@ var highlighted: bool = false
 var active: bool = false
 var unknown: bool = false
 var glow: float = 1.0
+var switch_marker: bool = false
+var mirror_orientation: String = ""
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -34,6 +36,21 @@ func _draw() -> void:
 			draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))
 			if value > 3.0:
 				draw_string(ThemeDB.fallback_font, Vector2(6, size.y - 6), str(roundi(value)), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_PRIMARY)
+	elif kind == "blocker":
+		var body: Rect2 = Rect2(center - Vector2(15, 15), Vector2(30, 30))
+		draw_style_box(_style(T.METAL_SIDE_DARK, T.METAL_RIM, 4), body)
+		draw_line(body.position + Vector2(5, 8), body.end - Vector2(5, 8), Color(T.TEXT_MUTED, 0.42), 1.0)
+		draw_line(Vector2(body.position.x + 5, body.end.y - 8), Vector2(body.end.x - 5, body.position.y + 8), Color(T.TEXT_MUTED, 0.30), 1.0)
+		draw_circle(center, 3, T.METAL_TOP)
+	elif kind == "mirror":
+		var frame: Rect2 = Rect2(center - Vector2(16, 16), Vector2(32, 32))
+		draw_style_box(_style(Color(T.METAL_SIDE_DARK, 0.86), T.METAL_RIM, 5), frame)
+		var slash_color: Color = Color(T.CYAN, 0.88)
+		if mirror_orientation == "/":
+			draw_line(frame.position + Vector2(6, 26), frame.position + Vector2(26, 6), slash_color, 4.0, true)
+		else:
+			draw_line(frame.position + Vector2(6, 6), frame.position + Vector2(26, 26), slash_color, 4.0, true)
+		draw_circle(center, 2, Color(1, 1, 1, 0.55))
 	elif kind == "socket_missing":
 		var plug_rect: Rect2 = Rect2(Vector2(5, 5), size - Vector2(10, 10))
 		draw_style_box(_style(T.METAL_SIDE_DARK, T.LINE_SOFT, 3), plug_rect)
@@ -41,6 +58,10 @@ func _draw() -> void:
 		draw_line(center + Vector2(-5, -5), center + Vector2(5, 5), muted, 1.0)
 		draw_line(center + Vector2(-5, 5), center + Vector2(5, -5), muted, 1.0)
 	elif kind == "socket" or kind == "inventory":
+		if kind == "socket" and switch_marker:
+			var switch_rect: Rect2 = Rect2(center - Vector2(18, 18), Vector2(36, 36))
+			draw_style_box(_style(Color(T.METAL_SIDE_DARK, 0.74), Color(T.GOLD, 0.62), 5), switch_rect)
+			draw_circle(center, 4, Color(T.GOLD, 0.72))
 		draw_circle(center, minf(size.x, size.y) * 0.32, T.SOCKET_INNER)
 		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else T.SOCKET_RIM, 1.5, true)
 		if occupied:
