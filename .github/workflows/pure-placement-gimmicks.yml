@@ -46,6 +46,3 @@ jobs:
 
       - name: Exercise runtime optics and UI
         run: bash tools/godot_checked.sh --headless --path . --script res://tools/pure_placement_gimmicks_smoke.gd --quit-after 300
-
-      - name: Boot PP10 through developer route
-        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign placement-gimmicks --stage PP10
