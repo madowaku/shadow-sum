@@ -38,6 +38,8 @@ on:
       - "tools/grant36_v05_smoke.tscn"
       - "tools/noxsum_grant36_sync_smoke.gd"
       - "tools/validate_stages.py"
+      - "tools/validate_pure_placement_gimmicks.py"
+      - "tools/pure_placement_gimmicks_smoke.gd"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
       - "tools/test_stage_analysis.py"
@@ -80,6 +82,8 @@ on:
       - "tools/grant36_v05_smoke.tscn"
       - "tools/noxsum_grant36_sync_smoke.gd"
       - "tools/validate_stages.py"
+      - "tools/validate_pure_placement_gimmicks.py"
+      - "tools/pure_placement_gimmicks_smoke.gd"
       - "tools/analyze_stages.py"
       - "tools/validate_grant_campaign.py"
       - "tools/test_stage_analysis.py"
@@ -201,3 +205,10 @@ jobs:
         run: bash tools/godot_checked.sh --headless --path . --script res://tools/noxsum_grant36_sync_smoke.gd --quit-after 300 -- --sync-dev-route --campaign=grant36-v05 --stage GR28
       - name: Exercise GR28 developer route with default campaign
         run: bash tools/godot_checked.sh --headless --path . --script res://tools/noxsum_grant36_sync_smoke.gd --quit-after 300 -- --sync-dev-route --stage GR28
+
+      - name: Validate pure placement gimmick lab
+        run: python3 tools/validate_pure_placement_gimmicks.py
+      - name: Exercise pure placement gimmick runtime
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/pure_placement_gimmicks_smoke.gd --quit-after 300
+      - name: Boot pure placement lab at PP10
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign placement-gimmicks --stage PP10
