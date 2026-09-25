@@ -1,0 +1,608 @@
+[
+  {
+    "id": "PP01",
+    "title": "ONE TRACE REMAINS",
+    "posts": 2,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C3",
+      "E4"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "E4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B3": 1,
+          "D3": 1,
+          "C4": 1,
+          "D4": 1,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 24,
+    "hints": [
+      "Some of NOX's past is already fixed.",
+      "Treat the fixed trace as part of the same reconstruction.",
+      "Place only the missing trace."
+    ],
+    "hint_surface": "socket",
+    "fixed_posts": [
+      "C3"
+    ],
+    "fixed_post_types": {
+      "C3": "normal"
+    },
+    "gimmick_family": "FIXED_NOX"
+  },
+  {
+    "id": "PP02",
+    "title": "KNOWN CORNER",
+    "posts": 2,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "B2",
+      "D4"
+    ],
+    "solution_post_types": {
+      "B2": "normal",
+      "D4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A2": 1,
+          "C2": 1,
+          "B3": 1,
+          "C4": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 24,
+    "hints": [
+      "Some of NOX's past is already fixed.",
+      "Treat the fixed trace as part of the same reconstruction.",
+      "Place only the missing trace."
+    ],
+    "hint_surface": "socket",
+    "fixed_posts": [
+      "B2"
+    ],
+    "fixed_post_types": {
+      "B2": "normal"
+    },
+    "gimmick_family": "FIXED_NOX"
+  },
+  {
+    "id": "PP03",
+    "title": "BETWEEN TWO MEMORIES",
+    "posts": 3,
+    "normal_posts": 3,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "A2",
+      "C3",
+      "E5"
+    ],
+    "solution_post_types": {
+      "A2": "normal",
+      "C3": "normal",
+      "E5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B2": 1,
+          "A3": 1,
+          "B3": 1,
+          "D3": 1,
+          "C4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 23,
+    "hints": [
+      "Some of NOX's past is already fixed.",
+      "Treat the fixed trace as part of the same reconstruction.",
+      "Place only the missing trace."
+    ],
+    "hint_surface": "socket",
+    "fixed_posts": [
+      "C3",
+      "E5"
+    ],
+    "fixed_post_types": {
+      "C3": "normal",
+      "E5": "normal"
+    },
+    "gimmick_family": "FIXED_NOX"
+  },
+  {
+    "id": "PP04",
+    "title": "STEP ON THE LIGHT",
+    "posts": 1,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C3"
+    ],
+    "solution_post_types": {
+      "C3": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "B3": 1,
+          "D3": 1,
+          "C4": 1
+        }
+      }
+    ],
+    "expected_states": 25,
+    "hints": [
+      "A socket is connected to the lamps.",
+      "Placing NOX can change the illumination.",
+      "Read the lamp state after each placement."
+    ],
+    "hint_surface": "socket",
+    "placement_switches": [
+      {
+        "cell": "C3",
+        "on": [
+          "RIGHT"
+        ]
+      }
+    ],
+    "gimmick_family": "SWITCH"
+  },
+  {
+    "id": "PP05",
+    "title": "LEAVE A LAMP BEHIND",
+    "posts": 2,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "B2",
+      "D4"
+    ],
+    "solution_post_types": {
+      "B2": "normal",
+      "D4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "B1": 1,
+          "C2": 1,
+          "B3": 1,
+          "D3": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 300,
+    "hints": [
+      "A socket is connected to the lamps.",
+      "Placing NOX can change the illumination.",
+      "Read the lamp state after each placement."
+    ],
+    "hint_surface": "socket",
+    "placement_switches": [
+      {
+        "cell": "B2",
+        "on": [
+          "BOTTOM"
+        ]
+      }
+    ],
+    "gimmick_family": "SWITCH"
+  },
+  {
+    "id": "PP06",
+    "title": "TWO QUIET SWITCHES",
+    "posts": 3,
+    "normal_posts": 3,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "B2",
+      "C3",
+      "D4"
+    ],
+    "solution_post_types": {
+      "B2": "normal",
+      "C3": "normal",
+      "D4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "B1": 1,
+          "A2": 1,
+          "C2": 1,
+          "B3": 2,
+          "D3": 1,
+          "C4": 2,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 2300,
+    "hints": [
+      "A socket is connected to the lamps.",
+      "Placing NOX can change the illumination.",
+      "Read the lamp state after each placement."
+    ],
+    "hint_surface": "socket",
+    "placement_switches": [
+      {
+        "cell": "B2",
+        "on": [
+          "BOTTOM"
+        ]
+      },
+      {
+        "cell": "D4",
+        "off": [
+          "LEFT"
+        ],
+        "on": [
+          "RIGHT"
+        ]
+      }
+    ],
+    "gimmick_family": "SWITCH"
+  },
+  {
+    "id": "PP07",
+    "title": "IN THE SHADOW OF THE BOX",
+    "posts": 1,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C3"
+    ],
+    "solution_post_types": {
+      "C3": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B3": 1,
+          "D3": 1
+        }
+      }
+    ],
+    "expected_states": 24,
+    "hints": [
+      "The dark apparatus blocks light before it reaches NOX.",
+      "A blocked lamp contributes no shadow for traces behind it.",
+      "Different positions can see different subsets of the same lamps."
+    ],
+    "hint_surface": "socket",
+    "blockers": [
+      "C2"
+    ],
+    "gimmick_family": "BLOCKER"
+  },
+  {
+    "id": "PP08",
+    "title": "TWO BLIND SPOTS",
+    "posts": 2,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C3",
+      "D4"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "D4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B3": 1,
+          "D3": 1,
+          "C4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 253,
+    "hints": [
+      "The dark apparatus blocks light before it reaches NOX.",
+      "A blocked lamp contributes no shadow for traces behind it.",
+      "Different positions can see different subsets of the same lamps."
+    ],
+    "hint_surface": "socket",
+    "blockers": [
+      "C2",
+      "B4"
+    ],
+    "gimmick_family": "BLOCKER"
+  },
+  {
+    "id": "PP09",
+    "title": "LIGHT BETWEEN MACHINES",
+    "posts": 2,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C3",
+      "E4"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "E4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B3": 1,
+          "D3": 1,
+          "E3": 1,
+          "C4": 1,
+          "D4": 1,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 231,
+    "hints": [
+      "The dark apparatus blocks light before it reaches NOX.",
+      "A blocked lamp contributes no shadow for traces behind it.",
+      "Different positions can see different subsets of the same lamps."
+    ],
+    "hint_surface": "socket",
+    "blockers": [
+      "B2",
+      "D2",
+      "C4"
+    ],
+    "gimmick_family": "BLOCKER"
+  },
+  {
+    "id": "PP10",
+    "title": "BENT LIGHT",
+    "posts": 1,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "D2"
+    ],
+    "solution_post_types": {
+      "D2": "normal"
+    },
+    "installed_lights": [
+      "TOP"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP"
+        ],
+        "target": {
+          "E2": 1,
+          "D3": 1
+        }
+      }
+    ],
+    "expected_states": 24,
+    "hints": [
+      "A mirror changes the direction of incoming light.",
+      "Follow the beam through the mirror before reading the shadow.",
+      "One lamp can reach the same trace by more than one path."
+    ],
+    "hint_surface": "socket",
+    "mirrors": {
+      "C2": "\\"
+    },
+    "gimmick_family": "MIRROR"
+  },
+  {
+    "id": "PP11",
+    "title": "THREE FROM ONE",
+    "posts": 1,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C2"
+    ],
+    "solution_post_types": {
+      "C2": "normal"
+    },
+    "installed_lights": [
+      "TOP"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP"
+        ],
+        "target": {
+          "B2": 1,
+          "D2": 1,
+          "C3": 1
+        }
+      }
+    ],
+    "expected_states": 23,
+    "hints": [
+      "A mirror changes the direction of incoming light.",
+      "Follow the beam through the mirror before reading the shadow.",
+      "One lamp can reach the same trace by more than one path."
+    ],
+    "hint_surface": "socket",
+    "mirrors": {
+      "B2": "\\",
+      "D2": "/"
+    },
+    "gimmick_family": "MIRROR"
+  },
+  {
+    "id": "PP12",
+    "title": "REFLECTED MEMORY",
+    "posts": 2,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C2",
+      "C4"
+    ],
+    "solution_post_types": {
+      "C2": "normal",
+      "C4": "normal"
+    },
+    "installed_lights": [
+      "TOP"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP"
+        ],
+        "target": {
+          "B2": 1,
+          "D2": 1,
+          "C3": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 253,
+    "hints": [
+      "A mirror changes the direction of incoming light.",
+      "Follow the beam through the mirror before reading the shadow.",
+      "One lamp can reach the same trace by more than one path."
+    ],
+    "hint_surface": "socket",
+    "mirrors": {
+      "B2": "\\",
+      "D2": "/"
+    },
+    "gimmick_family": "MIRROR"
+  }
+]
