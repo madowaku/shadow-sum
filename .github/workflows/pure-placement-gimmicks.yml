@@ -9,6 +9,7 @@ on:
       - "src/experiment_main.gd"
       - "src/ui/experiment_surface.gd"
       - "src/campaign_main.gd"
+      - "src/home_screen.gd"
       - "tools/validate_pure_placement_gimmicks.py"
       - "tools/pure_placement_gimmicks_smoke.gd"
       - ".github/workflows/pure-placement-gimmicks.yml"
@@ -46,3 +47,6 @@ jobs:
 
       - name: Exercise runtime optics and UI
         run: bash tools/godot_checked.sh --headless --path . --script res://tools/pure_placement_gimmicks_smoke.gd --quit-after 300
+
+      - name: Boot PP10 through developer route
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign placement-gimmicks --stage PP10
