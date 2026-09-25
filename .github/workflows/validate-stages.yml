@@ -5,6 +5,7 @@ on:
     paths:
       - "data/**"
       - "tools/validate_stages.py"
+      - "tools/validate_pure_placement_gimmicks.py"
       - ".github/workflows/validate-stages.yml"
   pull_request:
     paths:
@@ -25,4 +26,6 @@ jobs:
           python-version: "3.12"
 
       - name: Validate stage solutions and uniqueness
-        run: python tools/validate_stages.py
+        run: |
+          python tools/validate_stages.py
+          python tools/validate_pure_placement_gimmicks.py
