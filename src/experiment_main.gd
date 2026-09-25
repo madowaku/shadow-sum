@@ -143,10 +143,10 @@ func _build_ui() -> void:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or placement_gimmicks else 16)
+		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks else 16)
 	add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 4 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or placement_gimmicks else 8)
+	column.add_theme_constant_override("separation", 4 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks else 8)
 	margin.add_child(column)
 	_label(column, "NOXSUM", 25, T.TEXT_PRIMARY)
 	var campaign_label: String = "G R A N T   /   E X P E R I M E N T S"
@@ -190,7 +190,7 @@ func _build_ui() -> void:
 		screen_column.add_child(grid)
 		for index: int in 25:
 			var holder: Control = Control.new()
-			holder.custom_minimum_size = Vector2(26, 26) if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or placement_gimmicks else Vector2(28, 28)
+			holder.custom_minimum_size = Vector2(26, 26) if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks else Vector2(28, 28)
 			grid.add_child(holder)
 			var surface: Control = Surface.new()
 			surface.kind = "shadow"
@@ -860,6 +860,12 @@ func _refresh(animate: bool = true) -> void:
 		socket_button.disabled = not socket_available or stage_solved
 		socket_button.mouse_filter = Control.MOUSE_FILTER_STOP if socket_available else Control.MOUSE_FILTER_IGNORE
 		var surface: Control = socket_button.get_child(0)
+		surface.switch_marker = _is_switch_socket(index)
+		surface.mirror_orientation = mirror_here
+		surface.occupied = socket_available and posts.has(index)
+		surface.post_type = str(types.get(str(index), "normal")) if surface.occupied else "normal"
+		surface.tall = surface.occupied and surface.post_type == "tall"
+		surface.fixed = _is_fixed_post(index)
 		if blocker_here:
 			surface.kind = "blocker"
 			socket_button.tooltip_text = "Fixed blocker"
@@ -869,12 +875,6 @@ func _refresh(animate: bool = true) -> void:
 		else:
 			surface.kind = "socket" if socket_available else "socket_missing"
 			socket_button.tooltip_text = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
-		surface.switch_marker = _is_switch_socket(index)
-		surface.mirror_orientation = mirror_here
-		surface.occupied = socket_available and posts.has(index)
-		surface.post_type = str(types.get(str(index), "normal")) if surface.occupied else "normal"
-		surface.tall = surface.occupied and surface.post_type == "tall"
-		surface.fixed = _is_fixed_post(index)
 	for direction: String in lamps:
 		var lamp: Button = lamps[direction]
 		var interactive: bool = stage().get("free_light_selection", false) or (stage().get("light_puzzle", false) and (direction != "BOTTOM" or cause_light or light_height))
@@ -889,7 +889,7 @@ func _refresh(animate: bool = true) -> void:
 		lamp.get_child(0).fixed = not interactive
 		lamp.get_child(0).active = effective_lights.has(direction)
 		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
-		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or placement_gimmicks:
+		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks:
 			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
 			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
