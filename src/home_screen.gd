@@ -27,7 +27,9 @@ var sound_player: AudioStreamPlayer
 
 func _ready() -> void:
 	if _has_developer_launch_args():
-		get_tree().change_scene_to_file(CAMPAIGN_SCENE)
+		# Scene changes from _ready can collide with the root adding this HOME node.
+		# Defer the developer handoff by one idle turn.
+		get_tree().call_deferred("change_scene_to_file", CAMPAIGN_SCENE)
 		return
 
 	_load_stage_data()
