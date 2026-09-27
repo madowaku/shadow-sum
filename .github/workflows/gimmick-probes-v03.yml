@@ -1,0 +1,44 @@
+name: Gimmick Probe Playtest
+
+on:
+  push:
+    paths:
+      - "data/gimmick_probe_v0_3.json"
+      - "src/experiment_optics.gd"
+      - "src/experiment_main.gd"
+      - "src/ui/experiment_surface.gd"
+      - "src/campaign_main.gd"
+      - "tools/gimmick_probe_smoke.gd"
+      - ".github/workflows/gimmick-probes-v03.yml"
+  pull_request:
+    paths:
+      - "data/gimmick_probe_v0_3.json"
+      - "src/experiment_optics.gd"
+      - "src/experiment_main.gd"
+      - "src/ui/experiment_surface.gd"
+      - "src/campaign_main.gd"
+      - "tools/gimmick_probe_smoke.gd"
+      - ".github/workflows/gimmick-probes-v03.yml"
+
+jobs:
+  playtest-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+
+      - name: Import project
+        run: bash tools/godot_checked.sh --headless --path . --editor --quit
+
+      - name: Exercise LAN/MIR runtime
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/gimmick_probe_smoke.gd --quit-after 300
+
+      - name: Boot playtest at LAN-01
+        run: bash tools/godot_checked.sh --headless --path . --quit-after 3 -- --campaign gimmick-probes --stage LAN-01
