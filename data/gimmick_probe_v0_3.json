@@ -1,0 +1,290 @@
+[
+  {
+    "id": "LAN-01",
+    "title": "CROSS THE CLUES",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "lantern_posts": 1,
+    "mirror_posts": 0,
+    "fixed_posts": [
+      "C3"
+    ],
+    "fixed_post_types": {
+      "C3": "normal"
+    },
+    "installed_lights": [],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "C4": 1,
+          "E2": 1
+        }
+      }
+    ],
+    "fog_cells": [
+      "A1",
+      "B1",
+      "C1",
+      "D1",
+      "E1",
+      "A2",
+      "B2",
+      "C2",
+      "D2",
+      "A3",
+      "B3",
+      "C3",
+      "D3",
+      "E3",
+      "A4",
+      "B4",
+      "D4",
+      "E4",
+      "A5",
+      "B5",
+      "C5",
+      "D5",
+      "E5"
+    ],
+    "lantern_rule": true,
+    "gimmick_family": "LANTERN",
+    "solution": [
+      "C3",
+      "D2",
+      "C2"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "D2": "normal",
+      "C2": "lantern"
+    },
+    "expected_states": 552,
+    "hints": [
+      "A known NOX can reveal where the light must be.",
+      "C4 belongs to the fixed trace at C3.",
+      "Find one lantern position that also lets another SIT explain E2."
+    ]
+  },
+  {
+    "id": "LAN-02",
+    "title": "KNOWN TRACE, UNKNOWN LIGHT",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "lantern_posts": 1,
+    "mirror_posts": 0,
+    "fixed_posts": [
+      "C3"
+    ],
+    "fixed_post_types": {
+      "C3": "normal"
+    },
+    "installed_lights": [],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [],
+        "target": {
+          "B3": 1,
+          "D1": 1
+        }
+      }
+    ],
+    "fog_cells": [
+      "A1",
+      "B1",
+      "C1",
+      "E1",
+      "A2",
+      "B2",
+      "C2",
+      "D2",
+      "E2",
+      "A3",
+      "C3",
+      "D3",
+      "E3",
+      "A4",
+      "B4",
+      "C4",
+      "D4",
+      "E4",
+      "A5",
+      "B5",
+      "C5",
+      "D5",
+      "E5"
+    ],
+    "lantern_rule": true,
+    "gimmick_family": "LANTERN",
+    "solution": [
+      "C3",
+      "D2",
+      "D3"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "D2": "normal",
+      "D3": "lantern"
+    },
+    "expected_states": 552,
+    "hints": [
+      "Two marks need two NOX traces to contribute.",
+      "The fixed C3 trace cannot create D1.",
+      "Use B3 to locate the lantern, then let D1 place the remaining SIT."
+    ]
+  },
+  {
+    "id": "MIR-01",
+    "title": "TURN THE BEAM",
+    "posts": 2,
+    "normal_posts": 1,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "lantern_posts": 0,
+    "mirror_posts": 1,
+    "fixed_posts": [
+      "C3"
+    ],
+    "fixed_post_types": {
+      "C3": "mirror_slash"
+    },
+    "rotatable_mirror": true,
+    "installed_lights": [
+      "TOP"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP"
+        ],
+        "target": {
+          "A3": 1,
+          "B4": 1
+        }
+      }
+    ],
+    "fog_cells": [
+      "A1",
+      "B1",
+      "C1",
+      "D1",
+      "E1",
+      "A2",
+      "B2",
+      "C2",
+      "D2",
+      "E2",
+      "B3",
+      "C3",
+      "D3",
+      "E3",
+      "A4",
+      "C4",
+      "D4",
+      "E4",
+      "A5",
+      "B5",
+      "C5",
+      "D5",
+      "E5"
+    ],
+    "gimmick_family": "ROTATABLE_MIRROR",
+    "solution": [
+      "C3",
+      "B3"
+    ],
+    "solution_post_types": {
+      "C3": "mirror_slash",
+      "B3": "normal"
+    },
+    "expected_states": 48,
+    "hints": [
+      "B4 can be an ordinary TOP shadow.",
+      "The same SIT can also be reached by a reflected beam.",
+      "Tap the fixed mirror to rotate it."
+    ]
+  },
+  {
+    "id": "MIR-02",
+    "title": "THE SHADOW THAT MUST NOT EXIST",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "lantern_posts": 0,
+    "mirror_posts": 1,
+    "fixed_posts": [
+      "C3",
+      "B3"
+    ],
+    "fixed_post_types": {
+      "C3": "mirror_slash",
+      "B3": "normal"
+    },
+    "rotatable_mirror": true,
+    "installed_lights": [
+      "TOP"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP"
+        ],
+        "target": {
+          "A3": 0,
+          "E5": 1
+        }
+      }
+    ],
+    "fog_cells": [
+      "A1",
+      "B1",
+      "C1",
+      "D1",
+      "E1",
+      "A2",
+      "B2",
+      "C2",
+      "D2",
+      "E2",
+      "B3",
+      "C3",
+      "D3",
+      "E3",
+      "A4",
+      "B4",
+      "C4",
+      "D4",
+      "E4",
+      "A5",
+      "B5",
+      "C5",
+      "D5"
+    ],
+    "gimmick_family": "ROTATABLE_MIRROR",
+    "solution": [
+      "C3",
+      "B3",
+      "E4"
+    ],
+    "solution_post_types": {
+      "C3": "mirror_backslash",
+      "B3": "normal",
+      "E4": "normal"
+    },
+    "expected_states": 46,
+    "hints": [
+      "E5 first tells you where the movable SIT goes.",
+      "Both mirror directions can still look possible after that.",
+      "A3 is observed as clear. Reject the mirror direction that would create a shadow there."
+    ]
+  }
+]

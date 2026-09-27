@@ -65,7 +65,26 @@ func _draw() -> void:
 		draw_circle(center, minf(size.x, size.y) * 0.32, T.SOCKET_INNER)
 		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else T.SOCKET_RIM, 1.5, true)
 		if occupied:
-			if post_type.begins_with("plate_"):
+			if post_type == "lantern":
+				if highlighted:
+					draw_circle(center, 22, Color(T.GOLD, 0.10))
+				for direction: Vector2 in [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]:
+					draw_line(center + direction * 11.0, center + direction * 18.0, Color(T.GOLD, 0.72), 2.0, true)
+				draw_circle(center, 10, Color(T.GOLD, 0.12))
+				draw_circle(center, 7, T.METAL_SIDE)
+				draw_circle(center, 4, T.GOLD)
+				if kind == "inventory":
+					draw_string(ThemeDB.fallback_font, Vector2(3, size.y - 3), "LAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(T.TEXT_MUTED, 0.82))
+			elif post_type.begins_with("mirror_"):
+				var frame: Rect2 = Rect2(center - Vector2(16, 16), Vector2(32, 32))
+				draw_style_box(_style(Color(T.METAL_SIDE_DARK, 0.86), T.METAL_RIM, 5), frame)
+				var slash_color: Color = Color(T.CYAN, 0.94)
+				if post_type == "mirror_slash":
+					draw_line(frame.position + Vector2(6, 26), frame.position + Vector2(26, 6), slash_color, 4.0, true)
+				else:
+					draw_line(frame.position + Vector2(6, 6), frame.position + Vector2(26, 26), slash_color, 4.0, true)
+				draw_circle(center, 2, Color(1, 1, 1, 0.58))
+			elif post_type.begins_with("plate_"):
 				var horizontal: bool = post_type == "plate_h"
 				var plate_size: Vector2 = Vector2(30, 7) if horizontal else Vector2(7, 30)
 				var plate_rect: Rect2 = Rect2(center - plate_size * 0.5, plate_size)
