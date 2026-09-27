@@ -67,11 +67,11 @@ func _run() -> void:
 	release(game, game.sockets[7].get_global_rect().get_center(), true)
 	check(game.posts.has(7) and is_equal_approx(alpha(game, 7), 1.0), "Touch placement must start opaque")
 	check(game.live_cells[6].change_remaining > 0.0, "Placement must retain shadow feedback")
-	game._update_nox_traces(0.14)
-	check(is_equal_approx(alpha(game, 7), 1.0), "Placement must hold opaque for 0.15 seconds")
-	game._update_nox_traces(0.11)
-	check(alpha(game, 7) > 0.45 and alpha(game, 7) < 1.0, "Placement must fade while shadows react")
-	game._update_nox_traces(0.11)
+	game._update_nox_traces(0.24)
+	check(is_equal_approx(alpha(game, 7), 1.0), "Placement must hold opaque for 0.25 seconds")
+	game._update_nox_traces(0.21)
+	check(is_equal_approx(alpha(game, 7), 0.725), "Placement must be halfway through its 0.40-second fade at 0.45 seconds")
+	game._update_nox_traces(0.21)
 	check(is_equal_approx(alpha(game, 7), 0.45), "Placed NOX must settle at 45%")
 	check(is_equal_approx(game.inventory.get_child(0).nox_opacity(), 1.0), "Inventory must stay opaque")
 	# Headless input owns the pointer; a rendered OS window can be outside the
@@ -136,7 +136,7 @@ func _run() -> void:
 	Settings.write_value("reduced_motion", false)
 	game.load_stage(0)
 	game.toggle_post(12)
-	game._update_nox_traces(0.4)
+	game._update_nox_traces(0.7)
 	game.sockets[12].grab_focus()
 	check(game.stage_solved and is_equal_approx(alpha(game, 12), 0.45), "Solve must retain 45% even under focus")
 	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SMOKE_SAVE))
@@ -145,7 +145,7 @@ func _run() -> void:
 	game.set_process(true)
 	game.load_stage(2)
 	game.toggle_post(7)
-	await create_timer(0.45).timeout
+	await create_timer(0.75).timeout
 	check(is_equal_approx(alpha(game, 7), 0.45), "Live process must finish the placement fade")
 	if not OS.get_environment("NOXSUM_CAPTURE_DIR").is_empty():
 		await _capture_poses(game)
