@@ -48,16 +48,30 @@ This is a local export only. Netlify production has not been deployed. The previ
 
 The itch.io ZIP SHA-256 is `C057CE5F1CC6DEC2B47DE55B6C4B4BB090C36A9210A300A9991C5724FCF6BE40`. ZIP CRC, safe paths, and unchanged non-HTML payloads passed. This package was not uploaded.
 
-## Latest itch.io HTML5 package (2026-09-27)
+## Submitted itch.io HTML5 package (2026-09-27)
 
 The Godot Release Web preset was rebuilt after adopting GR03 variant B. The upload ZIP is `builds/NOXSUM_Grant_Itchio_2026-09-27.zip` (60,668,621 bytes; SHA-256 `B6F3712B211D9F1A53246DF0786769B7FF4CF09A408B9F2D7A3FC351CBE02DFE`). It contains the nine runtime files and three OFL font notices (12 files total, 91,239,812 bytes extracted). `index.html` is at the ZIP root and uses `<base href="./">` for itch.io's hosted subdirectory. ZIP CRC, file allowlist, payload equality, safe paths, and itch.io size limits passed with `tools/package_noxsum_itchio.py`. This package was submitted as the playable build at https://madowaku.itch.io/noxsum; see [the Grant submission snapshot](GRANT_SUBMISSION_2026.md).
 
-To rebuild after a future project update, run the Release export, then:
+## Latest local itch.io HTML5 package — Afterimage v0.1 (2026-09-27)
+
+`release/noxsum-grant36-final` was fast-forwarded to `codex/nox-afterimage-v01` at `708b0209a33ddb89239e48e8f0da39a3915cf736`. The Release Web export was rebuilt with Godot `4.7.stable.official.5b4e0cb0f` and the existing **NOXSUM Web** preset, then the localized OGP pages were regenerated in `builds/web/`.
+
+- ZIP: `builds/NOXSUM_Grant_Itchio_2026-09-27_Afterimage.zip`
+- SHA-256: `6F9EBAF07611842960D7DADA95D003C47B4265E0ED563A4A9ACD530E6BEC6C73`
+- Size: 60,670,162 bytes; 12 files; 91,241,300 bytes extracted.
+- Checksum sidecar: `builds/NOXSUM_Grant_Itchio_2026-09-27_Afterimage.zip.sha256`
+- Package verification: ZIP CRC, explicit file allowlist, safe paths, payload equality, root `index.html`, relative `<base href="./">`, and size limits passed.
+- Browser smoke: the ZIP was extracted and served at a local HTTP subdirectory; HOME, opening skip, first-run guide, GR01 placement, afterimage and solve were checked at 720×900 and 360×800. Browser errors/warnings: 0/0. Export errors/warnings: 0/0.
+- Build/package/browser logs: `builds/afterimage-release-qa/`; browser captures: `output/playwright/nox-afterimage-release/` (local generated artifacts).
+
+This build includes the approved 0.25-second hold and 0.40-second fade. The game logic, shadow calculation, save format and Grant36 stage data are unchanged. `grant-submission-2026` remains at `10520036a2ce207d43900c4bdf614172c4bb133f`, and the submitted ZIP above is preserved. The Afterimage ZIP has not been uploaded to itch.io or deployed.
+
+To rebuild the Afterimage package, run:
 
 ```powershell
 & "$env:USERPROFILE\tools\godot-4.7\Godot_v4.7-stable_win64_console.exe" --headless --path . --export-release "NOXSUM Web" builds/web/index.html
 py tools/build_noxsum_ogp_pages.py
-py tools/package_noxsum_itchio.py --date YYYY-MM-DD
+py tools/package_noxsum_itchio.py --date 2026-09-27 --output builds/NOXSUM_Grant_Itchio_2026-09-27_Afterimage.zip
 ```
 
 The package follows itch.io's [HTML5 ZIP requirements](https://itch.io/docs/creators/html5): a root `index.html`, relative asset paths, and limits on file count and extracted sizes.
