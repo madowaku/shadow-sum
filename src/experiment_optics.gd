@@ -80,6 +80,34 @@ static func _edge_start(light: String, lane: int) -> Vector2i:
 			return Vector2i(4, lane)
 	return Vector2i(-1, -1)
 
+static func _compute_lantern_shadow(posts: Array, post_types: Dictionary) -> Array[int]:
+	var result: Array[int] = []
+	result.resize(25)
+	result.fill(0)
+	var lanterns: Array[int] = []
+	var nox: Array[int] = []
+	for raw_index: Variant in posts:
+		var index: int = int(raw_index)
+		var post_type: String = str(post_types.get(str(index), "normal"))
+		if post_type == "lantern":
+			lanterns.append(index)
+		elif post_type == "normal":
+			nox.append(index)
+	for lantern: int in lanterns:
+		var lx: int = lantern % 5
+		var ly: int = int(lantern / 5.0)
+		for nox_index: int in nox:
+			var nx: int = nox_index % 5
+			var ny: int = int(nox_index / 5.0)
+			var target := Vector2i(-1, -1)
+			if nx == lx and ny != ly:
+				target = Vector2i(nx, ny + (1 if ny > ly else -1))
+			elif ny == ly and nx != lx:
+				target = Vector2i(nx + (1 if nx > lx else -1), ny)
+			if target.x >= 0 and target.x < 5 and target.y >= 0 and target.y < 5:
+				result[target.y * 5 + target.x] += 1
+	return result
+
 static func _compute_beam_shadow(stage: Dictionary, posts: Array, active_lights: Array, shutters: Array, post_types: Dictionary) -> Array[int]:
 	var result: Array[int] = []
 	result.resize(25)
@@ -95,6 +123,13 @@ static func _compute_beam_shadow(stage: Dictionary, posts: Array, active_lights:
 	if typeof(raw_mirrors) == TYPE_DICTIONARY:
 		for raw_code: Variant in (raw_mirrors as Dictionary).keys():
 			mirrors[str(cell(str(raw_code)))] = str((raw_mirrors as Dictionary)[raw_code])
+	for raw_index: Variant in posts:
+		var index: int = int(raw_index)
+		var post_type: String = str(post_types.get(str(index), "normal"))
+		if post_type == "mirror_slash":
+			mirrors[str(index)] = "/"
+		elif post_type == "mirror_backslash":
+			mirrors[str(index)] = "\\"
 	for raw_light: Variant in active_lights:
 		var light: String = str(raw_light)
 		if not DIRECTIONS.has(light):
@@ -119,7 +154,7 @@ static func _compute_beam_shadow(stage: Dictionary, posts: Array, active_lights:
 					continue
 				if occupied.has(str(index)):
 					var post_type: String = str(post_types.get(str(index), "normal"))
-					var can_cast: bool = true
+					var can_cast: bool = post_type not in ["lantern", "mirror_slash", "mirror_backslash"]
 					if post_type == "plate_v" and direction.x == 0:
 						can_cast = false
 					elif post_type == "plate_h" and direction.y == 0:
@@ -133,9 +168,17 @@ static func _compute_beam_shadow(stage: Dictionary, posts: Array, active_lights:
 				position += direction
 	return result
 
+static func _has_mirror_piece(posts: Array, post_types: Dictionary) -> bool:
+	for raw_index: Variant in posts:
+		if str(post_types.get(str(int(raw_index)), "")).begins_with("mirror_"):
+			return true
+	return false
+
 static func compute_stage_shadow(stage: Dictionary, posts: Array, base_lights: Array, shutters: Array = [], post_types: Dictionary = {}) -> Array[int]:
+	if stage.get("lantern_rule", false):
+		return _compute_lantern_shadow(posts, post_types)
 	var active: Array = effective_lights(stage, posts, base_lights)
-	if stage.has("blockers") or stage.has("mirrors"):
+	if stage.has("blockers") or stage.has("mirrors") or _has_mirror_piece(posts, post_types):
 		return _compute_beam_shadow(stage, posts, active, shutters, post_types)
 	return compute_shadow(posts, active, shutters, post_types)
 
@@ -175,20 +218,24 @@ static func board_shape_mask(stage: Dictionary) -> PackedByteArray:
 	return result
 
 static func valid_post_type(post_type: String) -> bool:
-	return post_type in ["normal", "tall", "plate_v", "plate_h"]
+	return post_type in ["normal", "tall", "plate_v", "plate_h", "lantern", "mirror_slash", "mirror_backslash"]
 
 static func exact_typed_inventory(stage: Dictionary, posts: Array, post_types: Dictionary) -> bool:
-	var has_typed_inventory: bool = stage.has("normal_posts") or stage.has("tall_posts") or stage.has("plate_posts")
+	var has_typed_inventory: bool = stage.has("normal_posts") or stage.has("tall_posts") or stage.has("plate_posts") or stage.has("lantern_posts") or stage.has("mirror_posts")
 	if not has_typed_inventory:
 		return true
 	var expected_normal: int = int(stage.get("normal_posts", 0))
 	var expected_tall: int = int(stage.get("tall_posts", 0))
 	var expected_plate: int = int(stage.get("plate_posts", 0))
-	if expected_normal + expected_tall + expected_plate != int(stage["posts"]):
+	var expected_lantern: int = int(stage.get("lantern_posts", 0))
+	var expected_mirror: int = int(stage.get("mirror_posts", 0))
+	if expected_normal + expected_tall + expected_plate + expected_lantern + expected_mirror != int(stage["posts"]):
 		return false
 	var normal_count: int = 0
 	var tall_count: int = 0
 	var plate_count: int = 0
+	var lantern_count: int = 0
+	var mirror_count: int = 0
 	var seen: Dictionary = {}
 	for raw_index: Variant in posts:
 		var key: String = str(int(raw_index))
@@ -203,12 +250,16 @@ static func exact_typed_inventory(stage: Dictionary, posts: Array, post_types: D
 				tall_count += 1
 			"plate_v", "plate_h":
 				plate_count += 1
+			"lantern":
+				lantern_count += 1
+			"mirror_slash", "mirror_backslash":
+				mirror_count += 1
 			_:
 				return false
 	for raw_key: Variant in post_types.keys():
 		if not seen.has(str(raw_key)):
 			return false
-	return normal_count == expected_normal and tall_count == expected_tall and plate_count == expected_plate
+	return normal_count == expected_normal and tall_count == expected_tall and plate_count == expected_plate and lantern_count == expected_lantern and mirror_count == expected_mirror
 
 static func solved(stage: Dictionary, posts: Array, shutters: Array, lights: Array, post_types: Dictionary = {}) -> bool:
 	if posts.size() != int(stage["posts"]):
