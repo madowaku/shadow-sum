@@ -13,6 +13,7 @@ var grant14_v02: bool = false
 var grant20_v03: bool = false
 var grant36_v05: bool = false
 var placement_gimmicks: bool = false
+var gimmick_probes: bool = false
 var campaign_id: String = "experiments_v0_1"
 var observation_buttons: Array[Button] = []
 var stages: Array = []
@@ -105,6 +106,11 @@ func _ready() -> void:
 		data_path = "res://data/pure_placement_gimmicks_v0_1.json"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_pure_placement_gimmicks_v0_1.json"
+	elif gimmick_probes:
+		campaign_id = "gimmick_probe_v0_3"
+		data_path = "res://data/gimmick_probe_v0_3.json"
+		if progress_path == SAVE:
+			progress_path = "user://noxsum_gimmick_probe_v0_3.json"
 	stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
 	_build_ui()
 	_load_progress()
@@ -143,10 +149,10 @@ func _build_ui() -> void:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks else 16)
+		margin.add_theme_constant_override("margin_" + side, 8 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or gimmick_probes else 16)
 	add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 4 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks else 8)
+	column.add_theme_constant_override("separation", 4 if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or gimmick_probes else 8)
 	margin.add_child(column)
 	_label(column, "NOXSUM", 25, T.TEXT_PRIMARY)
 	var campaign_label: String = "G R A N T   /   E X P E R I M E N T S"
@@ -160,6 +166,8 @@ func _build_ui() -> void:
 		campaign_label = "G R A N T   1 4   /   v 0 . 2"
 	elif placement_gimmicks:
 		campaign_label = "P U R E   P L A C E M E N T   L A B"
+	elif gimmick_probes:
+		campaign_label = "G I M M I C K   P R O B E   /   v 0 . 3"
 	elif grant20_v03 or grant36_v05:
 		campaign_label = "N O X   /   S H A D O W   R E C O N S T R U C T I O N"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
@@ -190,7 +198,7 @@ func _build_ui() -> void:
 		screen_column.add_child(grid)
 		for index: int in 25:
 			var holder: Control = Control.new()
-			holder.custom_minimum_size = Vector2(26, 26) if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks else Vector2(28, 28)
+			holder.custom_minimum_size = Vector2(26, 26) if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or gimmick_probes else Vector2(28, 28)
 			grid.add_child(holder)
 			var surface: Control = Surface.new()
 			surface.kind = "shadow"
@@ -389,6 +397,8 @@ func load_stage(index: int) -> void:
 	_refresh(false)
 	if placement_gimmicks:
 		status_label.text = "Place NOX only. The apparatus is fixed; the shadow answers."
+	elif gimmick_probes:
+		status_label.text = "Experimental rules. Place the traces and apparatus that explain only the observed cells."
 	elif grant20_v03 or grant36_v05:
 		status_label.text = "Reconstruct NOX's past. Each trace is one moment; their shadows add together."
 	if lights.has("BOTTOM"):
@@ -523,7 +533,9 @@ func _post_type(index: int) -> String:
 func _post_category(kind: String) -> String:
 	if kind == "plate_v" or kind == "plate_h":
 		return "plate"
-	if kind == "normal" or kind == "tall":
+	if kind == "mirror_slash" or kind == "mirror_backslash":
+		return "mirror"
+	if kind in ["normal", "tall", "lantern"]:
 		return kind
 	return "invalid"
 
@@ -531,11 +543,15 @@ func _post_limit(kind: String) -> int:
 	var category: String = _post_category(kind)
 	if category == "invalid":
 		return 0
-	if stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts"):
+	if stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts") or stage().has("lantern_posts") or stage().has("mirror_posts"):
 		if category == "tall":
 			return int(stage().get("tall_posts", 0))
 		if category == "plate":
 			return int(stage().get("plate_posts", 0))
+		if category == "lantern":
+			return int(stage().get("lantern_posts", 0))
+		if category == "mirror":
+			return int(stage().get("mirror_posts", 0))
 		if category == "normal":
 			return int(stage().get("normal_posts", 0))
 		return 0
@@ -570,7 +586,7 @@ func _inventory_for_type(kind: String) -> Button:
 	var category: String = _post_category(kind)
 	if category == "tall":
 		return tall_inventory
-	if category == "plate":
+	if category == "plate" or category == "lantern":
 		return plate_inventory
 	if category == "normal":
 		return inventory
@@ -578,6 +594,9 @@ func _inventory_for_type(kind: String) -> Button:
 
 func _is_plate(index: int) -> bool:
 	return _post_type(index).begins_with("plate_")
+
+func _is_mirror_piece(index: int) -> bool:
+	return _post_type(index).begins_with("mirror_")
 
 func _is_fixed_post(index: int) -> bool:
 	var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
@@ -615,12 +634,22 @@ func rotate_plate(index: int) -> void:
 	_click(930)
 	_refresh()
 
+func rotate_mirror(index: int) -> void:
+	if stage_solved or not posts.has(index) or not _is_mirror_piece(index) or not stage().get("rotatable_mirror", false):
+		return
+	_remember("Mirror")
+	post_types[str(index)] = "mirror_backslash" if _post_type(index) == "mirror_slash" else "mirror_slash"
+	_click(1040)
+	_refresh()
+
 func toggle_post(index: int) -> void:
 	if stage_solved or index < 0 or index >= 25 or not _socket_enabled(index):
 		return
 	if _is_fixed_post(index):
 		if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
 			rotate_plate(index)
+		elif posts.has(index) and _is_mirror_piece(index) and stage().get("rotatable_mirror", false):
+			rotate_mirror(index)
 		else:
 			_note_fixed_post_touch()
 			_click(240)
@@ -664,6 +693,8 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 	if kind == "post" and index >= 0 and _is_fixed_post(index):
 		if posts.has(index) and _is_plate(index) and stage().get("rotatable_plate", false):
 			rotate_plate(index)
+		elif posts.has(index) and _is_mirror_piece(index) and stage().get("rotatable_mirror", false):
+			rotate_mirror(index)
 		else:
 			_note_fixed_post_touch()
 			_click(240)
@@ -673,10 +704,11 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 		source = rail_buttons[index]
 	else:
 		if index == -3:
-			if not _can_add_post("plate_v"):
+			var utility_type: String = "lantern" if int(stage().get("lantern_posts", 0)) > 0 else "plate_v"
+			if not _can_add_post(utility_type):
 				return
-			selected_post_type = "plate_v"
-			drag_post_type = "plate_v"
+			selected_post_type = utility_type
+			drag_post_type = utility_type
 			source = plate_inventory
 		elif index == -2:
 			if not _can_add_post("tall"):
@@ -759,7 +791,7 @@ func _move_pointer(point: Vector2) -> void:
 			if stage().get("tall", false):
 				for index: Variant in preview:
 					types[str(index)] = "tall"
-			var shadow: Array[int] = Optics.compute_shadow(preview, lights, shutters, types)
+			var shadow: Array[int] = Optics.compute_stage_shadow(stage(), preview, lights, shutters, types)
 			for index: int in 25:
 				live_cells[index].value = float(shadow[index])
 
@@ -889,7 +921,7 @@ func _refresh(animate: bool = true) -> void:
 		lamp.get_child(0).fixed = not interactive
 		lamp.get_child(0).active = effective_lights.has(direction)
 		lamp.visible = direction != "BOTTOM" or lights.has("BOTTOM")
-		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks:
+		if cause_light or light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or gimmick_probes:
 			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
 			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
@@ -906,16 +938,17 @@ func _refresh(animate: bool = true) -> void:
 		surface.highlighted = drag_kind == "shutter" and shutters.has(slot)
 		rail_buttons[slot].disabled = not stage().get("movable_shutter", false) or stage_solved
 	var has_fixed_posts: bool = stage().has("fixed_posts")
-	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts")
+	var mixed_inventory: bool = stage().has("normal_posts") or stage().has("tall_posts") or stage().has("plate_posts") or stage().has("lantern_posts") or stage().has("mirror_posts")
 	if mixed_inventory:
 		inventory.tooltip_text = "SIT · NOX sat here"
 		tall_inventory.tooltip_text = "STAND · NOX stood here"
-		plate_inventory.tooltip_text = "PLATE · optical apparatus"
+		var utility_type: String = "lantern" if int(stage().get("lantern_posts", 0)) > 0 else "plate_v"
+		plate_inventory.tooltip_text = "LANTERN · place a small light source" if utility_type == "lantern" else "PLATE · optical apparatus"
 		# Keep movable inventory sockets visible even after a piece is placed so
 		# dragging a board piece back to its socket can remove it from the board.
 		inventory.visible = _has_movable_inventory("normal")
 		tall_inventory.visible = _has_movable_inventory("tall")
-		plate_inventory.visible = _has_movable_inventory("plate_v")
+		plate_inventory.visible = _has_movable_inventory(utility_type)
 		inventory.get_child(0).occupied = _can_add_post("normal")
 		inventory.get_child(0).tall = false
 		inventory.get_child(0).post_type = "normal"
@@ -923,9 +956,9 @@ func _refresh(animate: bool = true) -> void:
 		tall_inventory.get_child(0).occupied = _can_add_post("tall")
 		tall_inventory.get_child(0).post_type = "tall"
 		tall_inventory.get_child(0).highlighted = selected_post_type == "tall" and tall_inventory.visible
-		plate_inventory.get_child(0).occupied = _can_add_post("plate_v")
-		plate_inventory.get_child(0).post_type = "plate_v"
-		plate_inventory.get_child(0).highlighted = selected_post_type.begins_with("plate_") and plate_inventory.visible
+		plate_inventory.get_child(0).occupied = _can_add_post(utility_type)
+		plate_inventory.get_child(0).post_type = utility_type
+		plate_inventory.get_child(0).highlighted = selected_post_type == utility_type and plate_inventory.visible
 	else:
 		inventory.visible = not has_fixed_posts
 		tall_inventory.visible = false
@@ -940,11 +973,19 @@ func _refresh(animate: bool = true) -> void:
 	title_label.text = "%s  /  %s" % [stage()["id"], stage()["title"]]
 	if placement_gimmicks:
 		count_label.text = "SIT %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), stage_index + 1, stages.size()]
+	elif gimmick_probes and int(stage().get("lantern_posts", 0)) > 0:
+		count_label.text = "SIT %d/%d  LANTERN %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("lantern"), _post_limit("lantern"), stage_index + 1, stages.size()]
+	elif gimmick_probes and int(stage().get("mirror_posts", 0)) > 0:
+		var mirror_mark: String = "/"
+		for raw_index: Variant in posts:
+			if _is_mirror_piece(int(raw_index)):
+				mirror_mark = "/" if _post_type(int(raw_index)) == "mirror_slash" else "\\"
+		count_label.text = "SIT %d/%d  MIRROR %s  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), mirror_mark, stage_index + 1, stages.size()]
 	elif mixed_inventory:
 		count_label.text = "SIT %d/%d  STAND %d/%d  PLATE %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate_v"), _post_limit("plate_v"), stage_index + 1, stages.size()]
 	else:
 		count_label.text = "NOX TRACES  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
-	if light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks:
+	if light_height or flat_plate or grant14_v02 or grant20_v03 or grant36_v05 or placement_gimmicks or gimmick_probes:
 		var light_denominator: String = "FIXED"
 		if stage().get("free_light_selection", false):
 			light_denominator = str(stage()["active_light_count"]) if stage().has("active_light_count") else "?"
