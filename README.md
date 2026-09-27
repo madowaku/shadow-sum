@@ -2,7 +2,7 @@
 
 Reconstruct where NOX the cat was from the shadows kept by the Nocturnal Optical Archive. One plate can hold several moments; darker squares reveal overlap, without revealing their order.
 
-The default Godot launch opens the [36-record Grant presentation](docs/NOXSUM_GRANT_36.md). The [Godot Web export](docs/NOXSUM_WEB_EXPORT.md) is built for a 720×900 PC browser viewport and remains usable at 405×900. The [NOX character lock](assets/nox/CHARACTER_LOCK_v0.1.md) governs every pose and HOME visual. Earlier SHADOW SUM experiments and review campaigns remain available through CLI campaign flags.
+The default Godot launch opens the [36-record Grant presentation](docs/NOXSUM_GRANT_36.md). The [Godot Web export](docs/NOXSUM_WEB_EXPORT.md) is built for a 720×900 PC browser viewport and reflows at 405×900 and 360×800. The [NOX character lock](assets/nox/CHARACTER_LOCK_v0.1.md) governs every pose and HOME visual. Earlier SHADOW SUM experiments and review campaigns remain available through CLI campaign flags.
 
 ## Core rule
 
@@ -31,7 +31,7 @@ The player is told the required number of posts and must place them so every vis
 - visible-clue validation
 - 18 handcrafted stages from Intro to Umbra
 - data-driven stage format
-- JP/EN UI toggle from the header or L; language and sound preferences persist
+- JP/EN UI toggle from the header or L; HOME sound ON/OFF and SETTINGS BGM/SE volume sliders persist on this device
 
 ## Milestone 1
 
@@ -104,3 +104,7 @@ Six puzzles using only the original three-light rules are available with `--camp
 ```
 
 See [data format, verification and completion report](docs/VARIANT_BOARD_IMPLEMENTATION_REPORT.md).
+
+## NOXSUM opening prototype
+
+The standalone Remotion Studio project is in [tools/noxsum-opening-remotion](tools/noxsum-opening-remotion/README.md). Run `npm install`, `py prepare_assets.py`, and `npx remotion studio --no-open` from that directory to inspect the 405 × 900 and 1600 × 900 compositions. Godot handoff timing is in [docs/NOXSUM_OPENING_TIMING_v0.1.json](docs/NOXSUM_OPENING_TIMING_v0.1.json).

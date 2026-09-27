@@ -31,7 +31,7 @@ func _draw() -> void:
 		var rect: Rect2 = cells[0].get_global_rect()
 		for cell: Control in cells:
 			rect = rect.merge(cell.get_global_rect())
-		rect.position -= global_position
+		rect = get_global_transform().affine_inverse() * rect
 		rect = rect.grow(4.0)
 		var alpha: float = sin(progress * PI) * 0.45
 		for spread: int in range(3, 13, 3):
@@ -48,7 +48,7 @@ func _draw() -> void:
 			var glint: float = sin(bloom * PI) * 0.78
 			if glint <= 0.0:
 				continue
-			var point: Vector2 = cells[index].get_global_rect().get_center() - global_position
+			var point: Vector2 = get_global_transform().affine_inverse() * cells[index].get_global_rect().get_center()
 			draw_circle(point, 2.8 + glint * 2.0, Color(T.GOLD, glint))
 			draw_line(point + Vector2(-7, 0), point + Vector2(7, 0), Color(T.GOLD, glint * 0.55), 1.0, true)
 			draw_line(point + Vector2(0, -7), point + Vector2(0, 7), Color(T.GOLD, glint * 0.55), 1.0, true)

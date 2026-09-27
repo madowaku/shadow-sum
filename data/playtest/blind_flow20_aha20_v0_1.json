@@ -1,0 +1,2066 @@
+[
+  {
+    "id": "PT-001",
+    "title": "BLIND TEST 01",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "D1",
+      "B2",
+      "E2",
+      "E3"
+    ],
+    "solution_post_types": {
+      "D1": "normal",
+      "B2": "normal",
+      "E2": "normal",
+      "E3": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "C1": 1,
+          "E1": 3,
+          "A2": 1,
+          "C2": 1,
+          "D2": 2,
+          "E2": 1,
+          "B3": 1,
+          "C3": 1,
+          "D3": 1,
+          "E3": 1,
+          "E4": 1,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "E3"
+    ]
+  },
+  {
+    "id": "PT-002",
+    "title": "BLIND TEST 02",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "D2",
+      "A4",
+      "B4"
+    ],
+    "solution_post_types": {
+      "D2": "normal",
+      "A4": "tall",
+      "B4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "E2": 1,
+          "D3": 1,
+          "B4": 1,
+          "C4": 2,
+          "A5": 1,
+          "B5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "A4"
+    ]
+  },
+  {
+    "id": "PT-003",
+    "title": "BLIND TEST 03",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "A1",
+      "D2",
+      "E5"
+    ],
+    "solution_post_types": {
+      "A1": "tall",
+      "D2": "normal",
+      "E5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "C1": 1,
+          "D1": 1,
+          "A2": 1,
+          "C2": 1,
+          "E2": 1,
+          "A3": 1,
+          "D3": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "A1"
+    ]
+  },
+  {
+    "id": "PT-004",
+    "title": "BLIND TEST 04",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "B1",
+      "C3",
+      "B4"
+    ],
+    "solution_post_types": {
+      "B1": "tall",
+      "C3": "normal",
+      "B4": "plate_h"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "A1": 1,
+          "C1": 1,
+          "D1": 1,
+          "B2": 1,
+          "C2": 1,
+          "B3": 3,
+          "D3": 1,
+          "C4": 1,
+          "B5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B1"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-005",
+    "title": "BLIND TEST 05",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "B2",
+      "A3",
+      "C3",
+      "E3"
+    ],
+    "solution_post_types": {
+      "B2": "tall",
+      "A3": "normal",
+      "C3": "normal",
+      "E3": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A2": 1,
+          "C2": 1,
+          "D2": 1,
+          "B3": 3,
+          "D3": 2,
+          "A4": 1,
+          "B4": 1,
+          "C4": 1,
+          "E4": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B2"
+    ]
+  },
+  {
+    "id": "PT-006",
+    "title": "BLIND TEST 06",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "B2",
+      "C2",
+      "E2",
+      "B4"
+    ],
+    "solution_post_types": {
+      "B2": "normal",
+      "C2": "normal",
+      "E2": "tall",
+      "B4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "C2": 1,
+          "D2": 1,
+          "B3": 1,
+          "C3": 1,
+          "E3": 1,
+          "C4": 1,
+          "E4": 1,
+          "B5": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "E2"
+    ]
+  },
+  {
+    "id": "PT-007",
+    "title": "BLIND TEST 07",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "C2",
+      "B4",
+      "C5"
+    ],
+    "solution_post_types": {
+      "C2": "normal",
+      "B4": "normal",
+      "C5": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "D2": 1,
+          "C3": 1,
+          "C4": 1,
+          "B5": 1,
+          "D5": 1,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "C5"
+    ]
+  },
+  {
+    "id": "PT-008",
+    "title": "BLIND TEST 08",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "B1",
+      "A2",
+      "D4"
+    ],
+    "solution_post_types": {
+      "B1": "tall",
+      "A2": "normal",
+      "D4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "A1": 2,
+          "C1": 1,
+          "D1": 1,
+          "B2": 2,
+          "A3": 1,
+          "B3": 1,
+          "D3": 1,
+          "C4": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B1"
+    ]
+  },
+  {
+    "id": "PT-009",
+    "title": "BLIND TEST 09",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "E1",
+      "B2",
+      "D3",
+      "D5"
+    ],
+    "solution_post_types": {
+      "E1": "normal",
+      "B2": "normal",
+      "D3": "normal",
+      "D5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "D1": 1,
+          "A2": 1,
+          "C2": 1,
+          "E2": 1,
+          "B3": 1,
+          "C3": 1,
+          "E3": 1,
+          "D4": 1,
+          "C5": 1,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-010",
+    "title": "BLIND TEST 10",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "D2",
+      "C3",
+      "C4"
+    ],
+    "solution_post_types": {
+      "D2": "plate_v",
+      "C3": "normal",
+      "C4": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "C2": 3,
+          "E2": 1,
+          "B3": 1,
+          "C3": 1,
+          "D3": 1,
+          "A4": 1,
+          "B4": 1,
+          "C4": 1,
+          "D4": 1,
+          "E4": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "C4"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-011",
+    "title": "BLIND TEST 11",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "solution": [
+      "C3",
+      "C4",
+      "C5"
+    ],
+    "solution_post_types": {
+      "C3": "plate_h",
+      "C4": "normal",
+      "C5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B4": 1,
+          "C4": 1,
+          "D4": 1,
+          "B5": 1,
+          "C5": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 13800,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-012",
+    "title": "BLIND TEST 12",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "A1",
+      "C1",
+      "D1",
+      "E5"
+    ],
+    "solution_post_types": {
+      "A1": "normal",
+      "C1": "normal",
+      "D1": "normal",
+      "E5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B1": 2,
+          "C1": 1,
+          "D1": 1,
+          "E1": 1,
+          "A2": 1,
+          "C2": 1,
+          "D2": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-013",
+    "title": "BLIND TEST 13",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 0,
+    "plate_posts": 1,
+    "solution": [
+      "E1",
+      "D2",
+      "D4"
+    ],
+    "solution_post_types": {
+      "E1": "plate_v",
+      "D2": "normal",
+      "D4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "D1": 1,
+          "C2": 1,
+          "E2": 1,
+          "D3": 1,
+          "C4": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 13800,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-014",
+    "title": "BLIND TEST 14",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "B1",
+      "A2",
+      "E3",
+      "C5"
+    ],
+    "solution_post_types": {
+      "B1": "normal",
+      "A2": "normal",
+      "E3": "normal",
+      "C5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "A1": 2,
+          "C1": 1,
+          "B2": 2,
+          "E2": 1,
+          "A3": 1,
+          "D3": 1,
+          "C4": 1,
+          "E4": 1,
+          "B5": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-015",
+    "title": "BLIND TEST 15",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C1",
+      "A2",
+      "E2",
+      "B4"
+    ],
+    "solution_post_types": {
+      "C1": "normal",
+      "A2": "normal",
+      "E2": "normal",
+      "B4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B1": 1,
+          "D1": 1,
+          "B2": 1,
+          "C2": 1,
+          "D2": 1,
+          "A3": 1,
+          "E3": 1,
+          "A4": 1,
+          "C4": 1,
+          "B5": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-016",
+    "title": "BLIND TEST 16",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "B1",
+      "C1",
+      "A2",
+      "E3"
+    ],
+    "solution_post_types": {
+      "B1": "normal",
+      "C1": "normal",
+      "A2": "normal",
+      "E3": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "A1": 2,
+          "B1": 1,
+          "C1": 1,
+          "D1": 1,
+          "B2": 2,
+          "C2": 1,
+          "E2": 1,
+          "A3": 1,
+          "D3": 1,
+          "E4": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-017",
+    "title": "BLIND TEST 17",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "A1",
+      "A2",
+      "E2",
+      "C5"
+    ],
+    "solution_post_types": {
+      "A1": "normal",
+      "A2": "tall",
+      "E2": "normal",
+      "C5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B1": 1,
+          "A2": 1,
+          "B2": 1,
+          "C2": 1,
+          "D2": 1,
+          "A3": 1,
+          "E3": 1,
+          "A4": 1,
+          "B5": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "A2"
+    ]
+  },
+  {
+    "id": "PT-018",
+    "title": "BLIND TEST 18",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "B2",
+      "D3",
+      "A5"
+    ],
+    "solution_post_types": {
+      "B2": "plate_h",
+      "D3": "normal",
+      "A5": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "D2": 1,
+          "A3": 1,
+          "B3": 1,
+          "C3": 1,
+          "E3": 1,
+          "A4": 1,
+          "D4": 1,
+          "B5": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "A5"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-019",
+    "title": "BLIND TEST 19",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "A3",
+      "C3",
+      "C4",
+      "D5"
+    ],
+    "solution_post_types": {
+      "A3": "normal",
+      "C3": "tall",
+      "C4": "normal",
+      "D5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "BOTTOM"
+        ],
+        "target": {
+          "C1": 1,
+          "A2": 1,
+          "C2": 1,
+          "C3": 1,
+          "A4": 1,
+          "C4": 1,
+          "D4": 1,
+          "C5": 2
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "C3"
+    ]
+  },
+  {
+    "id": "PT-020",
+    "title": "BLIND TEST 20",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "C1",
+      "A3",
+      "E4"
+    ],
+    "solution_post_types": {
+      "C1": "plate_h",
+      "A3": "tall",
+      "E4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "C2": 1,
+          "B3": 1,
+          "C3": 1,
+          "A4": 1,
+          "D4": 1,
+          "A5": 1,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "A3"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-021",
+    "title": "BLIND TEST 21",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "E1",
+      "A2",
+      "E2",
+      "C4"
+    ],
+    "solution_post_types": {
+      "E1": "normal",
+      "A2": "normal",
+      "E2": "normal",
+      "C4": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "D1": 1,
+          "B2": 1,
+          "D2": 1,
+          "E2": 1,
+          "A3": 1,
+          "E3": 1,
+          "A4": 1,
+          "B4": 1,
+          "D4": 1,
+          "E4": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "C4"
+    ]
+  },
+  {
+    "id": "PT-022",
+    "title": "BLIND TEST 22",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "C4",
+      "D4",
+      "B5"
+    ],
+    "solution_post_types": {
+      "C4": "tall",
+      "D4": "plate_v",
+      "B5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A4": 1,
+          "B4": 1,
+          "C4": 1,
+          "D4": 1,
+          "E4": 2,
+          "A5": 1,
+          "C5": 2
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "C4"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-023",
+    "title": "BLIND TEST 23",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "A4",
+      "C4",
+      "E4",
+      "A5"
+    ],
+    "solution_post_types": {
+      "A4": "normal",
+      "C4": "normal",
+      "E4": "normal",
+      "A5": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "A3": 2,
+          "C3": 1,
+          "E3": 1,
+          "A4": 1,
+          "B4": 2,
+          "D4": 2,
+          "A5": 1,
+          "B5": 1,
+          "C5": 2,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "A5"
+    ]
+  },
+  {
+    "id": "PT-024",
+    "title": "BLIND TEST 24",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "C3",
+      "E3",
+      "E5"
+    ],
+    "solution_post_types": {
+      "C3": "tall",
+      "E3": "plate_h",
+      "E5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A3": 1,
+          "B3": 1,
+          "D3": 1,
+          "E3": 1,
+          "C4": 1,
+          "E4": 1,
+          "C5": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "C3"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-025",
+    "title": "BLIND TEST 25",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "D3",
+      "B4",
+      "C4"
+    ],
+    "solution_post_types": {
+      "D3": "normal",
+      "B4": "tall",
+      "C4": "plate_v"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "E3": 1,
+          "C4": 1,
+          "D4": 3,
+          "B5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B4"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-026",
+    "title": "BLIND TEST 26",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "E2",
+      "B3",
+      "B4",
+      "B5"
+    ],
+    "solution_post_types": {
+      "E2": "normal",
+      "B3": "normal",
+      "B4": "normal",
+      "B5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "C3": 1,
+          "E3": 1,
+          "B4": 1,
+          "C4": 1,
+          "B5": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-027",
+    "title": "BLIND TEST 27",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "A2",
+      "C2",
+      "D2"
+    ],
+    "solution_post_types": {
+      "A2": "normal",
+      "C2": "plate_v",
+      "D2": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B2": 3,
+          "C2": 1,
+          "D2": 1,
+          "E2": 1,
+          "A3": 1,
+          "D3": 1,
+          "D4": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "D2"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-028",
+    "title": "BLIND TEST 28",
+    "posts": 3,
+    "normal_posts": 1,
+    "tall_posts": 1,
+    "plate_posts": 1,
+    "solution": [
+      "C1",
+      "C2",
+      "D4"
+    ],
+    "solution_post_types": {
+      "C1": "normal",
+      "C2": "plate_h",
+      "D4": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "C1": 1,
+          "D1": 1,
+          "C2": 1,
+          "D2": 1,
+          "C3": 1,
+          "D3": 1,
+          "B4": 1,
+          "C4": 1,
+          "E4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 27600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "D4"
+    ],
+    "rotatable_plate": true
+  },
+  {
+    "id": "PT-029",
+    "title": "BLIND TEST 29",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "C2",
+      "B3",
+      "E3"
+    ],
+    "solution_post_types": {
+      "C2": "normal",
+      "B3": "tall",
+      "E3": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B2": 1,
+          "D2": 1,
+          "A3": 1,
+          "C3": 2,
+          "D3": 2,
+          "B4": 1,
+          "E4": 1,
+          "B5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B3"
+    ]
+  },
+  {
+    "id": "PT-030",
+    "title": "BLIND TEST 30",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "C1",
+      "C2",
+      "D3",
+      "C4"
+    ],
+    "solution_post_types": {
+      "C1": "tall",
+      "C2": "normal",
+      "D3": "normal",
+      "C4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "A1": 1,
+          "B1": 1,
+          "D1": 1,
+          "E1": 1,
+          "B2": 1,
+          "C2": 1,
+          "D2": 1,
+          "C3": 3,
+          "E3": 1,
+          "B4": 1,
+          "D4": 2,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "C1"
+    ]
+  },
+  {
+    "id": "PT-031",
+    "title": "BLIND TEST 31",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "E2",
+      "B3",
+      "C4",
+      "E4"
+    ],
+    "solution_post_types": {
+      "E2": "normal",
+      "B3": "tall",
+      "C4": "normal",
+      "E4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "E1": 1,
+          "B2": 1,
+          "D2": 1,
+          "A3": 1,
+          "C3": 2,
+          "D3": 1,
+          "E3": 2,
+          "B4": 2,
+          "D4": 2,
+          "B5": 1,
+          "C5": 1,
+          "E5": 1
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B3"
+    ]
+  },
+  {
+    "id": "PT-032",
+    "title": "BLIND TEST 32",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "E1",
+      "A3",
+      "C5"
+    ],
+    "solution_post_types": {
+      "E1": "tall",
+      "A3": "normal",
+      "C5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "C1": 1,
+          "D1": 1,
+          "A2": 1,
+          "E2": 1,
+          "B3": 1,
+          "E3": 1,
+          "A4": 1,
+          "C4": 1,
+          "B5": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "E1"
+    ]
+  },
+  {
+    "id": "PT-033",
+    "title": "BLIND TEST 33",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C3",
+      "C4",
+      "D4",
+      "E5"
+    ],
+    "solution_post_types": {
+      "C3": "normal",
+      "C4": "normal",
+      "D4": "normal",
+      "E5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B3": 1,
+          "D3": 1,
+          "B4": 1,
+          "C4": 2,
+          "D4": 1,
+          "E4": 1,
+          "C5": 1,
+          "D5": 2
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-034",
+    "title": "BLIND TEST 34",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "B1",
+      "A2",
+      "C4"
+    ],
+    "solution_post_types": {
+      "B1": "tall",
+      "A2": "normal",
+      "C4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "A1": 2,
+          "C1": 1,
+          "D1": 1,
+          "B2": 2,
+          "A3": 1,
+          "B3": 1,
+          "C3": 1,
+          "B4": 1,
+          "D4": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B1"
+    ]
+  },
+  {
+    "id": "PT-035",
+    "title": "BLIND TEST 35",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "E1",
+      "B2",
+      "C5"
+    ],
+    "solution_post_types": {
+      "E1": "normal",
+      "B2": "tall",
+      "C5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT"
+        ],
+        "target": {
+          "C2": 1,
+          "D2": 1,
+          "E2": 1,
+          "B3": 1,
+          "B4": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B2"
+    ]
+  },
+  {
+    "id": "PT-036",
+    "title": "BLIND TEST 36",
+    "posts": 4,
+    "normal_posts": 3,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "A3",
+      "D3",
+      "D4",
+      "B5"
+    ],
+    "solution_post_types": {
+      "A3": "normal",
+      "D3": "tall",
+      "D4": "normal",
+      "B5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "BOTTOM"
+        ],
+        "target": {
+          "D1": 1,
+          "A2": 1,
+          "D2": 1,
+          "D3": 1,
+          "A4": 1,
+          "B4": 1,
+          "D4": 1,
+          "D5": 2
+        }
+      }
+    ],
+    "expected_states": 50600,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "D3"
+    ]
+  },
+  {
+    "id": "PT-037",
+    "title": "BLIND TEST 37",
+    "posts": 3,
+    "normal_posts": 3,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "A2",
+      "A4",
+      "C4"
+    ],
+    "solution_post_types": {
+      "A2": "normal",
+      "A4": "normal",
+      "C4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "A1": 1,
+          "B2": 1,
+          "A3": 2,
+          "C3": 1,
+          "B4": 2,
+          "D4": 1,
+          "A5": 1,
+          "C5": 1
+        }
+      }
+    ],
+    "expected_states": 2300,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-038",
+    "title": "BLIND TEST 38",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "C1",
+      "C3",
+      "E3",
+      "B4"
+    ],
+    "solution_post_types": {
+      "C1": "normal",
+      "C3": "normal",
+      "E3": "normal",
+      "B4": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "B1": 1,
+          "D1": 1,
+          "C2": 2,
+          "E2": 1,
+          "B3": 2,
+          "D3": 2,
+          "A4": 1,
+          "C4": 2,
+          "E4": 1,
+          "B5": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-039",
+    "title": "BLIND TEST 39",
+    "posts": 4,
+    "normal_posts": 4,
+    "tall_posts": 0,
+    "plate_posts": 0,
+    "solution": [
+      "D1",
+      "C3",
+      "D3",
+      "C5"
+    ],
+    "solution_post_types": {
+      "D1": "normal",
+      "C3": "normal",
+      "D3": "normal",
+      "C5": "normal"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT",
+      "BOTTOM"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT",
+          "BOTTOM"
+        ],
+        "target": {
+          "C1": 1,
+          "E1": 1,
+          "C2": 1,
+          "D2": 2,
+          "B3": 1,
+          "C3": 1,
+          "D3": 1,
+          "E3": 1,
+          "C4": 2,
+          "D4": 1,
+          "B5": 1,
+          "D5": 1
+        }
+      }
+    ],
+    "expected_states": 12650,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true
+  },
+  {
+    "id": "PT-040",
+    "title": "BLIND TEST 40",
+    "posts": 3,
+    "normal_posts": 2,
+    "tall_posts": 1,
+    "plate_posts": 0,
+    "solution": [
+      "A1",
+      "A2",
+      "B2"
+    ],
+    "solution_post_types": {
+      "A1": "normal",
+      "A2": "normal",
+      "B2": "tall"
+    },
+    "installed_lights": [
+      "TOP",
+      "LEFT",
+      "RIGHT"
+    ],
+    "observations": [
+      {
+        "id": "A",
+        "active_lights": [
+          "TOP",
+          "LEFT",
+          "RIGHT"
+        ],
+        "target": {
+          "B1": 1,
+          "A2": 2,
+          "B2": 1,
+          "C2": 1,
+          "D2": 1,
+          "A3": 1,
+          "B3": 1,
+          "B4": 1
+        }
+      }
+    ],
+    "expected_states": 6900,
+    "expected_solutions": 1,
+    "typed_inventory_exact": true,
+    "review_only": true,
+    "solution_tall": [
+      "B2"
+    ]
+  }
+]

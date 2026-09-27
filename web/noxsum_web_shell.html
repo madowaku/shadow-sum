@@ -10,14 +10,19 @@
 		html, body {
 			width: 100%;
 			height: 100%;
+			height: 100dvh;
 			margin: 0;
+			overscroll-behavior: none;
 			overflow: hidden;
+			overflow-x: clip;
 			background: #080b13;
 		}
 		canvas {
 			display: block;
 			width: 100%;
+			max-width: 100vw;
 			height: 100%;
+			height: 100dvh;
 			touch-action: none;
 		}
 	</style>
@@ -28,7 +33,41 @@
 	<script>
 		const noxsumLocale = null;
 		const engine = new Engine($GODOT_CONFIG);
-		engine.startGame(noxsumLocale ? { locale: noxsumLocale } : {});
+		const gameStarted = engine.startGame(noxsumLocale ? { locale: noxsumLocale } : {});
+
+		const reportViewport = (reason) => {
+			const visualViewport = window.visualViewport;
+			const canvas = document.getElementById("canvas");
+			const canvasRect = canvas.getBoundingClientRect();
+			const cssWidth = Math.min(window.innerWidth, visualViewport ? visualViewport.width : window.innerWidth);
+			console.info("[NOXSUM CSS viewport] " + JSON.stringify({
+				event: reason,
+				innerWidth: window.innerWidth,
+				innerHeight: window.innerHeight,
+				devicePixelRatio: window.devicePixelRatio,
+				visualViewportWidth: visualViewport ? visualViewport.width : null,
+				visualViewportHeight: visualViewport ? visualViewport.height : null,
+				mobileWidth: cssWidth,
+				canvasRectWidth: canvasRect.width,
+				canvasRectHeight: canvasRect.height,
+				canvasWidth: canvas.width,
+				canvasHeight: canvas.height,
+				canvasStyleWidth: canvas.style.width,
+				canvasStyleHeight: canvas.style.height
+			}));
+		};
+		window.addEventListener("resize", () => reportViewport("resize"), { passive: true });
+		window.addEventListener("orientationchange", () => reportViewport("orientationchange"), { passive: true });
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener("resize", () => reportViewport("visualViewport.resize"), { passive: true });
+		}
+		gameStarted.then(() => {
+			document.title = "NOXSUM";
+			reportViewport("engine.started");
+			if (window.ResizeObserver) {
+				new ResizeObserver(() => reportViewport("canvas.resize")).observe(document.getElementById("canvas"));
+			}
+		});
 	</script>
 </body>
 </html>

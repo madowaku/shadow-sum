@@ -21,6 +21,8 @@ var unknown: bool = false
 var glow: float = 1.0
 var hovered: bool = false
 var light_direction: String = "TOP"
+var change_remaining: float = 0.0
+var feedback_reduced_motion: bool = false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -33,13 +35,17 @@ func _draw() -> void:
 			draw_style_box(_style(T.BG_PANEL, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
 			for offset: int in range(-int(size.y), int(size.x), 7):
 				draw_line(Vector2(offset, size.y - 3), Vector2(offset + size.y, 3), Color(T.TEXT_MUTED, 0.16), 1.0)
-			draw_string(ThemeDB.fallback_font, Vector2(size.x * 0.5 - 4, size.y * 0.5 + 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, T.TEXT_MUTED)
+			draw_string(ThemeDB.fallback_font, Vector2(size.x * 0.5 - 4, size.y * 0.5 + 5), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, N.IVORY if nox_mode else T.TEXT_MUTED)
 		else:
 			var shade: Color = T.SHADOW_0.lerp(T.SHADOW_3, clampf(value / 3.0, 0.0, 1.0))
 			draw_style_box(_style(shade, T.LINE_SOFT, 4), Rect2(Vector2.ONE, size - Vector2.ONE * 2))
 			draw_line(Vector2(5, 4), Vector2(size.x - 5, 4), Color(1, 1, 1, 0.16))
 			if value > 3.0:
 				draw_string(ThemeDB.fallback_font, Vector2(6, size.y - 6), str(roundi(value)), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, T.TEXT_PRIMARY)
+		if nox_mode and change_remaining > 0.0:
+			var opacity: float = 1.0 if feedback_reduced_motion else minf(1.0, change_remaining * 4.0)
+			# This marks an action's effect, regardless of whether it matches the target.
+			draw_rect(Rect2(Vector2(2, 2), size - Vector2(4, 4)), Color(N.BRASS, opacity), false, 2.0)
 	elif kind == "socket_missing":
 		var plug_rect: Rect2 = Rect2(Vector2(5, 5), size - Vector2(10, 10))
 		draw_style_box(_style(T.METAL_SIDE_DARK, T.LINE_SOFT, 3), plug_rect)
@@ -50,10 +56,10 @@ func _draw() -> void:
 			draw_circle(offset, 1.3, T.METAL_RIM)
 	elif kind == "socket" or kind == "inventory":
 		if nox_mode and kind == "inventory":
-			center.y -= 6
-			draw_string(N.BODY, Vector2(0, size.y - 4), slot_label, HORIZONTAL_ALIGNMENT_CENTER, size.x, 8, N.IVORY)
+			center.y += 8
+			draw_string(N.BODY, Vector2(0, size.y - 4), slot_label, HORIZONTAL_ALIGNMENT_CENTER, size.x, 12, N.IVORY)
 		draw_circle(center, minf(size.x, size.y) * 0.32, T.SOCKET_INNER)
-		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else T.SOCKET_RIM, 1.5, true)
+		draw_arc(center, minf(size.x, size.y) * 0.32, 0, TAU, 40, T.CYAN if highlighted else Color("#8fb5c1") if nox_mode else T.SOCKET_RIM, 2.3 if nox_mode else 1.5, true)
 		if occupied and nox_mode:
 			var portrait: Texture2D = NOX_SIT
 			if post_type == "tall":
@@ -62,7 +68,7 @@ func _draw() -> void:
 				portrait = NOX_WALK_H
 			elif post_type == "plate_v":
 				portrait = NOX_WALK_V
-			var art_size: float = minf(size.x, size.y) + (6.0 if kind == "socket" else -6.0)
+			var art_size: float = minf(size.x, size.y) + (6.0 if kind == "socket" else -24.0)
 			var art_center: Vector2 = center
 			if kind == "inventory" and post_type == "tall":
 				art_size *= 1.02
@@ -129,6 +135,14 @@ func _draw() -> void:
 	elif kind == "shutter":
 		if nox_mode:
 			draw_line(Vector2(0, size.y - 6), Vector2(size.x, size.y - 6), N.BRASS.darkened(0.6), 1)
+			if active:
+				var ray_end: float = size.y * 0.36 if occupied else size.y - 2.0
+				draw_line(Vector2(center.x, 0), Vector2(center.x, ray_end), Color(N.BRASS, 0.75), 2.0, true)
+				if occupied:
+					draw_line(Vector2(center.x - 7, ray_end), Vector2(center.x + 7, ray_end), N.BRASS, 2.0, true)
+				else:
+					draw_line(Vector2(center.x - 3, ray_end - 4), Vector2(center.x, ray_end), N.BRASS, 1.5, true)
+					draw_line(Vector2(center.x + 3, ray_end - 4), Vector2(center.x, ray_end), N.BRASS, 1.5, true)
 			if occupied:
 				draw_texture_rect_region(NOX_SLEEP, Rect2(Vector2(2, 1), Vector2(size.x - 4, size.y - 4)), Rect2(150, 285, 760, 555))
 			else:

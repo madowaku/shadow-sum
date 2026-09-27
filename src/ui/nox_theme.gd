@@ -5,8 +5,8 @@ const BODY: Font = preload("res://assets/fonts/Body.tres")
 const JAPANESE: Font = preload("res://assets/fonts/NotoSansJP-VF.ttf")
 const INK: Color = Color("#090f18")
 const IVORY: Color = Color("#eee7d8")
-const SOFT: Color = Color("#a5b2bd")
-const BRASS: Color = Color("#c5a476")
+const SOFT: Color = Color("#cbd6dd")
+const BRASS: Color = Color("#dfc08d")
 
 static func label(parent: Node, value: String, font_size: int = 12, color: Color = IVORY, serif: bool = false) -> Label:
 	var node: Label = Label.new()

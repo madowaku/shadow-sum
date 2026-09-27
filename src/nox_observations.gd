@@ -1,10 +1,10 @@
 extends RefCounted
 
-# Presentation-only clues. The validated optical rules and solutions are unchanged.
+# Stage-specific story clues for the authored NOXSUM deck.
 const INTRO: Array = [
 	["One SIT trace explains all three marks.", "Follow the three shadows back to a common position.", "Their common origin lies between the three directions."],
 	["A darker square can hold more than one moment.", "Which two SIT traces could both contribute to B3?", "Use the single shadows to locate those two traces."],
-	["Clear glass is evidence, too.", "Every NOX trace must explain shadows without adding unwanted ones.", "The dark center needs three contributions. Empty cells rule out the wrong positions."],
+	["Clear glass is evidence, too.", "Every NOX trace must explain shadows without adding unwanted ones.", "Both layouts explain the marked squares. Which one also leaves D5 clear?"],
 	["Look at the light below the board.", "SIT behaves the same way. The illumination has changed.", "Follow the fourth shadow back toward NOX."],
 	["NOX's position is known. Reconstruct the light.", "Each recorded mark points away from its source.", "Choose only the sources needed by these two directions."],
 	["Position and light can be inferred together.", "The double mark in the middle needs two opposing contributions.", "The absence of vertical shadows constrains both lights and positions."],
@@ -27,7 +27,7 @@ const INTRO: Array = [
 const INTRO_JA: Array = [
 	["「座る」の影ひとつで、三つの印を説明できます。", "三つの影をたどり、共通する位置を探しましょう。", "三方向のあいだに、影の出発点があります。"],
 	["濃いマスには、複数の場面の影が重なっていることがあります。", "B3に重なる可能性がある、二つの「座る」の影はどれでしょう？", "単独で現れる影を手がかりに、二つの位置を探しましょう。"],
-	["透明なガラスも手がかりになります。", "NOXの影をすべて説明し、余分な影が生じないようにしましょう。", "中央の濃いマスには、三つの影が重なっています。空白マスを使って候補を絞りましょう。"],
+	["透明なガラスも手がかりになります。", "NOXの影をすべて説明し、余分な影が生じないようにしましょう。", "印のあるマスが一致する配置は二通り。D5を透明なままにできるのは、どちらでしょう？"],
 	["盤面の下にある光源に注目しましょう。", "「座る」の影は同じ形です。変わったのは照明です。", "四つ目の影をたどり、NOXの位置を考えましょう。"],
 	["NOXの位置はわかっています。光源を復元しましょう。", "記録された印は、それぞれ光源とは反対側に伸びています。", "この二方向を説明するために必要な光源だけを選びましょう。"],
 	["位置と光源は、同時に推理できます。", "中央の二重の印には、向かい合う二方向からの影が必要です。", "縦方向の影がないことから、光源と位置の両方を絞りましょう。"],

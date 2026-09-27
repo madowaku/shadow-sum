@@ -1,0 +1,5 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #0b0d12; }
+
+@font-face { font-family: "NOXSUM Display"; src: url("../public/fonts/CormorantGaramond.ttf") format("truetype"); font-weight: 500; }
+

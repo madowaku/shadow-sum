@@ -24,6 +24,14 @@ const JEV_REVIEW_SEQUENCE: Array = [
 	{"id": "RV08", "slot": "GR36", "variant": "A", "candidate": "finale-015"},
 	{"id": "RV09", "slot": "GR36", "variant": "B", "candidate": "finale-010"}
 ]
+var blind_playtest: bool = false
+var playtest_mode: bool = false
+var playtest_data_path: String = "res://data/playtest/current.json"
+var playtest_results_path: String = "user://noxsum_playtest_results.json"
+var playtest_pack_sha256: String = ""
+var playtest_results: Dictionary = {}
+var playtest_review: Control
+var playtest_revealed: bool = false
 var progress_path: String = SAVE
 var cause_light: bool = false
 var light_height: bool = false
@@ -65,6 +73,7 @@ var context_preview_key: String = ""
 var context_restore_text: String = ""
 var nox_chapter_label: Label
 var next_button: Button
+var clear_continue: Button
 var back_button: Button
 var undo_button: Button
 var hint_button: Button
@@ -96,6 +105,8 @@ var first_action: String = ""
 var resets: int = 0
 var action_count: int = 0
 var sound_player: AudioStreamPlayer
+var _browser_viewport_poll_elapsed: float = 0.0
+var _browser_bounds_audit_queued: bool = false
 
 func _ready() -> void:
 	var data_path: String = DATA
@@ -124,6 +135,23 @@ func _ready() -> void:
 		data_path = "res://data/grant20_v0_3.json"
 		if progress_path == SAVE:
 			progress_path = "user://shadow_sum_grant20_v0_3.json"
+	elif playtest_mode:
+		campaign_id = "noxsum_playtest_v0_1"
+		var playtest_args: PackedStringArray = OS.get_cmdline_user_args()
+		var pack_option: int = playtest_args.find("--playtest-pack")
+		if OS.is_debug_build() and pack_option >= 0 and pack_option + 1 < playtest_args.size():
+			playtest_data_path = playtest_args[pack_option + 1]
+		data_path = playtest_data_path
+		playtest_pack_sha256 = FileAccess.get_sha256(data_path)
+		if progress_path == SAVE:
+			progress_path = "user://noxsum_playtest.json" if data_path == "res://data/playtest/current.json" else "user://noxsum_comparison_%s.json" % playtest_pack_sha256.substr(0, 12)
+		if data_path != "res://data/playtest/current.json" and playtest_results_path == "user://noxsum_playtest_results.json":
+			playtest_results_path = "user://noxsum_comparison_%s_results.json" % playtest_pack_sha256.substr(0, 12)
+	elif blind_playtest:
+		campaign_id = "noxsum_blind_v0_1"
+		data_path = "res://data/playtest/blind_flow20_aha20_v0_1.json"
+		if progress_path == SAVE:
+			progress_path = "user://noxsum_blind_v0_1.json"
 	elif nox_campaign:
 		campaign_id = "noxsum_grant36_v1"
 		data_path = "res://data/noxsum_grant36_v1.json"
@@ -141,9 +169,17 @@ func _ready() -> void:
 	if jev_review:
 		stages = _build_jev_review_stages()
 	else:
-		stages = JSON.parse_string(FileAccess.get_file_as_string(data_path))
+		var parsed_stages: Variant = JSON.parse_string(FileAccess.get_file_as_string(data_path))
+		if parsed_stages is Dictionary:
+			parsed_stages = parsed_stages.get("stages", [])
+		if parsed_stages is not Array or parsed_stages.is_empty():
+			push_error("Campaign data missing or empty: " + data_path)
+			return
+		stages = parsed_stages
 	_build_ui()
 	_load_progress()
+	if playtest_mode:
+		_load_playtest_results()
 	var resume: int = 20 if grant36_draft else 0
 	if initial_stage_index >= 0:
 		resume = clampi(initial_stage_index, 0, stages.size() - 1)
@@ -151,12 +187,16 @@ func _ready() -> void:
 		resume += 1
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var stage_flag: int = args.find("--stage")
-	if stage_flag >= 0 and stage_flag + 1 < args.size():
+	var stage_id: String = args[stage_flag + 1] if stage_flag >= 0 and stage_flag + 1 < args.size() else ""
+	for argument: String in args:
+		if argument.begins_with("--stage="):
+			stage_id = argument.trim_prefix("--stage=")
+	if not stage_id.is_empty():
 		for index: int in stages.size():
-			if stages[index]["id"] == args[stage_flag + 1]:
+			if stages[index]["id"] == stage_id:
 				resume = index
 	load_stage(resume)
-	if nox_campaign and completed.is_empty() and not bool(NoxSettings.read_value("tutorial_seen", false)):
+	if nox_campaign and not playtest_mode and completed.is_empty() and not bool(NoxSettings.read_value("tutorial_seen", false)):
 		call_deferred("_show_first_guide")
 
 func _build_jev_review_stages() -> Array:
@@ -246,6 +286,10 @@ func _review_stage_from_candidate(spec: Dictionary, candidate: Dictionary) -> Di
 func _build_ui() -> void:
 	if nox_campaign:
 		NoxStageLayout.build(self)
+		if playtest_mode:
+			playtest_review = preload("res://src/ui/playtest_review.gd").new()
+			playtest_review.connect("submitted", _on_playtest_review_submitted)
+			add_child(playtest_review)
 		return
 	compact_nox_layout = nox_campaign and get_viewport_rect().size.y <= 820.0
 	var background: ColorRect = ColorRect.new()
@@ -288,6 +332,8 @@ func _build_ui() -> void:
 		campaign_label = "G R A N T   1 4   /   v 0 . 2"
 	elif grant20_v03:
 		campaign_label = "G R A N T   2 0   /   v 0 . 3"
+	elif playtest_mode:
+		campaign_label = "P L A Y T E S T"
 	elif nox_campaign:
 		campaign_label = "RECONSTRUCT NOX'S NIGHT"
 	elif grant36_draft:
@@ -295,7 +341,7 @@ func _build_ui() -> void:
 	elif jev_review:
 		campaign_label = "D E E P   C A L I B R A T I O N   /   A B"
 	_label(column, campaign_label, 10, T.TEXT_MUTED)
-	if grant36_draft or nox_campaign:
+	if grant36_draft or (nox_campaign and not playtest_mode):
 		var picker_row: HBoxContainer = HBoxContainer.new()
 		picker_row.alignment = BoxContainer.ALIGNMENT_CENTER
 		picker_row.add_theme_constant_override("separation", 8)
@@ -488,6 +534,11 @@ func _build_ui() -> void:
 	hint_button = _button("CLUE" if nox_campaign else "WHISPER", Vector2(66, 38) if compact_nox_layout else Vector2(76, 44))
 	hint_button.pressed.connect(whisper)
 	footer.add_child(hint_button)
+	if playtest_mode:
+		var give_up: Button = _button("解答を見る" if NoxLocale.is_japanese() else "REVEAL", Vector2(88, footer_size.y))
+		give_up.name = "PlaytestReveal"
+		give_up.pressed.connect(_reveal_playtest_solution)
+		footer.add_child(give_up)
 	next_button = _button("NEXT", footer_size)
 	next_button.pressed.connect(next_stage)
 	footer.add_child(next_button)
@@ -501,6 +552,10 @@ func _build_ui() -> void:
 	drag_ghost.size = Vector2(48, 48)
 	clear_seal = preload("res://src/ui/clear_seal.gd").new()
 	add_child(clear_seal)
+	if playtest_mode:
+		playtest_review = preload("res://src/ui/playtest_review.gd").new()
+		playtest_review.submitted.connect(_on_playtest_review_submitted)
+		add_child(playtest_review)
 	sound_player = AudioStreamPlayer.new()
 	add_child(sound_player)
 
@@ -535,7 +590,13 @@ func stage() -> Dictionary:
 
 func load_stage(index: int) -> void:
 	_cancel_motions()
+	if playtest_mode and playtest_review != null:
+		playtest_review.hide()
+	if nox_campaign:
+		NoxStageLayout.close_mobile_log(self)
 	stage_index = clampi(index, 0, stages.size() - 1)
+	if stage_guide != null:
+		stage_guide.set_stage(stage())
 	if stage_picker != null:
 		stage_picker.select(stage_index)
 	posts.clear()
@@ -570,6 +631,7 @@ func load_stage(index: int) -> void:
 		selected_post_type = "plate_h"
 	drag_post_type = selected_post_type
 	stage_solved = false
+	playtest_revealed = false
 	hint_level = 0
 	hint_max_level = 0
 	drag_ghost.visible = false
@@ -588,7 +650,10 @@ func load_stage(index: int) -> void:
 	status_label.text = ""
 	next_button.disabled = true
 	_refresh(false)
-	if nox_campaign:
+	if playtest_mode:
+		nox_chapter_label.text = "%s  /  %02d" % [str(stage()["id"]), stages.size()]
+		status_label.text = NoxLocale.copy("Observe the record. Let every shadow agree.")
+	elif nox_campaign:
 		nox_chapter_label.text = ("記録 %02d  /  %s" if NoxLocale.is_japanese() else "PLATE %02d  /  %s") % [stage_index + 1, Story.chapter_name(stage_index, NoxLocale.language())]
 		status_label.text = Story.milestone_note(stage_index, NoxLocale.language())
 		if status_label.text.is_empty():
@@ -613,6 +678,8 @@ func _cancel_motions() -> void:
 		next_button.scale = Vector2.ONE
 		next_button.text = NoxLocale.copy("NEXT") if nox_campaign else "NEXT"
 		next_button.remove_theme_color_override("font_color")
+	if nox_campaign:
+		NoxStageLayout.set_clear_state(self, false)
 	for motion: Tween in motions:
 		if motion.is_valid():
 			motion.kill()
@@ -945,6 +1012,7 @@ func _move_pointer(point: Vector2) -> void:
 			var shadow: Array[int] = Optics.compute_shadow(preview, lights, shutters, types)
 			for index: int in 25:
 				live_cells[index].value = float(shadow[index])
+				live_cells[index].change_remaining = 0.0
 
 func _nearest_socket(point: Vector2) -> int:
 	var nearest: int = -1
@@ -1025,6 +1093,8 @@ func _finish_pointer(point: Vector2) -> void:
 	_refresh()
 
 func _refresh(animate: bool = true) -> void:
+	var mark_changes: bool = nox_campaign and animate and current_shadow.size() == 25
+	var previous_shadow: Array[int] = current_shadow.duplicate()
 	if nox_campaign and NoxSettings.reduced_motion():
 		animate = false
 	if shadow_motion != null and shadow_motion.is_valid():
@@ -1034,6 +1104,7 @@ func _refresh(animate: bool = true) -> void:
 		for index: Variant in posts:
 			types[str(index)] = "tall"
 	current_shadow = Optics.compute_shadow(posts, lights, shutters, types)
+	var shadow_changed: bool = previous_shadow != current_shadow
 	var near_shadow: Array[int] = Optics.compute_shadow(posts, lights, shutters)
 	var target: Dictionary = stage()["observations"][observation_index]["target"]
 	var fog_cells: Array = stage().get("fog_cells", [])
@@ -1047,6 +1118,11 @@ func _refresh(animate: bool = true) -> void:
 		target_cells[index].unknown = fog_cells.has(code)
 		target_cells[index].get_parent().tooltip_text = code + (" · " + (NoxLocale.copy("FOG: unobserved, not zero") if nox_campaign else "FOG: unobserved, not zero") if fog_cells.has(code) else " · " + str(int(target.get(code, 0))))
 		live_cells[index].unknown = false
+		if not mark_changes:
+			live_cells[index].change_remaining = 0.0
+		elif shadow_changed:
+			live_cells[index].change_remaining = 1.2 if previous_shadow[index] != current_shadow[index] else 0.0
+		live_cells[index].feedback_reduced_motion = nox_campaign and NoxSettings.reduced_motion()
 		if animate:
 			motion.tween_property(target_cells[index], "value", float(target.get(code, 0)), 0.2)
 			motion.tween_property(live_cells[index], "value", float(current_shadow[index]), 0.18).set_delay(0.04 if current_shadow[index] > near_shadow[index] else 0.0)
@@ -1057,6 +1133,8 @@ func _refresh(animate: bool = true) -> void:
 		var socket_available: bool = _socket_enabled(index)
 		socket_button.disabled = not socket_available or stage_solved
 		socket_button.mouse_filter = Control.MOUSE_FILTER_STOP if socket_available else Control.MOUSE_FILTER_IGNORE
+		if nox_campaign:
+			socket_button.modulate.a = 1.0 if socket_available else 0.0
 		var surface: Control = socket_button.get_child(0)
 		surface.kind = "socket" if socket_available else "socket_missing"
 		surface.occupied = socket_available and posts.has(index)
@@ -1083,12 +1161,15 @@ func _refresh(animate: bool = true) -> void:
 			# Invisible reserved mounts keep the board stationary when a source is absent.
 			lamp.visible = true
 			var installed: Array = stage().get("installed_lights", stage()["observations"][0]["active_lights"])
-			lamp.modulate.a = 1.0 if installed.has(direction) else 0.0
+			lamp.modulate.a = 1.0 if installed.has(direction) else (0.55 if nox_campaign else 0.0)
 			lamp.mouse_filter = Control.MOUSE_FILTER_STOP if installed.has(direction) else Control.MOUSE_FILTER_IGNORE
 			lamp.get_child(0).glow = 1.0
 		if direction == "BOTTOM":
 			lamp.get_parent().visible = lamp.visible
 	rail.get_parent().visible = stage().has("fixed_shutters") or stage().get("movable_shutter", false)
+	if nox_campaign:
+		var board_caption: Label = find_child("BoardCaption", true, false) as Label
+		board_caption.visible = not NoxStageLayout.is_short_mobile_viewport(self) and not (NoxStageLayout.viewport_css_width(self) <= 380.0 and rail.get_parent().visible)
 	for slot: int in 5:
 		var surface: Control = rail_buttons[slot].get_child(0)
 		surface.occupied = shutters.has(slot)
@@ -1126,7 +1207,7 @@ func _refresh(animate: bool = true) -> void:
 		NoxStageLayout.style_selection(self)
 		pose_description_label.visible = inventory.get_parent().visible
 		pose_description_label.text = NoxLocale.pose_description(selected_post_type) if pose_description_label.visible else ""
-	title_label.text = NoxLocale.trace_heading(stage_index, Story.title(stage_index, NoxLocale.language())) if nox_campaign else "%s  /  %s" % [stage()["id"], stage()["title"]]
+	title_label.text = str(stage()["id"]) if playtest_mode else (NoxLocale.trace_heading(stage_index, Story.title(stage_index, NoxLocale.language())) if nox_campaign else "%s  /  %s" % [stage()["id"], stage()["title"]])
 	if nox_campaign and mixed_inventory:
 		var counts: PackedStringArray = []
 		for kind: String in ["normal", "tall", "plate"]:
@@ -1137,18 +1218,25 @@ func _refresh(animate: bool = true) -> void:
 	elif mixed_inventory:
 		count_label.text = "N %d/%d  T %d/%d  P %d/%d  ·  %02d/%02d" % [_post_count("normal"), _post_limit("normal"), _post_count("tall"), _post_limit("tall"), _post_count("plate"), _post_limit("plate"), stage_index + 1, stages.size()]
 	else:
-		count_label.text = "%s %d / %d    ·    %02d / 36" % [NoxLocale.copy("SIT"), posts.size(), int(stage()["posts"]), stage_index + 1] if nox_campaign else "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()]
+		count_label.text = "%s %d / %d    ·    %02d / %02d" % [NoxLocale.copy("SIT"), posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()] if playtest_mode else ("%s %d / %d    ·    %02d / 36" % [NoxLocale.copy("SIT"), posts.size(), int(stage()["posts"]), stage_index + 1] if nox_campaign else "POSTS  %d / %d    ·    %02d / %02d" % [posts.size(), int(stage()["posts"]), stage_index + 1, stages.size()])
 	if nox_campaign:
+		NoxStageLayout.update_inventory_counts(self)
 		observation_label.text = NoxLocale.copy("Match both plates. Choose a pose and square.")
 		if stage_solved:
 			observation_label.text = NoxLocale.copy("Every shadow agrees.")
-		elif stage_index == 0:
+		elif stage_index == 0 and not playtest_mode:
 			if not pose_chosen and posts.is_empty():
 				observation_label.text = NoxLocale.copy("① Compare both plates. Choose NOX below.")
 			elif posts.is_empty():
 				observation_label.text = NoxLocale.copy("② Tap a square to place NOX.")
 			else:
 				observation_label.text = NoxLocale.copy("③ Match every shade on both plates.")
+		elif not playtest_mode and stage_index == 6:
+			observation_label.text = "眠る列では、上の光だけが遮られる。" if NoxLocale.is_japanese() else "SLEEP blocks TOP light in one column."
+		elif not playtest_mode and stage_index == 8:
+			observation_label.text = "「立つ」の影は、隣から二マス目まで。" if NoxLocale.is_japanese() else "STAND reaches the first and second squares."
+		elif not playtest_mode and stage_index == 10:
+			observation_label.text = "猫をタップ。影の向きの変化を見よう。" if NoxLocale.is_japanese() else "Tap WALK. Watch the shadow axis change."
 		if stage().get("free_light_selection", false) and not stage_solved:
 			observation_label.text = NoxLocale.light_count(lights.size(), int(stage().get("active_light_count", 0)))
 		if not fog_cells.is_empty() and not stage_solved:
@@ -1171,23 +1259,28 @@ func _refresh(animate: bool = true) -> void:
 			observation_buttons[index].disabled = index == observation_index or stage_solved
 	back_button.disabled = stage_index == 0
 	undo_button.disabled = history.is_empty() or stage_solved
-	var hints: Array = NoxObservations.for_stage(stage_index, stage(), NoxLocale.language()) if nox_campaign else stage().get("hints", [])
-	hint_button.disabled = stage_solved or hint_level >= mini(3, hints.size())
-	hint_button.visible = not nox_campaign or not hints.is_empty()
-	hint_button.tooltip_text = "No hints authored for this draft stage." if hints.is_empty() else (NoxLocale.copy("A gentle clue") if nox_campaign else "A gentle clue")
+	var hints: Array = [] if playtest_mode else (NoxObservations.for_stage(stage_index, stage(), NoxLocale.language()) if nox_campaign else stage().get("hints", []))
+	hint_button.disabled = stage_solved if playtest_mode else (stage_solved or hint_level >= mini(3, hints.size()))
+	hint_button.visible = true if playtest_mode else (not nox_campaign or not hints.is_empty())
+	hint_button.tooltip_text = ("解答を表示" if NoxLocale.is_japanese() else "Show solution") if playtest_mode else ("No hints authored for this draft stage." if hints.is_empty() else (NoxLocale.copy("A gentle clue") if nox_campaign else "A gentle clue"))
 	_check_solve()
 
 func _check_solve() -> void:
 	if stage_solved or not drag_kind.is_empty() or not Optics.solved(stage(), posts, shutters, lights, post_types):
 		return
 	stage_solved = true
-	next_button.disabled = true
+	next_button.disabled = not nox_campaign or playtest_mode
+	if nox_campaign:
+		next_button.text = NoxLocale.copy("HOME" if stage_index == stages.size() - 1 else "NEXT  ›")
+		NoxStageLayout.set_clear_state(self, true)
 	undo_button.disabled = true
 	hint_button.disabled = true
 	# Commit before the presentation: resetting or leaving must never lose a solve.
 	completed[stage()["id"]] = true
 	hint_records[stage()["id"]] = {"hint": hint_max_level, "first_action": first_action, "solve_seconds": elapsed, "actions": action_count, "resets": resets}
 	_save_progress()
+	if playtest_mode:
+		get_tree().create_timer(1.0).timeout.connect(_show_playtest_review)
 	if nox_campaign:
 		observation_label.text = NoxLocale.copy("Every shadow agrees.")
 	var reduce_motion: bool = nox_campaign and NoxSettings.reduced_motion()
@@ -1201,9 +1294,9 @@ func _check_solve() -> void:
 			status_label.add_theme_color_override("font_color", T.GOLD)
 			_click(660)
 			next_button.text = NoxLocale.copy("HOME" if stage_index == stages.size() - 1 else "NEXT")
-			next_button.disabled = false
-			next_button.add_theme_color_override("font_color", T.GOLD)
-			if stage_index == stages.size() - 1 and completed.size() == stages.size():
+			next_button.disabled = playtest_mode
+			next_button.add_theme_color_override("font_color", Color("#09111b") if nox_campaign else T.GOLD)
+			if not playtest_mode and stage_index == stages.size() - 1 and completed.size() == stages.size():
 				_show_finale()
 			return
 	var solve_motion: Tween = create_tween()
@@ -1226,12 +1319,12 @@ func _check_solve() -> void:
 	solve_motion.tween_interval(0.25)
 	solve_motion.tween_callback(func() -> void:
 		next_button.text = (NoxLocale.copy("HOME") if nox_campaign else "REPLAY") if stage_index == stages.size() - 1 else (NoxLocale.copy("NEXT") if nox_campaign else "NEXT")
-		next_button.disabled = false
-		next_button.add_theme_color_override("font_color", T.GOLD)
+		next_button.disabled = playtest_mode
+		next_button.add_theme_color_override("font_color", Color("#09111b") if nox_campaign else T.GOLD)
 		next_button.pivot_offset = next_button.size * 0.5
 		next_button.scale = Vector2.ONE * 0.96)
 	solve_motion.tween_property(next_button, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	if nox_campaign and stage_index == stages.size() - 1 and completed.size() == stages.size():
+	if nox_campaign and not playtest_mode and stage_index == stages.size() - 1 and completed.size() == stages.size():
 		solve_motion.tween_interval(0.48)
 		solve_motion.tween_callback(_show_finale)
 
@@ -1252,6 +1345,7 @@ func _show_first_guide() -> void:
 func show_stage_guide() -> void:
 	if stage_guide == null:
 		return
+	stage_guide.set_stage(stage())
 	stage_guide.present(NoxLocale.language(), NoxSettings.reduced_motion())
 
 func _show_finale() -> void:
@@ -1260,6 +1354,14 @@ func _show_finale() -> void:
 
 func next_stage() -> void:
 	if next_button.disabled:
+		return
+	if playtest_mode:
+		if not playtest_results.has(str(stage()["id"])):
+			return
+		if stage_index == stages.size() - 1:
+			playtest_review.show_complete(ProjectSettings.globalize_path(playtest_results_path))
+			return
+		load_stage(stage_index + 1)
 		return
 	if nox_campaign and stage_index == stages.size() - 1:
 		home_requested.emit()
@@ -1298,6 +1400,15 @@ func whisper() -> void:
 	hint_button.disabled = hint_level >= mini(3, hints.size())
 
 func _process(delta: float) -> void:
+	if nox_campaign and OS.has_feature("web"):
+		_browser_viewport_poll_elapsed += delta
+		if _browser_viewport_poll_elapsed >= 0.2:
+			_browser_viewport_poll_elapsed = 0.0
+			if NoxStageLayout.refresh_browser_layout(self):
+				_browser_bounds_audit_queued = false
+			if not _browser_bounds_audit_queued and (stage_guide == null or not stage_guide.visible) and bool(JavaScriptBridge.eval("new URLSearchParams(window.location.search).has('layoutAudit')", true)):
+				_browser_bounds_audit_queued = true
+				call_deferred("_audit_visible_mobile_control_bounds")
 	if stages.is_empty():
 		return
 	elapsed += delta
@@ -1311,12 +1422,57 @@ func _process(delta: float) -> void:
 		pulse.tween_property(lamp, "scale", Vector2.ONE * 1.035, 0.35)
 		pulse.tween_property(lamp, "scale", Vector2.ONE, 0.35)
 	for surface: Control in target_cells + live_cells:
+		surface.change_remaining = maxf(0.0, surface.change_remaining - delta)
 		surface.queue_redraw()
 	for button: Button in sockets + rail_buttons + [inventory, tall_inventory, plate_inventory]:
 		button.get_child(0).queue_redraw()
 	for button: Button in lamps.values():
 		button.get_child(0).queue_redraw()
 	motions = motions.filter(func(motion: Tween) -> bool: return motion.is_valid())
+
+
+func _audit_visible_mobile_control_bounds() -> void:
+	await get_tree().process_frame
+	var css_size: Vector2 = NoxStageLayout.viewport_css_size(self)
+	var logical_size: Vector2 = get_viewport_rect().size
+	var browser_snapshot: Variant = JavaScriptBridge.eval("JSON.stringify((() => { const c = document.getElementById('canvas'); const r = c.getBoundingClientRect(); const v = window.visualViewport; return {innerWidth: window.innerWidth, innerHeight: window.innerHeight, devicePixelRatio: window.devicePixelRatio, visualWidth: v ? v.width : null, visualHeight: v ? v.height : null, canvasRectWidth: r.width, canvasRectHeight: r.height, canvasWidth: c.width, canvasHeight: c.height, canvasStyleWidth: c.style.width, canvasStyleHeight: c.style.height}; })())", true)
+	var plates_row: Control = find_child("ShadowPlates", true, false) as Control
+	var board_grid: Control = find_child("WhereWasNox", true, false) as Control
+	print("[NOXSUM simultaneous viewport snapshot] browser=%s godot_viewport=%s root_global_rect=%s plates_row_global_rect=%s board_global_rect=%s root_scale=%s" % [str(browser_snapshot), str(logical_size), str(get_global_rect()), str(plates_row.get_global_rect() if plates_row != null else Rect2()), str(board_grid.get_global_rect() if board_grid != null else Rect2()), str(scale)])
+	var css_scale: Vector2 = Vector2(css_size.x / maxf(logical_size.x, 1.0), css_size.y / maxf(logical_size.y, 1.0))
+	var overflow_count: int = 0
+	var checked_count: int = 0
+	var controls: Array[Node] = [self]
+	controls.append_array(find_children("*", "Control", true, false))
+	for node: Node in controls:
+		var control: Control = node as Control
+		if control == null or not control.is_visible_in_tree():
+			continue
+		checked_count += 1
+		var rect: Rect2 = control.get_global_rect()
+		var css_rect: Rect2 = Rect2(rect.position * css_scale, rect.size * css_scale)
+		var fits: bool = css_rect.position.x >= -0.5 and css_rect.position.y >= -0.5 and css_rect.end.x <= css_size.x + 0.5 and css_rect.end.y <= css_size.y + 0.5
+		if not fits:
+			overflow_count += 1
+			print("[NOXSUM bounds overflow] path=%s global_rect=%s css_rect=%s viewport=%s" % [str(control.get_path()), str(rect), str(css_rect), str(css_size)])
+	for control_name: String in ["StageFrame", "ReconstructionLayout", "StageHeader", "HomeButton", "LanguageButton", "NoxWordmark", "TracePicker", "NOXTitle", "ShadowPlates", "RecordedPlate", "ReconstructionPlate", "ComparePrompt", "TopLightWrap", "TOPLight", "LEFTLight", "RIGHTLight", "WhereWasNox", "SocketA1", "SocketE5", "BottomLightWrap", "BOTTOMLight", "RailWrap", "PoseInventoryRow", "NightLogTrigger", "ActionBar"]:
+		var target: Control = find_child(control_name, true, false) as Control
+		if target != null and target.is_visible_in_tree():
+			var target_rect: Rect2 = target.get_global_rect()
+			var target_css_rect: Rect2 = Rect2(target_rect.position * css_scale, target_rect.size * css_scale)
+			print("[NOXSUM bounds target] name=%s css_rect=%s custom_minimum=%s size=%s" % [control_name, str(target_css_rect), str(target.custom_minimum_size), str(target.size)])
+	for target: Control in [title_label, observation_label]:
+		if target != null and target.is_visible_in_tree():
+			var target_rect: Rect2 = target.get_global_rect()
+			print("[NOXSUM bounds target] name=%s text=%s css_rect=%s custom_minimum=%s size=%s" % [target.name, target.text, str(Rect2(target_rect.position * css_scale, target_rect.size * css_scale)), str(target.custom_minimum_size), str(target.size)])
+	var night_log: Control = find_child("NightLog", true, false) as Control
+	var night_log_trigger: Control = find_child("NightLogTrigger", true, false) as Control
+	var night_log_visible: bool = night_log != null and night_log.is_visible_in_tree()
+	var night_log_trigger_visible: bool = night_log_trigger != null and night_log_trigger.is_visible_in_tree()
+	print("[NOXSUM bounds state] night_log_visible=%s night_log_trigger_visible=%s" % [str(night_log_visible), str(night_log_trigger_visible)])
+	print("[NOXSUM bounds audit] visible_controls=%d overflow=%d css_viewport=%s logical_viewport=%s" % [checked_count, overflow_count, str(css_size), str(logical_size)])
+	assert(overflow_count == 0, "Visible Control global_rect escaped the CSS viewport")
+	assert(not NoxStageLayout.is_mobile_viewport(self) or not night_log_visible, "Night Log must stay collapsed in mobile layout")
 
 func _click(frequency: float) -> void:
 	var wave: AudioStreamWAV = AudioStreamWAV.new()
@@ -1335,7 +1491,7 @@ func _load_progress() -> void:
 	if not FileAccess.file_exists(progress_path):
 		return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(progress_path))
-	if parsed is Dictionary and parsed.get("campaign", "") == campaign_id:
+	if parsed is Dictionary and parsed.get("campaign", "") == campaign_id and (not playtest_mode or parsed.get("pack_sha256", "") == playtest_pack_sha256):
 		for id: String in parsed.get("completed", {}):
 			for entry: Dictionary in stages:
 				if id == entry["id"]:
@@ -1345,7 +1501,85 @@ func _load_progress() -> void:
 func _save_progress() -> void:
 	var file: FileAccess = FileAccess.open(progress_path, FileAccess.WRITE)
 	if file != null:
-		file.store_string(JSON.stringify({"campaign": campaign_id, "completed": completed, "playtest": hint_records}, "\t"))
+		var data: Dictionary = {"campaign": campaign_id, "completed": completed, "playtest": hint_records}
+		if playtest_mode:
+			data["pack_sha256"] = playtest_pack_sha256
+		file.store_string(JSON.stringify(data, "\t"))
+
+func _load_playtest_results() -> void:
+	playtest_results.clear()
+	if not FileAccess.file_exists(playtest_results_path):
+		return
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(playtest_results_path))
+	if parsed is Dictionary and parsed.get("pack_sha256", "") == playtest_pack_sha256:
+		var saved: Variant = parsed.get("results", {})
+		if saved is Dictionary:
+			playtest_results = saved
+
+func _save_playtest_results() -> void:
+	var file: FileAccess = FileAccess.open(playtest_results_path, FileAccess.WRITE)
+	if file == null:
+		push_error("Could not save playtest results: " + playtest_results_path)
+		return
+	file.store_string(JSON.stringify({
+		"schema": "noxsum-playtest-results-v0.1",
+		"pack_sha256": playtest_pack_sha256,
+		"stage_count": stages.size(),
+		"results": playtest_results
+	}, "\t"))
+
+func _show_playtest_review() -> void:
+	if not playtest_mode or not stage_solved or playtest_revealed or playtest_review == null:
+		return
+	playtest_review.present_solved(str(stage()["id"]))
+
+func _reveal_playtest_solution() -> void:
+	if not playtest_mode or stage_solved:
+		return
+	var solution: Array = stage().get("solution", [])
+	if solution.is_empty():
+		push_error("Playtest stage has no reveal solution: " + str(stage()["id"]))
+		return
+	posts.clear()
+	post_types.clear()
+	var solution_types: Dictionary = stage().get("solution_post_types", {})
+	for raw_code: Variant in solution:
+		var code: String = str(raw_code)
+		var cell_index: int = Optics.cell(code)
+		posts.append(cell_index)
+		post_types[str(cell_index)] = str(solution_types.get(code, "normal"))
+	if stage().has("solution_lights"):
+		lights = stage()["solution_lights"].duplicate()
+	if stage().has("solution_shutter"):
+		shutters = [int(stage()["solution_shutter"])]
+	stage_solved = true
+	playtest_revealed = true
+	_refresh(false)
+	observation_label.text = "解答を表示しました" if NoxLocale.is_japanese() else "Solution revealed"
+	status_label.text = "解答を表示しました" if NoxLocale.is_japanese() else "Solution revealed"
+	get_tree().create_timer(0.8).timeout.connect(_show_reveal_review)
+
+func _show_reveal_review() -> void:
+	if playtest_mode and stage_solved and playtest_revealed and playtest_review != null:
+		playtest_review.present_revealed(str(stage()["id"]))
+
+func _on_playtest_review_submitted(rating: Dictionary) -> void:
+	if not playtest_mode:
+		return
+	var stage_id: String = str(stage()["id"])
+	var record: Dictionary = rating.duplicate(true)
+	record["stage_id"] = stage_id
+	record["source_id"] = str(stage().get("source_id", ""))
+	record["solve_seconds"] = elapsed
+	record["actions"] = action_count
+	record["resets"] = resets
+	record["hint_level"] = hint_max_level
+	record["recorded_at_utc"] = Time.get_datetime_string_from_system(true)
+	playtest_results[stage_id] = record
+	_save_playtest_results()
+	playtest_review.hide()
+	next_button.disabled = false
+	next_stage()
 
 func _exit_tree() -> void:
 	_cancel_motions()
@@ -1391,6 +1625,11 @@ func sync_stage_language(_language: String) -> void:
 	if stage_guide != null:
 		stage_guide.set_language(NoxLocale.language())
 	_refresh(false)
+	if playtest_mode:
+		nox_chapter_label.text = "%s  /  %02d" % [str(stage()["id"]), stages.size()]
+		hint_button.text = "解答を見る" if NoxLocale.is_japanese() else "REVEAL"
+		status_label.text = ("解答を表示しました" if NoxLocale.is_japanese() else "Solution revealed") if playtest_revealed else (NoxLocale.solved(completed.size(), stages.size()) if stage_solved else NoxLocale.copy("Observe the record. Let every shadow agree."))
+		return
 	nox_chapter_label.text = ("記録 %02d  /  %s" if NoxLocale.is_japanese() else "PLATE %02d  /  %s") % [stage_index + 1, Story.chapter_name(stage_index, NoxLocale.language())]
 	if stage_solved:
 		status_label.text = NoxLocale.solved(completed.size(), stages.size())

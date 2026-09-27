@@ -113,13 +113,15 @@ static func copy(english: String) -> String:
 static func pose_description(pose: String) -> String:
 	match pose:
 		"tall":
-			return copy("STAND · A taller shadow reaches farther.")
-		"plate_h", "plate_v":
-			return copy("WALK · A directional trace. Click to turn.")
+			return "立つ：影は隣と、二マス目まで" if is_japanese() else "STAND · Shadows reach one and two squares."
+		"plate_h":
+			return "歩く：体は横、影は上下。タップで回転" if is_japanese() else "WALK · Body across, shadows up/down. Tap to turn."
+		"plate_v":
+			return "歩く：体は縦、影は左右。タップで回転" if is_japanese() else "WALK · Body in depth, shadows left/right. Tap to turn."
 		"sleep":
-			return copy("SLEEP · Resting on the rail blocks light.")
+			return "眠る：その列の上からの光だけを遮る" if is_japanese() else "SLEEP · Blocks TOP light in its column only."
 		_:
-			return copy("SIT · NOX sat here, leaving a nearby shadow.")
+			return "座る：点灯中の光と反対側の、隣に影" if is_japanese() else "SIT · A nearby shadow opposite each lit lamp."
 
 static func light_description(direction: String) -> String:
 	match direction:
@@ -172,3 +174,21 @@ static func refresh_bound(root: Node) -> void:
 			bind_slot(control, str(control.get_meta("nox_slot")))
 	for child: Node in root.get_children():
 		refresh_bound(child)
+const OPENING: Dictionary = {
+	"archive.title": ["THE NOCTURNAL OPTICAL ARCHIVE", "夜の光学資料室。"],
+	"archive.body": ["Here, light and shadow are recorded.", "ここでは、光と影が記録される。"],
+	"nox.title": ["NOX is no longer there.", "NOXの姿は、\nもうそこにはない。"],
+	"nox.body": ["But the shadows remain in the record.", "けれど、影は記録に残っている。"],
+	"record.title": ["Several moments can overlap in one record.", "いくつかの瞬間が、\nひとつの記録に重なる。"],
+	"reconstruct.title": ["Reconstruct where NOX was, and what NOX was doing.", "影から、NOXがいた\n場所と姿を再構築する。"],
+	"match.title": ["When every shadow matches, the record is restored.", "すべての影が合えば、\n記録はよみがえる。"],
+	"enter.title": ["Follow the shadows. Reconstruct the record.", "影をたどって、\n記録を再構築する。"],
+	"skip": ["SKIP", "スキップ"],
+	"replay": ["PROLOGUE", "プロローグ"],
+	"next": ["Tap / click / Space / Enter to continue", "タップ・クリック・Space・Enterで次へ"],
+	"trace": ["TRACE 01 / FIRST SHADOW", "記録 01 / 最初の影"],
+}
+
+static func opening(key: String) -> String:
+	var values: Array = OPENING.get(key, ["", ""])
+	return str(values[1 if is_japanese() else 0])

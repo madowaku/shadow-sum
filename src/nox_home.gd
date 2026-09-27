@@ -10,11 +10,12 @@ const Wordmark = preload("res://src/ui/nox_wordmark.gd")
 const SAVE_PATH: String = "user://noxsum_grant36_v1.json"
 const CAMPAIGN_ID: String = "noxsum_grant36_v1"
 const STAGE_COUNT: int = 36
-const BACKGROUND: Texture2D = preload("res://assets/nox/v0.4/archive_window.png")
+const BACKGROUND: Texture2D = preload("res://assets/nox/v0.6/archive_puzzle_window.png")
 
 var completed: Dictionary = {}
 var continue_button: Button
 var progress_label: Label
+var sound_button: Button
 var modal: Control
 var modal_body: VBoxContainer
 var modal_title: Label
@@ -68,7 +69,7 @@ func _build_ui() -> void:
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var gradient: Gradient = Gradient.new()
 	gradient.offsets = PackedFloat32Array([0.0, 0.16, 0.40, 0.64, 0.79, 1.0])
-	gradient.colors = PackedColorArray([Color(0.01, 0.03, 0.06, 0.40), Color(0.01, 0.03, 0.06, 0.12), Color.TRANSPARENT, Color.TRANSPARENT, Color(0.02, 0.03, 0.05, 0.48), Color(0.01, 0.02, 0.03, 0.94)])
+	gradient.colors = PackedColorArray([Color(0.01, 0.03, 0.06, 0.40), Color(0.01, 0.03, 0.06, 0.30), Color(0.01, 0.03, 0.06, 0.16), Color.TRANSPARENT, Color(0.02, 0.03, 0.05, 0.32), Color(0.01, 0.02, 0.03, 0.78)])
 	var texture: GradientTexture2D = GradientTexture2D.new()
 	texture.gradient = gradient
 	texture.fill_from = Vector2(0, 0)
@@ -86,11 +87,19 @@ func _build_ui() -> void:
 	top.add_child(top_row)
 	masthead = N.label(top_row, L.copy("NOCTURNAL\nOPTICAL ARCHIVE"), 10, N.IVORY)
 	masthead.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var language: Button = N.button(L.switch_label(), 40)
+	_readable(masthead)
+	sound_button = N.button("", 44)
+	sound_button.name = "SoundButton"
+	sound_button.custom_minimum_size.x = 74
+	sound_button.add_theme_font_size_override("font_size", 10)
+	sound_button.pressed.connect(_toggle_sound)
+	top_row.add_child(sound_button)
+	_refresh_sound_button()
+	var language: Button = N.button(L.switch_label(), 44)
 	language.name = "LanguageButton"
 	language.pressed.connect(_switch_language)
 	top_row.add_child(language)
-	var settings: Button = N.button(L.copy("SETTINGS"), 40)
+	var settings: Button = N.button(L.copy("SETTINGS"), 44)
 	settings.name = "SettingsButton"
 	settings.pressed.connect(_open_settings)
 	top_row.add_child(settings)
@@ -103,18 +112,20 @@ func _build_ui() -> void:
 	title_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	title_column.add_theme_constant_override("separation", 10)
 	title_area.add_child(title_column)
-	var edition: Label = N.label(title_column, L.copy("A  N O C T U R N A L  M Y S T E R Y"), 10, N.BRASS)
+	var edition: Label = N.label(title_column, L.copy("A  N O C T U R N A L  M Y S T E R Y"), 11, N.BRASS)
 	edition.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_readable(edition)
 	wordmark = Wordmark.new()
 	wordmark.custom_minimum_size.y = 110
 	title_column.add_child(wordmark)
 	subtitle = N.label(title_column, L.copy("RECONSTRUCT THE PAST\nFROM THE SHADOWS"), 11)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_constant_override("line_spacing", 5)
+	_readable(subtitle, 3)
 	var tag: Label = N.label(title_column, L.copy("NOX is gone. The shadows remember."), 20, N.IVORY, true)
 	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tag.add_theme_constant_override("outline_size", 4)
-	tag.add_theme_color_override("font_outline_color", Color(0.02, 0.04, 0.07, 0.45))
+	tag.add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.04, 0.96))
 
 	var bottom: MarginContainer = N.margin(self, 24)
 	bottom.anchor_top = 1.0
@@ -135,10 +146,11 @@ func _build_ui() -> void:
 		if completed.size() == STAGE_COUNT:
 			_open_page("GALLERY")
 		else:
-			_enter(_resume_index()))
+			_play())
 	play_center.add_child(continue_button)
-	progress_label = N.label(bottom_column, L.copy("36 shadow records await.") if completed.is_empty() else L.progress(completed.size()), 10, N.SOFT)
+	progress_label = N.label(bottom_column, L.copy("36 shadow records await.") if completed.is_empty() else L.progress(completed.size()), 11, N.SOFT)
 	progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_readable(progress_label)
 	var nav: HBoxContainer = HBoxContainer.new()
 	nav.alignment = BoxContainer.ALIGNMENT_CENTER
 	nav.add_theme_constant_override("separation", 8)
@@ -150,6 +162,7 @@ func _build_ui() -> void:
 		nav.add_child(button)
 	var footer: Label = N.label(bottom_column, L.copy("OBSERVE.   CONNECT.   UNCOVER."), 9, N.BRASS)
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_readable(footer)
 	_build_modal()
 
 func _build_modal() -> void:
@@ -233,7 +246,8 @@ func _paragraph(title: String, body: String) -> void:
 	var section: VBoxContainer = VBoxContainer.new()
 	section.add_theme_constant_override("separation", 8)
 	modal_body.add_child(section)
-	N.label(section, L.copy(title), 23, N.BRASS, true)
+	var heading: Label = N.label(section, L.copy(title), 23, N.BRASS, true)
+	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var text: Label = N.label(section, L.copy(body), 14, N.IVORY)
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.add_theme_constant_override("line_spacing", 5)
@@ -246,6 +260,10 @@ func _open_page(page: String) -> void:
 		modal_title.text = L.copy("THE SHADOW ARCHIVE")
 		archive.show()
 	elif page == "ABOUT":
+		var prologue: Button = N.button(L.opening("replay"), 48)
+		prologue.name = "PrologueButton"
+		prologue.pressed.connect(_open_prologue.bind(true))
+		modal_body.add_child(prologue)
 		_paragraph("The archive kept only the shadows.", "NOX was nowhere to be found. In the old Nocturnal Optical Archive, a single plate can hold the shadows of several moments.")
 		_paragraph("A quiet act of reconstruction", "Place NOX's traces where the recorded shadows agree. Each pose belongs to the same cat, seen at a different moment. The record reveals where NOX was, but keeps the order of those moments to itself.")
 		_paragraph("36 records. One unanswered question.", "Follow the evidence deeper into the archive. What drew NOX into the night?")
@@ -265,10 +283,10 @@ func _open_settings() -> void:
 	sound.button_pressed = Settings.sound_enabled()
 	sound.custom_minimum_size.y = 52
 	sound.add_theme_font_override("font", N.BODY)
-	sound.toggled.connect(func(enabled: bool) -> void:
-		Settings.write_value("sound", enabled)
-		Settings.apply_audio())
+	sound.toggled.connect(_set_sound)
 	modal_body.add_child(sound)
+	_add_volume_slider("BGM", "bgm_volume", Settings.bgm_volume())
+	_add_volume_slider("SE", "se_volume", Settings.se_volume())
 	var motion: CheckButton = CheckButton.new()
 	motion.name = "MotionToggle"
 	motion.text = L.copy("Reduce motion")
@@ -287,6 +305,55 @@ func _open_settings() -> void:
 	modal_body.add_child(language)
 	_paragraph("Made for a moment of attention", "Headphones are optional. Every puzzle can be solved without sound.")
 
+func _add_volume_slider(title: String, key: String, current: float) -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.name = title + "VolumeRow"
+	row.add_theme_constant_override("separation", 10)
+	modal_body.add_child(row)
+	var caption: Label = N.label(row, title, 14, N.IVORY)
+	caption.custom_minimum_size.x = 42
+	caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var slider: HSlider = HSlider.new()
+	slider.name = title + "VolumeSlider"
+	slider.min_value = 0.0
+	slider.max_value = 100.0
+	slider.step = 5.0
+	slider.value = current
+	slider.custom_minimum_size.y = 44
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.tooltip_text = title + " volume"
+	row.add_child(slider)
+	var amount: Label = N.label(row, "%d%%" % roundi(current), 13, N.IVORY)
+	amount.name = title + "VolumeValue"
+	amount.custom_minimum_size.x = 48
+	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	amount.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	slider.value_changed.connect(func(value: float) -> void:
+		Settings.write_value(key, value)
+		Settings.apply_audio()
+		amount.text = "%d%%" % roundi(value))
+
+func _set_sound(enabled: bool) -> void:
+	Settings.write_value("sound", enabled)
+	Settings.apply_audio()
+	_refresh_sound_button()
+
+func _toggle_sound() -> void:
+	_set_sound(not Settings.sound_enabled())
+
+func _refresh_sound_button() -> void:
+	if sound_button == null:
+		return
+	sound_button.text = ("音 ON" if Settings.sound_enabled() else "音 OFF") if L.is_japanese() else ("SOUND ON" if Settings.sound_enabled() else "SOUND OFF")
+	sound_button.tooltip_text = L.copy("Sound")
+	sound_button.accessibility_name = sound_button.text
+	var active: bool = Settings.sound_enabled()
+	sound_button.add_theme_stylebox_override("normal", N.box(Color("#173440") if active else Color(0.04, 0.07, 0.10, 0.88), Color("#8dd9e7") if active else Color(N.BRASS, 0.35), 4, 6))
+
+func _readable(label: Label, outline: int = 2) -> void:
+	label.add_theme_constant_override("outline_size", outline)
+	label.add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.04, 0.95))
+
 func _switch_language(reopen_settings: bool = false) -> void:
 	L.toggle()
 	for child: Node in get_children():
@@ -303,6 +370,8 @@ func _close_modal() -> void:
 		return_focus.grab_focus()
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if entering:
+		return
 	if event.is_action_pressed("ui_cancel") and modal.visible:
 		_close_modal()
 		get_viewport().set_input_as_handled()
@@ -311,8 +380,9 @@ func _responsive() -> void:
 	if wordmark == null:
 		return
 	wordmark.custom_minimum_size.y = clampf(size.x * 0.18, 70, 114)
-	continue_button.custom_minimum_size.x = minf(300, size.x - 72)
-	subtitle.add_theme_font_size_override("font_size", 10 if size.x < 500 else 12)
+	continue_button.custom_minimum_size.x = minf(316, size.x - 40)
+	continue_button.custom_minimum_size.y = 64 if size.x <= 480 else 58
+	subtitle.add_theme_font_size_override("font_size", 13 if size.x <= 480 else 14)
 	masthead.add_theme_font_size_override("font_size", 9 if size.x < 500 else 11)
 	for grid: Node in get_tree().get_nodes_in_group("NoxArchiveGrid"):
 		grid.columns = 2 if size.x < 500 else 3
@@ -329,3 +399,29 @@ func _enter(index: int) -> void:
 	var transition: Tween = create_tween()
 	transition.tween_property(fade, "modulate:a", 1.0, 0.05 if Settings.reduced_motion() else 0.65).set_trans(Tween.TRANS_SINE)
 	transition.tween_callback(func() -> void: start_requested.emit(index))
+
+func _play() -> void:
+	if entering:
+		return
+	if not bool(Settings.read_value("opening_seen", false)):
+		_open_prologue(false)
+	else:
+		_enter(_resume_index())
+
+func _open_prologue(is_replay: bool) -> void:
+	if entering:
+		return
+	entering = true
+	var opening: Control = (preload("res://scenes/nox_opening_kamishibai.tscn") as PackedScene).instantiate()
+	opening.replay = is_replay
+	opening.finished.connect(func() -> void:
+		entering = false
+		if not is_replay:
+			_enter(0)
+		else:
+			remove_child(opening)
+			opening.queue_free()
+			var replay_button: Button = modal.find_child("PrologueButton", true, false) as Button
+			if replay_button != null:
+				replay_button.grab_focus())
+	add_child(opening)

@@ -4,29 +4,8 @@ signal closed
 
 const N = preload("res://src/ui/nox_theme.gd")
 const Locale = preload("res://src/nox_locale.gd")
-
-const STEPS: Array[Dictionary] = [
-	{
-		"heading": "01  Read the plate",
-		"en": "Compare RECORDED SHADOW and RECONSTRUCTION. Darker squares mean overlapping shadows; ? is unrecorded.",
-		"ja": "「記録された影」と「再構築」を比べよう。濃いマスほど影が重なり、？は未記録の場所。",
-	},
-	{
-		"heading": "02  Place a NOX trace",
-		"en": "Tap a pose, then a square, or drag the pose onto a square. SIT, STAND, and WALK are NOX at different moments. Tap WALK to turn it.",
-		"ja": "姿勢を選び、マスをタップ。ドラッグでも置ける。どれもNOXの別の瞬間。「歩く」はタップで回転。",
-	},
-	{
-		"heading": "03  Observe the light",
-		"en": "Switch available lights. Put SLEEP on the rail to block the top light in its column.",
-		"ja": "使える光源を切り替えよう。「眠る」をレールに置くと、その列の上の光を遮る。",
-	},
-	{
-		"heading": "04  Let the shadows agree",
-		"en": "UNDO takes back a move. RESET clears the board. OBSERVE offers a clue.",
-		"ja": "「一手戻す」で戻り、「やり直す」で配置を消す。「観察」で手がかりを読もう。",
-	},
-]
+const Learning = preload("res://src/ui/nox_learning.gd")
+const RuleDiagram = preload("res://src/ui/nox_rule_diagram.gd")
 
 var _language: String = "en"
 var _reduced_motion: bool = false
@@ -39,6 +18,18 @@ var _play_button: Button
 var _step_headings: Array[Label] = []
 var _step_bodies: Array[Label] = []
 var _panel: PanelContainer
+var _stage: Dictionary = {}
+var _steps: Array[Dictionary] = []
+var _cards: Array[Control] = []
+var _diagrams: Array[Control] = []
+var _scroll: ScrollContainer
+
+func set_stage(stage_data: Dictionary) -> void:
+	_stage = stage_data.duplicate(true)
+	set_language(_language)
+	if _scroll != null:
+		_scroll.scroll_vertical = 0
+	_responsive()
 
 
 func _ready() -> void:
@@ -93,11 +84,16 @@ func set_language(language: String) -> void:
 	_title.text = _copy("HOW TO PLAY")
 	_close_button.text = _copy("CLOSE  ×")
 	_play_button.text = "はじめる" if _language == "ja" else "LET'S PLAY"
-	for index: int in STEPS.size():
-		var step: Dictionary = STEPS[index]
-		var heading_text: String = _copy(str(step["heading"]))
-		_step_headings[index].text = heading_text.substr(heading_text.find(" ") + 1).strip_edges()
+	_steps = Learning.steps(_stage)
+	for index: int in _cards.size():
+		_cards[index].visible = index < _steps.size()
+		if index >= _steps.size():
+			continue
+		var step: Dictionary = _steps[index]
+		_step_headings[index].text = str(step["ja_title"] if _language == "ja" else step["en_title"])
 		_step_bodies[index].text = str(step["ja"] if _language == "ja" else step["en"])
+		_diagrams[index].visible = step.has("diagram")
+		_diagrams[index].configure(str(step.get("diagram", "")), _language)
 
 
 func _build_ui() -> void:
@@ -136,6 +132,7 @@ func _build_ui() -> void:
 	header.add_child(_close_button)
 
 	var scroll: ScrollContainer = ScrollContainer.new()
+	_scroll = scroll
 	scroll.name = "GuideScroll"
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -145,11 +142,12 @@ func _build_ui() -> void:
 	steps_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	steps_column.add_theme_constant_override("separation", 9)
 	scroll.add_child(steps_column)
-	for index: int in STEPS.size():
+	for index: int in 8:
 		var card: PanelContainer = PanelContainer.new()
 		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		card.add_theme_stylebox_override("panel", N.box(Color("#14212b"), Color("#344451"), 4, 10))
 		steps_column.add_child(card)
+		_cards.append(card)
 		var row: HBoxContainer = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
 		card.add_child(row)
@@ -163,11 +161,14 @@ func _build_ui() -> void:
 		row.add_child(copy)
 		var heading: Label = N.label(copy, "", 15, N.IVORY, true)
 		heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var body: Label = N.label(copy, "", 13, N.SOFT)
+		var body: Label = N.label(copy, "", 14, N.IVORY)
 		body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		body.add_theme_constant_override("line_spacing", 3)
 		_step_headings.append(heading)
 		_step_bodies.append(body)
+		var diagram: Control = RuleDiagram.new()
+		copy.add_child(diagram)
+		_diagrams.append(diagram)
 
 	_play_button = N.button("", 58, true)
 	_play_button.name = "LetsPlay"
@@ -181,10 +182,10 @@ func _build_ui() -> void:
 func _responsive() -> void:
 	if _panel == null:
 		return
-	var viewport_size: Vector2 = get_viewport_rect().size
+	var viewport_size: Vector2 = size
 	_panel.custom_minimum_size = Vector2(
 		minf(540.0, maxf(280.0, viewport_size.x - 36.0)),
-		minf(620.0, maxf(320.0, viewport_size.y - 64.0))
+		minf(490.0 if _steps.size() <= 3 else 680.0, maxf(320.0, viewport_size.y - 64.0))
 	)
 
 

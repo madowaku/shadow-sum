@@ -26,9 +26,44 @@ func _launch(selected: String) -> void:
 	if selected == "nox":
 		_show_nox_home()
 		return
+	if selected == "playtest":
+		if not OS.is_debug_build():
+			_show_nox_home()
+			return
+		_clear_screen()
+		var playtest: Control = (load("res://scenes/experiments.tscn") as PackedScene).instantiate()
+		playtest.nox_campaign = true
+		playtest.playtest_mode = true
+		playtest.initial_stage_index = 0
+		add_child(playtest)
+		return
+
+	if selected == "blind-v01":
+		_clear_screen()
+		var blind_campaign: Control = (load("res://scenes/experiments.tscn") as PackedScene).instantiate()
+		blind_campaign.nox_campaign = true
+		blind_campaign.blind_playtest = true
+		blind_campaign.home_requested.connect(_show_nox_home)
+		add_child(blind_campaign)
+		return
+
 	_clear_screen()
-	var path: String = "res://scenes/main.tscn" if selected not in ["experiments", "cause-light", "light-height", "flat-plate", "grant14-v02", "grant20-v03", "grant36-draft", "jev-review"] else "res://scenes/experiments.tscn"
+
+	var path: String = "res://scenes/main.tscn"
+	if selected in [
+		"experiments",
+		"cause-light",
+		"light-height",
+		"flat-plate",
+		"grant14-v02",
+		"grant20-v03",
+		"grant36-draft",
+		"jev-review"
+	]:
+		path = "res://scenes/experiments.tscn"
+
 	var campaign: Control = (load(path) as PackedScene).instantiate()
+
 	if selected == "cause-light":
 		campaign.cause_light = true
 	elif selected == "light-height":
@@ -46,8 +81,8 @@ func _launch(selected: String) -> void:
 	elif selected == "variants":
 		campaign.stage_path = "res://data/variant_boards_v0_1.json"
 		campaign.progress_path = "user://shadow_sum_variants_v0_1.json"
-	add_child(campaign)
 
+	add_child(campaign)
 func _show_nox_home() -> void:
 	_clear_screen()
 	var home: Control = NoxHome.new()

@@ -14,11 +14,11 @@ NOXSUM is a quiet logic mystery in the Nocturnal Optical Archive. Each plate sum
 
 The product deck is data/noxsum_grant36_v1.json. Its eight replacement problem definitions follow the final feature/grant36-v0.5-board-shapes source at commit 42a4b5b. GR01–GR20 teach foundations and mechanics; GR21–GR33 build advanced reasoning; GR34–GR36 integrate them on shaped boards. The v0.5 problems replace GR24, GR25, GR28, GR29, GR32, GR34, GR35, and GR36; the other 28 Nox records remain from the existing campaign with only the source's internal review_only metadata omitted. GR36, THE SHAPED FINALE, keeps TOP, LEFT, RIGHT, and BOTTOM fixed and active, and asks players to read overlaps and absences on its shaped board. Its mask controls where NOX can be placed while the recorded shadow plate remains complete. The NOXSUM save is user://noxsum_grant36_v1.json. The world copy is in src/nox_story.gd and sparse milestone notes appear at the opening, mechanic introductions, chapter turns, and final plate.
 
-The portrait HOME painting is assets/nox/v0.4/archive_window.png. Godot renders the logo, navigation, and all text live. The [NOX character lock](../assets/nox/CHARACTER_LOCK_v0.1.md) fixes the white-dominant black-and-gray coat across HOME and SIT/STAND/WALK/SLEEP art. The old prototype campaigns remain available through --campaign flags.
+The portrait HOME painting is assets/nox/v0.6/archive_puzzle_window.png. Godot renders the logo, navigation, and all text live. The [NOX character lock](../assets/nox/CHARACTER_LOCK_v0.1.md) fixes the white-dominant black-and-gray coat across HOME and SIT/STAND/WALK/SLEEP art. The old prototype campaigns remain available through --campaign flags.
 
 ## Web target
 
-The Grant deliverable is a Godot 4.7 Web export for a PC browser. The base viewport is 720×900; the HOME, GALLERY, and stages reflow at 405×900. See [export instructions](NOXSUM_WEB_EXPORT.md). The local release artifact is builds/web/index.html and its adjacent JS, WASM, PCK, and icon files. Serve the folder over HTTP or HTTPS.
+The Grant deliverable is a Godot 4.7 Web export for a PC browser. The base viewport is 720×900; the HOME, GALLERY, and stages reflow at 405×900 and 360×800. See [export instructions](NOXSUM_WEB_EXPORT.md). The local release artifact is builds/web/index.html and its adjacent JS, WASM, PCK, and icon files. Serve the folder over HTTP or HTTPS.
 
 ## Verification
 

@@ -77,9 +77,9 @@
     "title": "EMPTY SPEAKS",
     "posts": 3,
     "solution": [
-      "C2",
-      "B3",
-      "D3"
+      "B4",
+      "A5",
+      "B5"
     ],
     "installed_lights": [
       "TOP",
@@ -95,21 +95,19 @@
           "RIGHT"
         ],
         "target": {
-          "B2": 1,
-          "D2": 1,
-          "A3": 1,
-          "C3": 3,
-          "E3": 1,
-          "B4": 1,
-          "D4": 1
+          "A4": 1,
+          "C4": 1,
+          "A5": 1,
+          "B5": 2,
+          "C5": 1
         }
       }
     ],
     "expected_states": 2300,
     "hints": [
-      "Clear glass is evidence too.",
-      "A candidate Post must explain its shadows without creating new ones.",
-      "The dark center needs three causes, but the empty cells reject the wrong trio."
+      "A reconstruction must also leave the clear glass clear.",
+      "Compare the shadows made on either side of a possible position.",
+      "The clear square D5 rules out a trace at C5."
     ],
     "hint_surface": "socket"
   },

@@ -16,6 +16,15 @@ static func write_value(key: String, value: Variant) -> void:
 static func sound_enabled() -> bool:
 	return bool(read_value("sound", false))
 
+static func bgm_volume() -> float:
+	return clampf(float(read_value("bgm_volume", 100.0)), 0.0, 100.0)
+
+static func se_volume() -> float:
+	return clampf(float(read_value("se_volume", 100.0)), 0.0, 100.0)
+
+static func volume_offset_db(percent: float) -> float:
+	return -80.0 if percent <= 0.0 else linear_to_db(percent / 100.0)
+
 static func apply_audio() -> void:
 	var enabled: bool = sound_enabled()
 	AudioServer.set_bus_mute(0, not enabled)
@@ -24,6 +33,7 @@ static func apply_audio() -> void:
 		return
 	var playlist: Node = tree.root.get_node_or_null("BgmPlaylist")
 	if playlist != null and playlist.has_method("set_enabled"):
+		playlist.call("set_volume", bgm_volume())
 		playlist.call("set_enabled", enabled)
 
 static func reduced_motion() -> bool:

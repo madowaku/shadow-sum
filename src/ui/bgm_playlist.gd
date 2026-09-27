@@ -19,10 +19,14 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	music_player = AudioStreamPlayer.new()
 	music_player.name = "MusicPlayer"
-	music_player.volume_db = MUSIC_VOLUME_DB
+	set_volume(Settings.bgm_volume())
 	music_player.finished.connect(_play_next)
 	add_child(music_player)
 	set_enabled(Settings.sound_enabled())
+
+func set_volume(percent: float) -> void:
+	if is_instance_valid(music_player):
+		music_player.volume_db = -80.0 if percent <= 0.0 else MUSIC_VOLUME_DB + Settings.volume_offset_db(percent)
 
 func set_enabled(enabled: bool) -> void:
 	playback_enabled = enabled

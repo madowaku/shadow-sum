@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "fps": 30,
+  "durationInFrames": 210,
+  "durationSeconds": 7,
+  "compositions": {
+    "portrait": {"id": "NoxsumOpeningPortrait", "width": 405, "height": 900},
+    "landscape": {"id": "NoxsumOpeningLandscape", "width": 1600, "height": 900}
+  },
+  "easing": "linear (clamped) unless an individual keyframe specifies otherwise",
+  "scenes": [
+    {"scene":"Darkness","startFrame":0,"endFrame":8,"x":"center","y":"center","scale":1,"opacityInStart":0,"opacityInEnd":8,"opacityOutStart":null,"opacityOutEnd":null,"shadowOpacity":0,"easing":"linear"},
+    {"scene":"Sit","startFrame":9,"endFrame":52,"x":{"portrait":"8%","landscape":"36%"},"y":{"portrait":"43%","landscape":"40%"},"scale":[0.985,1],"opacityInStart":9,"opacityInEnd":24,"opacityOutStart":35,"opacityOutEnd":44,"shadowOpacity":0.65,"shadowFadeOut":[52,68],"easing":"linear"},
+    {"scene":"Stand","startFrame":53,"endFrame":96,"x":{"portrait":"29%","landscape":"45%"},"y":{"portrait":"43%","landscape":"40%"},"scale":1,"opacityInStart":53,"opacityInEnd":68,"opacityOutStart":79,"opacityOutEnd":88,"shadowOpacity":0.65,"shadowFadeOut":[96,112],"easing":"linear"},
+    {"scene":"Walk","startFrame":97,"endFrame":140,"x":{"portrait":"3% + -55px to +55px","landscape":"37% + -55px to +55px"},"y":{"portrait":"48%","landscape":"44%"},"scale":1,"opacityInStart":97,"opacityInEnd":112,"opacityOutStart":131,"opacityOutEnd":140,"shadowOpacity":0.6,"shadowFadeOut":[140,150],"easing":"linear"},
+    {"scene":"Window","startFrame":141,"endFrame":179,"x":{"portrait":"28%","landscape":"44%"},"y":{"portrait":"42%","landscape":"36%"},"scale":1,"opacityInStart":141,"opacityInEnd":151,"opacityOutStart":166,"opacityOutEnd":179,"shadowOpacity":0.66,"shadowFadeOut":[179,190],"easing":"linear"},
+    {"scene":"Shadow Sum","startFrame":180,"endFrame":190,"x":"board center","y":"board center","scale":1,"opacityInStart":180,"opacityInEnd":190,"opacityOutStart":null,"opacityOutEnd":null,"shadowOpacity":0.25,"directionalShadows":[{"direction":"N","startFrame":180,"fullOpacityFrame":182,"maxOpacity":0.25},{"direction":"W","startFrame":182,"fullOpacityFrame":185,"maxOpacity":0.25},{"direction":"E","startFrame":185,"fullOpacityFrame":190,"maxOpacity":0.25}],"boardOpacity":0.22,"boardOpacityRamp":[180,183],"boardStyle":"5x5 outline grid, no fill","easing":"linear"},
+    {"scene":"Title","startFrame":191,"endFrame":209,"x":"center","y":{"portrait":"14.5%","landscape":"12%"},"scale":[0.99,1],"opacityInStart":191,"opacityInEnd":204,"opacityOutStart":null,"opacityOutEnd":null,"shadowOpacity":0.25,"easing":"linear"}
+  ],
+  "godotIntegration": {
+    "openingVersionKey": "noxsum_opening_version",
+    "currentOpeningVersion": 1,
+    "skipFromFrame": 15,
+    "skipInputs": ["tap","click","Enter","Space","Escape"],
+    "reducedMotion": "approximately 1 second: Shadow Sum then NOXSUM",
+    "onComplete": "save version then dissolve to HOME, without blackout"
+  }
+}
+
+
