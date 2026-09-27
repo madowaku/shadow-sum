@@ -107,6 +107,7 @@ var action_count: int = 0
 var sound_player: AudioStreamPlayer
 var _browser_viewport_poll_elapsed: float = 0.0
 var _browser_bounds_audit_queued: bool = false
+var _nox_trace_reduced_motion: bool = false
 
 func _ready() -> void:
 	var data_path: String = DATA
@@ -666,6 +667,7 @@ func load_stage(index: int) -> void:
 		ignition.tween_property(bottom, "glow", 1.0, 0.3)
 
 func _cancel_motions() -> void:
+	_reset_nox_traces()
 	if clear_seal != null:
 		clear_seal.reset()
 	if finale_overlay != null and finale_overlay.visible:
@@ -715,6 +717,7 @@ func _remember(kind: String) -> void:
 func undo_move() -> void:
 	if history.is_empty() or stage_solved:
 		return
+	_reset_nox_traces()
 	var previous: Dictionary = history.pop_back()
 	posts = previous["posts"]
 	var restored_types: Dictionary = previous.get("post_types", {})
@@ -883,6 +886,8 @@ func toggle_post(index: int) -> void:
 	_click(620)
 	_refresh()
 	if nox_campaign:
+		if posts.has(index):
+			sockets[index].get_child(0).play_nox_placement(NoxSettings.reduced_motion())
 		_pulse_control(sockets[index])
 
 func move_shutter(slot: int, remember: bool = true) -> void:
@@ -952,6 +957,7 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 	if kind == "shutter":
 		_remember("Shutter")
 		move_shutter(index, false)
+	_update_nox_traces()
 	accept_event()
 
 func _input(event: InputEvent) -> void:
@@ -995,7 +1001,10 @@ func _move_pointer(point: Vector2) -> void:
 			drag_ghost.global_position = center - drag_ghost.size * 0.5
 			drag_ghost.queue_redraw()
 			if drag_source >= 0:
-				sockets[drag_source].modulate.a = 0.42
+				if nox_campaign:
+					sockets[drag_source].get_child(0).nox_placement_remaining = 0.0
+				else:
+					sockets[drag_source].modulate.a = 0.42
 			if shadow_motion != null and shadow_motion.is_valid():
 				shadow_motion.kill()
 			var preview: Array = posts.duplicate()
@@ -1013,6 +1022,7 @@ func _move_pointer(point: Vector2) -> void:
 			for index: int in 25:
 				live_cells[index].value = float(shadow[index])
 				live_cells[index].change_remaining = 0.0
+	_update_nox_traces()
 
 func _nearest_socket(point: Vector2) -> int:
 	var nearest: int = -1
@@ -1085,6 +1095,7 @@ func _finish_pointer(point: Vector2) -> void:
 				_click(620)
 				_refresh()
 				if nox_campaign:
+					sockets[destination].get_child(0).play_nox_placement(NoxSettings.reduced_motion())
 					_pulse_control(sockets[destination])
 	drag_preview = -1
 	for button: Button in sockets:
@@ -1141,6 +1152,8 @@ func _refresh(animate: bool = true) -> void:
 		surface.post_type = str(types.get(str(index), "normal")) if surface.occupied else "normal"
 		surface.tall = surface.occupied and surface.post_type == "tall"
 		surface.fixed = _is_fixed_post(index)
+		if not animate or not surface.occupied:
+			surface.nox_placement_remaining = 0.0
 	for direction: String in lamps:
 		var lamp: Button = lamps[direction]
 		var interactive: bool = stage().get("free_light_selection", false) or (stage().get("light_puzzle", false) and (direction != "BOTTOM" or cause_light or light_height))
@@ -1264,6 +1277,22 @@ func _refresh(animate: bool = true) -> void:
 	hint_button.visible = true if playtest_mode else (not nox_campaign or not hints.is_empty())
 	hint_button.tooltip_text = ("解答を表示" if NoxLocale.is_japanese() else "Show solution") if playtest_mode else ("No hints authored for this draft stage." if hints.is_empty() else (NoxLocale.copy("A gentle clue") if nox_campaign else "A gentle clue"))
 	_check_solve()
+	_update_nox_traces()
+
+func _reset_nox_traces() -> void:
+	for button: Button in sockets:
+		button.get_child(0).nox_placement_remaining = 0.0
+
+func _update_nox_traces(delta: float = 0.0) -> void:
+	if not nox_campaign:
+		return
+	# Settings are loaded on interaction/refresh, never from disk every frame.
+	if is_zero_approx(delta):
+		_nox_trace_reduced_motion = NoxSettings.reduced_motion()
+	var interactive: bool = not stage_solved and (drag_kind.is_empty() or not drag_moved)
+	for index: int in sockets.size():
+		var selected: bool = drag_kind == "post" and drag_source == index and not drag_moved
+		sockets[index].get_child(0).advance_nox_trace(delta, _nox_trace_reduced_motion, selected, interactive)
 
 func _check_solve() -> void:
 	if stage_solved or not drag_kind.is_empty() or not Optics.solved(stage(), posts, shutters, lights, post_types):
@@ -1411,6 +1440,7 @@ func _process(delta: float) -> void:
 				call_deferred("_audit_visible_mobile_control_bounds")
 	if stages.is_empty():
 		return
+	_update_nox_traces(delta)
 	elapsed += delta
 	idle_seconds += delta
 	if stage()["id"] == "G02" and idle_seconds > 5 and not idle_pulsed and observation_index == 0 and not stage_solved:

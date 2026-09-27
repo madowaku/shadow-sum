@@ -7,6 +7,10 @@ const NOX_SIT: Texture2D = preload("res://assets/nox/v0.1/board/nox_sit.png")
 const NOX_STAND: Texture2D = preload("res://assets/nox/v0.1/board/nox_stand.png")
 const NOX_WALK_H: Texture2D = preload("res://assets/nox/v0.1/board/nox_walk.png")
 const NOX_WALK_V: Texture2D = preload("res://assets/nox/v0.1/board/nox_walk_v.png")
+const NOX_TRACE_ALPHA: float = 0.45
+const NOX_ACTIVE_TRACE_ALPHA: float = 0.70
+const NOX_PLACEMENT_HOLD: float = 0.15
+const NOX_PLACEMENT_FADE: float = 0.20
 var slot_label: String = ""
 var kind: String = "socket"
 var nox_mode: bool = false
@@ -23,6 +27,31 @@ var hovered: bool = false
 var light_direction: String = "TOP"
 var change_remaining: float = 0.0
 var feedback_reduced_motion: bool = false
+# Presentation only: never stored in history or progress.
+var nox_placement_remaining: float = 0.0
+var nox_selected: bool = false
+var nox_interactive: bool = true
+
+func play_nox_placement(reduced_motion: bool) -> void:
+	nox_placement_remaining = 0.0 if reduced_motion else NOX_PLACEMENT_HOLD + NOX_PLACEMENT_FADE
+	queue_redraw()
+
+func advance_nox_trace(delta: float, reduced_motion: bool, selected: bool, interactive: bool) -> void:
+	nox_selected = selected
+	nox_interactive = interactive
+	if reduced_motion or not occupied:
+		nox_placement_remaining = 0.0
+	else:
+		nox_placement_remaining = maxf(0.0, nox_placement_remaining - delta)
+	queue_redraw()
+
+func nox_opacity() -> float:
+	if not nox_mode or kind != "socket" or not occupied:
+		return 1.0
+	var opacity: float = lerpf(NOX_TRACE_ALPHA, 1.0, clampf(nox_placement_remaining / NOX_PLACEMENT_FADE, 0.0, 1.0))
+	if nox_interactive and (hovered or nox_selected):
+		opacity = maxf(opacity, NOX_ACTIVE_TRACE_ALPHA)
+	return opacity
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -82,7 +111,7 @@ func _draw() -> void:
 			if art_width > art_size:
 				art_width = art_size
 				art_height = art_width * source.size.y / source.size.x
-			draw_texture_rect_region(portrait, Rect2(art_center - Vector2(art_width, art_height) * 0.5, Vector2(art_width, art_height)), source)
+			draw_texture_rect_region(portrait, Rect2(art_center - Vector2(art_width, art_height) * 0.5, Vector2(art_width, art_height)), source, Color(1.0, 1.0, 1.0, nox_opacity()))
 			if fixed:
 				draw_circle(center + Vector2(15, 14), 2, T.GOLD_SOFT)
 		elif occupied:
