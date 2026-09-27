@@ -2,6 +2,8 @@
 
 Created: 2026-09-27. User preference: English on-screen text, no narration.
 
+Updated: 2026-09-27. Gameplay re-recorded with NOX afterimages from release source `11ad65c` (gameplay implementation `708b020`). The seven scenes, 90-second timeline, English text, crops, D5 overlays, music and sound mix are unchanged.
+
 ## Deliverable
 
 - `builds/grant-video/NOXSUM_Grant_EN_90s_1080p.mp4`
@@ -39,7 +41,10 @@ The canonical deck SHA-256 at capture is `d7db564e4bf74cd4bc180c2212bd065b75ab2f
 - Demonstrated wrong answer: **B4, B5, C5**. All positive target cells agree, but it creates a shadow at **D5**, where the record is empty.
 - Both enlarged plates show the same footage, in sync with the main view. The gold D5 outlines are editorial overlays.
 - Recording uses a separate `NOXSUM_GrantVideoCapture` user-data directory. It does not overwrite the player's normal settings or progress.
-- Automated recording checks are saved in `builds/grant-video/capture-checks.json`.
+- Automated afterimage recording checks are saved in `builds/grant-video/afterimage/capture-checks.json` and `audio-capture-checks.json`.
+- Both capture passes passed all 34 checks, with zero Godot errors or warnings. Checks cover placement hold/fade, settled board alpha of 45%, SLEEP alpha of 100%, solved states, and GR03 differing from the target only at empty D5 before correction.
+- Placement retains 100% alpha for 0.25 seconds, then fades over 0.40 seconds. All filmed board placements use the real afterimage implementation, including STAND and WALK; SLEEP remains opaque.
+- The original MP4, gameplay source and poster are preserved under `builds/grant-video/submitted-2026-09-27/`. The immutable `grant-submission-2026` tag remains at `10520036a2ce207d43900c4bdf614172c4bb133f`.
 
 ## Assets and music
 
@@ -72,4 +77,24 @@ npx remotion render src/index.ts NoxsumGrantEN ../../builds/grant-video/NOXSUM_G
 
 The source uses seven separately editable scenes and an explicit `TransitionSeries`. Existing opening compositions are preserved. The gameplay file and music are local under `public/grant/`.
 
-The capture tool supports `-- --frames` for high-resolution JPEG frames in `builds/grant-video/frames/`. The original movie provides synchronized game audio; the high-resolution frames preserve the same logical 720 × 900 UI at 1440 × 1800. Intermediate files stay under ignored `builds/`.
+The capture tool supports `-- --frames` for high-resolution JPEG frames and `--output` for a separate capture directory. The afterimage intermediates stay under ignored `builds/grant-video/afterimage/`.
+
+Capture twice at fixed 30 fps with Godot 4.7: a Movie Maker pass for synchronized real game audio, and a JPEG pass for 1440 × 1800 footage of the same logical 720 × 900 UI. Both runs execute the same action timeline. From the repository root, with `$godot` pointing to the Godot console executable:
+
+```powershell
+& $godot --path . --debug --ignore-error-breaks --fixed-fps 30 --disable-vsync --write-movie builds/grant-video/afterimage/gameplay.avi --script res://tools/grant_video_capture.gd -- --output res://builds/grant-video/afterimage
+Copy-Item builds/grant-video/afterimage/capture-checks.json builds/grant-video/afterimage/audio-capture-checks.json
+& $godot --path . --debug --ignore-error-breaks --fixed-fps 30 --disable-vsync --script res://tools/grant_video_capture.gd -- --frames --output res://builds/grant-video/afterimage
+ffmpeg -y -framerate 30 -start_number 0 -i builds/grant-video/afterimage/frames/%05d.jpg -i builds/grant-video/afterimage/gameplay.avi -map 0:v:0 -map 1:a:0 -frames:v 2879 -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p -c:a aac -b:a 192k -shortest -movflags +faststart builds/grant-video/afterimage/gameplay.mp4
+Copy-Item builds/grant-video/afterimage/gameplay.mp4 tools/noxsum-opening-remotion/public/grant/gameplay.mp4
+```
+
+The resulting local source has 2,879 frames (95.966667 seconds), matching the original source length and every existing `trimBefore` value. Then run the render command above. The poster uses unchanged opening artwork.
+
+## Afterimage render verification — 2026-09-27
+
+- Final MP4: 10,038,163 bytes; H.264, 1920 × 1080, 30 fps, 2,700 video frames / 90.000 seconds. AAC stereo audio is 90.048 seconds including codec padding.
+- SHA-256: `3dabc454341145a5fa8d75b2f29c8bbf0c1c51869b81dc1d4440d3e0e75eb251`. Sidecar: `builds/grant-video/NOXSUM_Grant_EN_90s_1080p.mp4.sha256`.
+- `npm run lint` and Remotion render passed. The complete MP4 decoded successfully; no black interval of 0.2 seconds or more was detected. Audio peak: -12.9 dBFS, with no clipping.
+- Final-frame spot checks confirm GR01/02 afterimages, the GR03 wrong / removal / corrected sequence and synchronized D5 enlargement, readable STAND/WALK poses, opaque SLEEP, and the closing slate. Evidence frames and decode log: `builds/grant-video/afterimage/qa/`.
+- The five saved game-layout snapshots match the original capture, preserving the editorial crop and D5 highlight alignment. Game logic, shadow calculation, deck and save format were not changed for this re-recording.

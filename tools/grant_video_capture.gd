@@ -25,6 +25,10 @@ func _start() -> void:
 		quit(2)
 		return
 	DirAccess.make_dir_recursive_absolute(OS.get_user_data_dir())
+	var arguments: PackedStringArray = OS.get_cmdline_user_args()
+	var output_option: int = arguments.find("--output")
+	if output_option >= 0 and output_option + 1 < arguments.size():
+		output = arguments[output_option + 1]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	save_frames = OS.get_cmdline_user_args().has("--frames")
 	if save_frames:
@@ -57,6 +61,11 @@ func _process(_delta: float) -> bool:
 	match frame:
 		60: _snapshot("gr01_start")
 		120: _place("C3")
+		126: _check_opacity("GR01 placement hold", "C3", 1.0)
+		133:
+			var opacity: float = game.sockets[Optics.cell("C3")].get_child(0).nox_opacity()
+			_record_check("GR01 placement fade", opacity > 0.45 and opacity < 1.0)
+		144: _check_opacity("GR01 settled trace", "C3", 0.45)
 		220: _check("GR01", true)
 		300: game.load_stage(1)
 		360: _place("B2")
@@ -68,7 +77,13 @@ func _process(_delta: float) -> bool:
 		810: _place("C5")
 		900:
 			_check("GR03 wrong: extra D5", false)
-			assert(game.current_shadow[Optics.cell("D5")] == 1)
+			var target: Dictionary = game.stage()["observations"][0]["target"]
+			var mismatches: Array[String] = []
+			for index: int in 25:
+				var code: String = String.chr(65 + index % 5) + str(int(index / 5.0) + 1)
+				if game.current_shadow[index] != int(target.get(code, 0)):
+					mismatches.append(code)
+			_record_check("GR03 wrong differs only at empty D5", mismatches == ["D5"] and int(target.get("D5", 0)) == 0 and game.current_shadow[Optics.cell("D5")] == 1)
 			_snapshot("gr03_wrong")
 		1080: _place("C5")
 		1200: _place("A5")
@@ -105,6 +120,13 @@ func _process(_delta: float) -> bool:
 			var report: FileAccess = FileAccess.open(output.path_join("capture-checks.json"), FileAccess.WRITE)
 			report.store_string(JSON.stringify(checks, "  "))
 			print("CAPTURE_DONE ", checks)
+			game.sound_player.stop()
+			game.sound_player.stream = null
+			var music: Node = root.get_node_or_null("BgmPlaylist")
+			if music != null:
+				music.music_player.stop()
+				music.music_player.stream = null
+			game.free()
 			quit()
 	return false
 
@@ -115,7 +137,16 @@ func _place(code: String, kind: String = "normal") -> void:
 	print("ACTION ", frame, " ", game.stage()["id"], " ", code, " ", kind)
 
 func _check(label: String, solved: bool) -> void:
-	var passed: bool = game.stage_solved == solved
+	_record_check(label, game.stage_solved == solved)
+	for index: int in game.posts:
+		_check_opacity(label + " trace " + str(index), String.chr(65 + index % 5) + str(int(index / 5.0) + 1), 0.45)
+	for slot: int in game.shutters:
+		_record_check(label + " SLEEP remains opaque", is_equal_approx(game.rail_buttons[slot].get_child(0).nox_opacity(), 1.0))
+
+func _check_opacity(label: String, code: String, expected: float) -> void:
+	_record_check(label, is_equal_approx(game.sockets[Optics.cell(code)].get_child(0).nox_opacity(), expected))
+
+func _record_check(label: String, passed: bool) -> void:
 	checks.append({"frame": frame, "label": label, "passed": passed})
 	print("CHECK ", label, " ", passed)
 	if not passed:
