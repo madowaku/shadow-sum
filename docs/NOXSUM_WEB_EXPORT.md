@@ -64,7 +64,17 @@ The Godot Release Web preset was rebuilt after adopting GR03 variant B. The uplo
 - Browser smoke: the ZIP was extracted and served at a local HTTP subdirectory; HOME, opening skip, first-run guide, GR01 placement, afterimage and solve were checked at 720×900 and 360×800. Browser errors/warnings: 0/0. Export errors/warnings: 0/0.
 - Build/package/browser logs: `builds/afterimage-release-qa/`; browser captures: `output/playwright/nox-afterimage-release/` (local generated artifacts).
 
-This build includes the approved 0.25-second hold and 0.40-second fade. The game logic, shadow calculation, save format and Grant36 stage data are unchanged. `grant-submission-2026` remains at `10520036a2ce207d43900c4bdf614172c4bb133f`, and the submitted ZIP above is preserved. The Afterimage ZIP has not been uploaded to itch.io or deployed.
+This build includes the approved 0.25-second hold and 0.40-second fade. The game logic, shadow calculation, save format and Grant36 stage data are unchanged. `grant-submission-2026` remains at `10520036a2ce207d43900c4bdf614172c4bb133f`, and the submitted ZIP above is preserved. The Afterimage ZIP has not been uploaded to itch.io.
+
+### Netlify production deployment — 2026-09-27
+
+The existing `noxsum` Netlify site was manually deployed from this Release Web export with Netlify CLI (`--prod --dir=builds/web`). Netlify reports the deploy as ready in the production context.
+
+- Production: https://noxsum.netlify.app
+- Immutable deploy URL: https://6ab90b8f7189d8f6a34df68b--noxsum.netlify.app
+- Deploy ID: `6ab90b8f7189d8f6a34df68b`
+- Admin deploy record: https://app.netlify.com/projects/noxsum/deploys/6ab90b8f7189d8f6a34df68b
+- Netlify reports three generated pages (`/`, `/en/`, `/ja/`) and one asset changed. Production and unique deploy URLs plus both localized pages returned HTTP 200 with the expected NOXSUM page title.
 
 To rebuild the Afterimage package, run:
 
