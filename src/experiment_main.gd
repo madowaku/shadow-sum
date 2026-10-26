@@ -629,7 +629,7 @@ func load_stage(index: int) -> void:
 	if stage().get("tall", false) or (int(stage().get("normal_posts", 1)) == 0 and int(stage().get("tall_posts", 0)) > 0):
 		selected_post_type = "tall"
 	elif int(stage().get("normal_posts", 0)) == 0 and int(stage().get("tall_posts", 0)) == 0 and int(stage().get("plate_posts", 0)) > 0:
-		selected_post_type = "plate_h"
+		selected_post_type = "plate_h" if nox_campaign else "plate_v"
 	drag_post_type = selected_post_type
 	stage_solved = false
 	playtest_revealed = false
@@ -930,8 +930,8 @@ func _start_pointer(event: InputEvent, kind: String, index: int) -> void:
 			if nox_campaign:
 				drag_post_type = selected_post_type if selected_post_type.begins_with("plate_") else "plate_h"
 			else:
-				selected_post_type = "plate_h"
-				drag_post_type = "plate_h"
+				selected_post_type = "plate_v"
+				drag_post_type = "plate_v"
 			source = plate_inventory
 		elif index == -2:
 			if not _can_add_post("tall"):
