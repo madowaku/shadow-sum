@@ -34,6 +34,19 @@ jobs:
       - name: Verify first-run opening, skip, replay, mobile gestures
         run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_opening_kamishibai_smoke.gd
       - name: Verify all four BGM tracks and sound toggle
-        run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_audio_smoke.gd
+        run: |
+          set -euo pipefail
+          log=$(mktemp)
+          trap 'rm -f "$log"' EXIT
+          godot --headless --path . --script res://tools/nox_audio_smoke.gd 2>&1 | tee "$log"
+          grep -Fq 'NOXSUM_AUDIO_OK' "$log"
+          # Godot 4.7 prints a shutdown diagnostic for the four preloaded
+          # AudioStreams when this isolated headless test quits. Do not hide
+          # script errors, shader errors, or any other engine error.
+          if grep -E 'SCRIPT ERROR:|SHADER ERROR:|(^|[[:space:]])ERROR:' "$log" |
+             grep -Fv 'ERROR: 4 resources still in use at exit (run with --verbose for details).'; then
+            echo "Audio smoke emitted an unexpected Godot error." >&2
+            exit 1
+          fi
       - name: Verify NOX afterimage effects and input
         run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_afterimage_smoke.gd
