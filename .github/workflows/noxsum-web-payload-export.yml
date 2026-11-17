@@ -5,6 +5,8 @@ on:
     paths:
       - "export_presets.cfg"
       - "tools/audit_noxsum_web_payload.py"
+      - "tools/test_noxsum_web_browser.cjs"
+      - "web/noxsum_web_shell.html"
       - ".github/workflows/noxsum-web-payload-export.yml"
   workflow_dispatch:
 
@@ -64,3 +66,22 @@ jobs:
                   report.write(f"NOXSUM PCK: {baseline/1048576:.2f} MiB → {proposed/1048576:.2f} MiB "
                                f"({saved/1048576:.2f} MiB / {percent:.2f}% saved)\n")
           PY
+
+      - name: Install Chromium for actual Web rendering
+        run: |
+          npm install --no-save playwright@1.58.0 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Test browser start, visual screenshots, mobile viewport and 10Mbps
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory builds/web > /tmp/noxsum-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          node tools/test_noxsum_web_browser.cjs
+      - name: Upload evidence for manual visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: noxsum-web-qa-screenshots
+          path: builds/web-qa/
+          if-no-files-found: warn
+          retention-days: 14
