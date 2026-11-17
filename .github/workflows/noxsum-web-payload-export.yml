@@ -1,0 +1,66 @@
+name: NOXSUM Web payload export
+
+on:
+  pull_request:
+    paths:
+      - "export_presets.cfg"
+      - "tools/audit_noxsum_web_payload.py"
+      - ".github/workflows/noxsum-web-payload-export.yml"
+  workflow_dispatch:
+
+jobs:
+  web-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+      - name: Fetch only required single-threaded Web templates
+        run: python3 tools/fetch_godot_web_templates.py --install --target-dir "$HOME/.local/share/godot/export_templates/4.7.stable"
+      - name: Check unused asset exclusions
+        run: python3 tools/audit_noxsum_web_payload.py
+      - name: Import Godot resources
+        run: godot --headless --path . --editor --quit
+      - name: Export NOXSUM Web Release (no deployment)
+        run: |
+          mkdir -p builds/web
+          godot --headless --path . --export-release "NOXSUM Web" builds/web/index.html
+      - name: Generate localized share pages
+        run: python3 tools/build_noxsum_ogp_pages.py
+      - name: Report PCK and runtime payload
+        run: python3 tools/audit_noxsum_web_payload.py --baseline-pck-mib 46.7
+      - name: Export unchanged baseline on the same runner
+        run: |
+          git worktree add --detach ../noxsum-baseline origin/release/noxsum-grant36-final
+          (
+            cd ../noxsum-baseline
+            godot --headless --path . --editor --quit
+            mkdir -p builds/web
+            godot --headless --path . --export-release "NOXSUM Web" builds/web/index.html
+          )
+      - name: Compare exact PCK bytes and reduction
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          baseline = Path("../noxsum-baseline/builds/web/index.pck").stat().st_size
+          proposed = Path("builds/web/index.pck").stat().st_size
+          saved = baseline - proposed
+          percent = 100 * saved / baseline
+          print(f"BASELINE_PCK_BYTES={baseline}")
+          print(f"PROPOSED_PCK_BYTES={proposed}")
+          print(f"SAVED_PCK_BYTES={saved}")
+          print(f"SAVED_PCK_PERCENT={percent:.2f}")
+          print(f"Before: {baseline/1048576:.2f} MiB / After: {proposed/1048576:.2f} MiB")
+          if "GITHUB_STEP_SUMMARY" in os.environ:
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as report:
+                  report.write(f"NOXSUM PCK: {baseline/1048576:.2f} MiB → {proposed/1048576:.2f} MiB "
+                               f"({saved/1048576:.2f} MiB / {percent:.2f}% saved)\n")
+          PY
