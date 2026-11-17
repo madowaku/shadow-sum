@@ -1,0 +1,21 @@
+name: NOXSUM loading shell preflight
+
+on:
+  push:
+    paths:
+      - "web/noxsum_web_shell.html"
+      - "tools/test_noxsum_loading_shell.cjs"
+      - ".github/workflows/noxsum-loading-shell-preflight.yml"
+  pull_request:
+    paths:
+      - "web/noxsum_web_shell.html"
+      - "tools/test_noxsum_loading_shell.cjs"
+      - ".github/workflows/noxsum-loading-shell-preflight.yml"
+
+jobs:
+  mock-browser-startup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test progress callback and startup state transitions
+        run: node tools/test_noxsum_loading_shell.cjs
