@@ -1,0 +1,35 @@
+name: NOXSUM production delivery headers (read-only)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/noxsum-production-headers.yml"
+  workflow_dispatch:
+
+jobs:
+  headers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Measure existing production HTTP headers (no deploy and no payload download)
+        run: |
+          python3 - <<'PY'
+          import urllib.request
+          from urllib.error import URLError, HTTPError
+
+          base = "https://noxsum.netlify.app/"
+          for name in ["index.pck", "index.wasm", "index.js", "index.html"]:
+              url = base + name
+              req = urllib.request.Request(url, method="HEAD", headers={
+                  "Accept-Encoding": "br, gzip",
+                  "User-Agent": "NOXSUM-readonly-delivery-audit/1.0",
+              })
+              try:
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      print(name, "status", r.status)
+                      for key in ("Content-Type", "Content-Length", "Content-Encoding", "Vary", "Cache-Control", "ETag"):
+                          print(f"  {key}: {r.headers.get(key, '(absent)')}")
+              except (URLError, HTTPError) as exc:
+                  print(name, "request failed:", repr(exc))
+                  raise
+          PY
