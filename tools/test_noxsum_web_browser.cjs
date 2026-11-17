@@ -135,8 +135,26 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
     const image = await page.screenshot({ path: path.join(OUT, screenshotName), fullPage: true });
     const diversity = screenshotDiversity(image);
     assert.ok(diversity > 6, "Screenshot is almost monochrome, review failed render");
+    const extraScreenshots = [];
+    // Verify pointer flow beyond HOME; screenshots remain subject to visual review.
+    if (!throttle) {
+      const playX = width / 2;
+      const playY = width === 720 ? height - 175 : height - 85;
+      if (mobile) await page.touchscreen.tap(playX, playY);
+      else await page.mouse.click(playX, playY);
+      await page.waitForTimeout(900);
+      await page.keyboard.press("Escape"); // Skip first-run prologue via ui_cancel.
+      await page.waitForTimeout(2_300);
+      const stageName = name + "-after-play.png";
+      const stageImage = await page.screenshot({ path: path.join(OUT, stageName), fullPage: true });
+      const stageDiversity = screenshotDiversity(stageImage);
+      assert.ok(stageDiversity > 6, "Stage screenshot appears blank");
+      assert.ok(!errors.length, "Browser errors after PLAY: " + errors.join(", "));
+      extraScreenshots.push({ screenshot: stageName, coarseColors: stageDiversity });
+    }
     const result = {
       name, pass: true, startupMs, loadingSamples: samples.slice(0, 25),
+      extraScreenshots,
       screenshot: screenshotName, coarseColors: diversity, state,
       warnings: warnings.slice(0, 12),
     };
