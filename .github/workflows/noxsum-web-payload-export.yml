@@ -36,6 +36,12 @@ jobs:
           godot --headless --path . --export-release "NOXSUM Web" builds/web/index.html
       - name: Generate localized share pages
         run: python3 tools/build_noxsum_ogp_pages.py
+      - name: Include required font license notices
+        run: |
+          mkdir -p builds/web/licenses
+          cp assets/fonts/CormorantGaramond-OFL.txt builds/web/licenses/
+          cp assets/fonts/Manrope-OFL.txt builds/web/licenses/
+          cp assets/fonts/NotoSansJP-OFL.txt builds/web/licenses/
       - name: Report PCK and runtime payload
         run: python3 tools/audit_noxsum_web_payload.py --baseline-pck-mib 46.7
       - name: Export unchanged baseline on the same runner
@@ -85,3 +91,12 @@ jobs:
           path: builds/web-qa/
           if-no-files-found: warn
           retention-days: 14
+      - name: Upload complete playable Web QA build (never deployed)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: noxsum-web-preview-build
+          path: builds/web/
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 6
