@@ -151,6 +151,18 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
       assert.ok(stageDiversity > 6, "Stage screenshot appears blank");
       assert.ok(!errors.length, "Browser errors after PLAY: " + errors.join(", "));
       extraScreenshots.push({ screenshot: stageName, coarseColors: stageDiversity });
+      // Dismiss the first-play tutorial and capture the actual shadow boards.
+      const guideX = width / 2;
+      const guideY = mobile ? height * 0.75 : height * 0.722;
+      if (mobile) await page.touchscreen.tap(guideX, guideY);
+      else await page.mouse.click(guideX, guideY);
+      await page.waitForTimeout(900);
+      const boardName = name + "-gr01-board.png";
+      const boardImage = await page.screenshot({ path: path.join(OUT, boardName), fullPage: true });
+      const boardDiversity = screenshotDiversity(boardImage);
+      assert.ok(boardDiversity > 6, "GR01 board screenshot appears blank");
+      assert.ok(!errors.length, "Browser errors after guide dismissal: " + errors.join(", "));
+      extraScreenshots.push({ screenshot: boardName, coarseColors: boardDiversity });
     }
     const result = {
       name, pass: true, startupMs, loadingSamples: samples.slice(0, 25),
