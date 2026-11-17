@@ -1,0 +1,52 @@
+name: NOXSUM Grant36 release regression
+
+on:
+  pull_request:
+    paths:
+      - "export_presets.cfg"
+      - "web/**"
+      - "src/**"
+      - "data/noxsum_grant36_v1.json"
+      - "tools/nox_*smoke.gd"
+      - ".github/workflows/noxsum-release-regression.yml"
+  workflow_dispatch:
+
+jobs:
+  godot-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+      - name: Import resources and validate scripts
+        run: bash tools/godot_checked.sh --headless --path . --editor --quit
+      - name: Verify curated Grant36 puzzle presentation and solving
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_presentation_smoke.gd
+      - name: Verify JP/EN localization and persistence
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_locale_smoke.gd
+      - name: Verify mobile 360/405/720 layouts, GR01/28/29/36
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_mobile_ui_smoke.gd
+      - name: Verify first-run opening, skip, replay, mobile gestures
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_opening_kamishibai_smoke.gd
+      - name: Verify all four BGM tracks and sound toggle
+        run: |
+          set -euo pipefail
+          log=$(mktemp)
+          trap 'rm -f "$log"' EXIT
+          godot --headless --path . --script res://tools/nox_audio_smoke.gd 2>&1 | tee "$log"
+          grep -Fq 'NOXSUM_AUDIO_OK' "$log"
+          # Godot 4.7 prints a shutdown diagnostic for the four preloaded
+          # AudioStreams when this isolated headless test quits. Do not hide
+          # script errors, shader errors, or any other engine error.
+          if grep -E 'SCRIPT ERROR:|SHADER ERROR:|(^|[[:space:]])ERROR:' "$log" |
+             grep -Fv 'ERROR: 4 resources still in use at exit (run with --verbose for details).'; then
+            echo "Audio smoke emitted an unexpected Godot error." >&2
+            exit 1
+          fi
+      - name: Verify NOX afterimage effects and input
+        run: bash tools/godot_checked.sh --headless --path . --script res://tools/nox_afterimage_smoke.gd
