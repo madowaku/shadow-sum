@@ -25,15 +25,73 @@
 			height: 100dvh;
 			touch-action: none;
 		}
+
+		#noxsum-loading {
+			position: fixed;
+			inset: 0;
+			z-index: 10;
+			display: grid;
+			place-items: center;
+			padding: 24px;
+			box-sizing: border-box;
+			background: #080b13;
+			color: #e5e7ed;
+			font-family: system-ui, sans-serif;
+			text-align: center;
+			opacity: 1;
+			transition: opacity 240ms ease;
+		}
+		#noxsum-loading.ready { opacity: 0; pointer-events: none; }
+		#noxsum-loading .loading-inner { width: min(280px, 100%); }
+		#noxsum-loading .loading-title { font-size: 26px; letter-spacing: 0.3em; font-weight: 500; padding-left: 0.3em; }
+		#noxsum-loading .loading-caption { margin-top: 18px; font-size: 12px; line-height: 1.9; color: #a8afc2; }
+		#noxsum-loading .loading-track { margin-top: 22px; height: 3px; overflow: hidden; background: #343b4c; border-radius: 10px; }
+		#noxsum-loading .loading-fill { height: 100%; width: 0; background: #c1c9dc; transition: width 120ms linear; }
+		#noxsum-loading .loading-percent { margin-top: 12px; min-height: 18px; color: #a8afc2; font-size: 12px; font-variant-numeric: tabular-nums; }
+		#noxsum-loading.indeterminate .loading-fill { width: 35% !important; animation: noxsum-wait 1.3s ease-in-out infinite alternate; }
+		@keyframes noxsum-wait { from { transform: translateX(0); } to { transform: translateX(180%); } }
+		@media (prefers-reduced-motion: reduce) {
+			#noxsum-loading, #noxsum-loading .loading-fill { transition: none; }
+			#noxsum-loading.indeterminate .loading-fill { animation: none; }
+		}
 	</style>
 </head>
 <body>
 	<canvas id="canvas"></canvas>
+	<div id="noxsum-loading" role="status" aria-live="polite">
+		<div class="loading-inner">
+			<div class="loading-title">NOXSUM</div>
+			<div class="loading-caption">夜の記録を読み込んでいます<br>Loading the archive</div>
+			<div class="loading-track" role="progressbar" aria-label="Game download progress" aria-valuemin="0" aria-valuemax="100"><div class="loading-fill"></div></div>
+			<div class="loading-percent">Preparing…</div>
+		</div>
+	</div>
 	<script src="$GODOT_URL"></script>
 	<script>
 		const noxsumLocale = null;
+		const loading = document.getElementById("noxsum-loading");
+		const progressTrack = loading.querySelector(".loading-track");
+		const progressFill = loading.querySelector(".loading-fill");
+		const progressText = loading.querySelector(".loading-percent");
+		const onProgress = (current, total) => {
+			// Compressed or chunked transfers may not report a usable total.
+			if (total > 0) {
+				const percent = Math.max(0, Math.min(100, Math.round(current * 100 / total)));
+				loading.classList.remove("indeterminate");
+				progressFill.style.width = percent + "%";
+				progressText.textContent = percent + "%";
+				progressTrack.setAttribute("aria-valuenow", String(percent));
+			} else {
+				loading.classList.add("indeterminate");
+				progressTrack.removeAttribute("aria-valuenow");
+				progressText.textContent = "Loading…";
+			}
+		};
 		const engine = new Engine($GODOT_CONFIG);
-		const gameStarted = engine.startGame(noxsumLocale ? { locale: noxsumLocale } : {});
+		const gameStarted = engine.startGame({
+			...(noxsumLocale ? { locale: noxsumLocale } : {}),
+			onProgress
+		});
 
 		const reportViewport = (reason) => {
 			const visualViewport = window.visualViewport;
@@ -62,11 +120,19 @@
 			window.visualViewport.addEventListener("resize", () => reportViewport("visualViewport.resize"), { passive: true });
 		}
 		gameStarted.then(() => {
+			loading.classList.add("ready");
+			window.setTimeout(() => loading.remove(), 260);
 			document.title = "NOXSUM";
 			reportViewport("engine.started");
 			if (window.ResizeObserver) {
 				new ResizeObserver(() => reportViewport("canvas.resize")).observe(document.getElementById("canvas"));
 			}
+		}).catch((error) => {
+			console.error("[NOXSUM] Unable to start game", error);
+			loading.classList.remove("indeterminate");
+			progressFill.style.width = "0";
+			progressText.textContent = "読み込みに失敗しました / Load failed. Please reload.";
+			progressTrack.removeAttribute("aria-valuenow");
 		});
 	</script>
 </body>
