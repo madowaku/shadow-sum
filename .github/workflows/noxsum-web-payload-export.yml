@@ -1,0 +1,36 @@
+name: NOXSUM Web payload export
+
+on:
+  pull_request:
+    paths:
+      - "export_presets.cfg"
+      - "tools/audit_noxsum_web_payload.py"
+      - ".github/workflows/noxsum-web-payload-export.yml"
+  workflow_dispatch:
+
+jobs:
+  web-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+      - name: Fetch only required single-threaded Web templates
+        run: python3 tools/fetch_godot_web_templates.py --install --target-dir "$HOME/.local/share/godot/export_templates/4.7.stable"
+      - name: Check unused asset exclusions
+        run: python3 tools/audit_noxsum_web_payload.py
+      - name: Import Godot resources
+        run: godot --headless --path . --editor --quit
+      - name: Export NOXSUM Web Release (no deployment)
+        run: |
+          mkdir -p builds/web
+          godot --headless --path . --export-release "NOXSUM Web" builds/web/index.html
+      - name: Generate localized share pages
+        run: python3 tools/build_noxsum_ogp_pages.py
+      - name: Report PCK and runtime payload
+        run: python3 tools/audit_noxsum_web_payload.py --baseline-pck-mib 46.7
