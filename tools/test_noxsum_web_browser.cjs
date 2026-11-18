@@ -21,6 +21,24 @@ const OUT = path.resolve(process.env.NOXSUM_QA_DIR || "builds/web-qa");
 fs.mkdirSync(OUT, { recursive: true });
 const results = [];
 
+function changedAreaRatio(before, after) {
+  const a = PNG.sync.read(before), b = PNG.sync.read(after);
+  assert.equal(a.width, b.width);
+  assert.equal(a.height, b.height);
+  let changed = 0, total = 0;
+  for (let y = 0; y < a.height; y += 12) {
+    for (let x = 0; x < a.width; x += 12) {
+      const i = (y * a.width + x) * 4;
+      const d = Math.abs(a.data[i] - b.data[i])
+        + Math.abs(a.data[i + 1] - b.data[i + 1])
+        + Math.abs(a.data[i + 2] - b.data[i + 2]);
+      if (d > 90) changed++;
+      total++;
+    }
+  }
+  return Math.round(changed / total * 1000) / 1000;
+}
+
 function screenshotDiversity(buffer) {
   const png = PNG.sync.read(buffer);
   const colors = new Set();
@@ -34,10 +52,10 @@ function screenshotDiversity(buffer) {
   return colors.size;
 }
 
-async function scenario(browser, name, { width, height, mobile = false, throttle = false }) {
+async function scenario(browser, name, { width, height, mobile = false, throttle = false, dpr = mobile ? 2 : 1 }) {
   const context = await browser.newContext({
     viewport: { width, height },
-    deviceScaleFactor: mobile ? 2 : 1,
+    deviceScaleFactor: dpr,
     isMobile: mobile,
     hasTouch: mobile,
     javaScriptEnabled: true,
@@ -139,7 +157,7 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
     // Verify pointer flow beyond HOME; screenshots remain subject to visual review.
     if (!throttle) {
       const playX = width / 2;
-      const playY = width === 720 ? height - 175 : height - 85;
+      const playY = height - 190;
       if (mobile) await page.touchscreen.tap(playX, playY);
       else await page.mouse.click(playX, playY);
       await page.waitForTimeout(900);
@@ -149,6 +167,7 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
       const stageImage = await page.screenshot({ path: path.join(OUT, stageName), fullPage: true });
       const stageDiversity = screenshotDiversity(stageImage);
       assert.ok(stageDiversity > 6, "Stage screenshot appears blank");
+      assert.ok(changedAreaRatio(image, stageImage) > 0.08, "PLAY did not visibly leave HOME");
       assert.ok(!errors.length, "Browser errors after PLAY: " + errors.join(", "));
       extraScreenshots.push({ screenshot: stageName, coarseColors: stageDiversity });
       // Dismiss the first-play tutorial and capture the actual shadow boards.
@@ -161,6 +180,7 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
       const boardImage = await page.screenshot({ path: path.join(OUT, boardName), fullPage: true });
       const boardDiversity = screenshotDiversity(boardImage);
       assert.ok(boardDiversity > 6, "GR01 board screenshot appears blank");
+      assert.ok(changedAreaRatio(stageImage, boardImage) > 0.02, "Guide did not visibly dismiss");
       assert.ok(!errors.length, "Browser errors after guide dismissal: " + errors.join(", "));
       extraScreenshots.push({ screenshot: boardName, coarseColors: boardDiversity });
     }
@@ -219,6 +239,8 @@ async function checkSharePages(browser) {
   try {
     await scenario(browser, "desktop-720x900", { width: 720, height: 900 });
     await scenario(browser, "mobile-360x800", { width: 360, height: 800, mobile: true });
+    await scenario(browser, "iphone13-390x844-dpr3", { width: 390, height: 844, mobile: true, dpr: 3 });
+    await scenario(browser, "pixel7-412x915-dpr2625", { width: 412, height: 915, mobile: true, dpr: 2.625 });
     await scenario(browser, "mobile-405x900-10mbps", { width: 405, height: 900, mobile: true, throttle: true });
     try {
       await checkSharePages(browser);
