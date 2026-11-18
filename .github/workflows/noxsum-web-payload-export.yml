@@ -25,6 +25,8 @@ jobs:
           csharp: false
           export-templates: false
       - name: Fetch only required single-threaded Web templates
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: python3 tools/fetch_godot_web_templates.py --install --target-dir "$HOME/.local/share/godot/export_templates/4.7.stable"
       - name: Check unused asset exclusions
         run: python3 tools/audit_noxsum_web_payload.py
