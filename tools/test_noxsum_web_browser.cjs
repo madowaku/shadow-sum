@@ -172,7 +172,7 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
       extraScreenshots.push({ screenshot: stageName, coarseColors: stageDiversity });
       // Dismiss the first-play tutorial and capture the actual shadow boards.
       const guideX = width / 2;
-      const guideY = mobile ? height * 0.75 : height * 0.722;
+      const guideY = height / 2 + 200; // Center of anchored LET'S PLAY across viewport heights.
       if (mobile) await page.touchscreen.tap(guideX, guideY);
       else await page.mouse.click(guideX, guideY);
       await page.waitForTimeout(900);
