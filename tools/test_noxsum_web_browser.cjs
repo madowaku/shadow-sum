@@ -52,7 +52,7 @@ function screenshotDiversity(buffer) {
   return colors.size;
 }
 
-async function scenario(browser, name, { width, height, mobile = false, throttle = false, dpr = mobile ? 2 : 1 }) {
+async function scenario(browser, name, { width, height, mobile = false, throttle = false, previewOnly = false, dpr = mobile ? 2 : 1 }) {
   const context = await browser.newContext({
     viewport: { width, height },
     deviceScaleFactor: dpr,
@@ -155,7 +155,7 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
     assert.ok(diversity > 6, "Screenshot is almost monochrome, review failed render");
     const extraScreenshots = [];
     // Verify pointer flow beyond HOME; screenshots remain subject to visual review.
-    if (!throttle) {
+    if (!throttle && !previewOnly) {
       const playX = width / 2;
       const playY = height - 190;
       if (mobile) await page.touchscreen.tap(playX, playY);
@@ -241,6 +241,10 @@ async function checkSharePages(browser) {
     await scenario(browser, "mobile-360x800", { width: 360, height: 800, mobile: true });
     await scenario(browser, "iphone13-390x844-dpr3", { width: 390, height: 844, mobile: true, dpr: 3 });
     await scenario(browser, "pixel7-412x915-dpr2625", { width: 412, height: 915, mobile: true, dpr: 2.625 });
+    // Capture landscape without simulating portrait-only PLAY controls.
+    await scenario(browser, "iphone13-landscape-750x342-dpr3", { width: 750, height: 342, mobile: true, dpr: 3, previewOnly: true });
+    await scenario(browser, "pixel7-landscape-915x412-dpr2625", { width: 915, height: 412, mobile: true, dpr: 2.625, previewOnly: true });
+    await scenario(browser, "desktop-wide-1280x720", { width: 1280, height: 720, previewOnly: true });
     await scenario(browser, "mobile-405x900-10mbps", { width: 405, height: 900, mobile: true, throttle: true });
     try {
       await checkSharePages(browser);
