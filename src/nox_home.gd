@@ -10,6 +10,7 @@ const Wordmark = preload("res://src/ui/nox_wordmark.gd")
 const SAVE_PATH: String = "user://noxsum_grant36_v1.json"
 const CAMPAIGN_ID: String = "noxsum_grant36_v1"
 const STAGE_COUNT: int = 36
+const BOTTOM_SHADE_HEIGHT: float = 320.0
 const BACKGROUND: Texture2D = preload("res://assets/nox/v0.6/archive_puzzle_window.png")
 
 var completed: Dictionary = {}
@@ -80,6 +81,15 @@ func _build_ui() -> void:
 	add_child(shade)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(preload("res://src/ui/nox_atmosphere.gd").new())
+	# The ratio-based shade above only darkens the last ~20% of the screen.
+	# On wide or short windows the bottom controls rise above it onto bright
+	# artwork, so pin a second shade to the controls' real pixel height.
+	var floor_shade: TextureRect = _shade_texture(false)
+	add_child(floor_shade)
+	floor_shade.anchor_top = 1.0
+	floor_shade.anchor_bottom = 1.0
+	floor_shade.anchor_right = 1.0
+	floor_shade.offset_top = -BOTTOM_SHADE_HEIGHT
 
 	var top: MarginContainer = N.margin(self, 24)
 	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
@@ -111,6 +121,9 @@ func _build_ui() -> void:
 	var title_column: VBoxContainer = VBoxContainer.new()
 	title_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	title_column.add_theme_constant_override("separation", 10)
+	# Soft dark pool behind the title copy: the window and moon art behind it
+	# is bright and busy enough to swallow the small subtitle lines.
+	title_area.add_child(_shade_texture(true))
 	title_area.add_child(title_column)
 	var edition: Label = N.label(title_column, L.copy("A  N O C T U R N A L  M Y S T E R Y"), 11, N.BRASS)
 	edition.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -121,10 +134,12 @@ func _build_ui() -> void:
 	subtitle = N.label(title_column, L.copy("RECONSTRUCT THE PAST\nFROM THE SHADOWS"), 11)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_constant_override("line_spacing", 5)
-	_readable(subtitle, 3)
+	_readable(subtitle)
 	var tag: Label = N.label(title_column, L.copy("NOX is gone. The shadows remember."), 20, N.IVORY, true)
 	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tag.add_theme_constant_override("outline_size", 4)
+	# The shade behind the title carries contrast; a thick outline here
+	# swallows the thin serif strokes once the canvas scale drops below 1.
+	tag.add_theme_constant_override("outline_size", 2)
 	tag.add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.04, 0.96))
 
 	var bottom: MarginContainer = N.margin(self, 24)
@@ -350,6 +365,31 @@ func _refresh_sound_button() -> void:
 	sound_button.accessibility_name = sound_button.text
 	var active: bool = Settings.sound_enabled()
 	sound_button.add_theme_stylebox_override("normal", N.box(Color("#173440") if active else Color(0.04, 0.07, 0.10, 0.88), Color("#8dd9e7") if active else Color(N.BRASS, 0.35), 4, 6))
+
+func _shade_texture(radial: bool) -> TextureRect:
+	var gradient: Gradient = Gradient.new()
+	var ink: Color = Color(0.01, 0.02, 0.04)
+	if radial:
+		gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+		gradient.colors = PackedColorArray([Color(ink, 0.72), Color(ink, 0.44), Color(ink, 0.0)])
+	else:
+		gradient.offsets = PackedFloat32Array([0.0, 0.35, 1.0])
+		gradient.colors = PackedColorArray([Color(ink, 0.0), Color(ink, 0.62), Color(ink, 0.86)])
+	var texture: GradientTexture2D = GradientTexture2D.new()
+	texture.gradient = gradient
+	if radial:
+		texture.fill = GradientTexture2D.FILL_RADIAL
+		texture.fill_from = Vector2(0.5, 0.5)
+		texture.fill_to = Vector2(0.5, 0.0)
+	else:
+		texture.fill_from = Vector2(0, 0)
+		texture.fill_to = Vector2(0, 1)
+	var rect: TextureRect = TextureRect.new()
+	rect.texture = texture
+	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rect.stretch_mode = TextureRect.STRETCH_SCALE
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return rect
 
 func _readable(label: Label, outline: int = 2) -> void:
 	label.add_theme_constant_override("outline_size", outline)
