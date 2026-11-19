@@ -116,6 +116,13 @@ async function scenario(browser, name, { width, height, mobile = false, throttle
     }
     const startupMs = Date.now() - t0;
     await page.waitForTimeout(2_000); // Let the HOME/opening first frame settle.
+    const shouldShowRotate = mobile && width > height && height <= 540;
+    const rotateIsVisible = await page.locator("#noxsum-orientation").isVisible();
+    assert.equal(rotateIsVisible, shouldShowRotate,
+      "Portrait hint visibility incorrect for " + width + "x" + height + ", DPR " + dpr);
+    if (rotateIsVisible) {
+      assert.match(await page.locator("#noxsum-orientation").innerText(), /縦向き/);
+    }
     const state = await page.evaluate(() => {
       const canvas = document.getElementById("canvas");
       const rect = canvas.getBoundingClientRect();

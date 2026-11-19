@@ -12,6 +12,7 @@ const JAPANESE: Dictionary = {
 	"C O N T I N U E     ›": "つづきから     ›",
 	"V I E W  R E C O R D S     ›": "記録を見直す     ›",
 	"36 shadow records await.": "36枚の影の記録が待っている。",
+	"Find NOX from the shadows. 36 puzzles.": "影からNOXの居場所を推理する。全36問。",
 	"ABOUT": "物語",
 	"HOW TO PLAY": "遊び方",
 	"GALLERY": "記録一覧",
