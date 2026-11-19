@@ -27,7 +27,13 @@ TEMPLATE_FILENAMES = (
 
 
 def get_json(url: str) -> dict:
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    headers = {"User-Agent": USER_AGENT, "X-GitHub-Api-Version": "2022-11-28"}
+    # Unauthenticated GitHub Actions shared runners frequently hit the
+    # 60-requests/hour public API limit before this job starts.
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = "Bearer " + token
+    request = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(request, timeout=60) as response:
         return json.load(response)
 

@@ -1,0 +1,85 @@
+name: NOXSUM legacy smoke baseline comparison
+
+on:
+  pull_request:
+    paths:
+      - "src/campaign_main.gd"
+      - ".github/workflows/noxsum-legacy-baseline-compare.yml"
+  workflow_dispatch:
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Godot 4.7
+        uses: solarlabyrinth/action-setup-godot@v3
+        with:
+          version: 4.7-stable
+          csharp: false
+          export-templates: false
+      - name: Checkout unchanged Grant36 release reference
+        run: git worktree add --detach ../noxsum-release-base origin/release/noxsum-grant36-final
+      - name: Import resources in both revisions
+        run: |
+          godot --headless --path . --editor --quit > /tmp/noxsum-candidate-import.log 2>&1
+          godot --headless --path ../noxsum-release-base --editor --quit > /tmp/noxsum-release-import.log 2>&1
+      - name: Compare Flat Plate and Jev Review failures against release
+        run: |
+          mkdir -p builds/legacy-baseline
+          python3 - <<'PY'
+          import os, re, subprocess, tempfile, json
+          from pathlib import Path
+          root = Path.cwd()
+          candidate = root
+          baseline = root.parent / "noxsum-release-base"
+          output = root / "builds/legacy-baseline"
+          failures = []
+          reports = []
+          for script in ("flat_plate_smoke.gd", "jev_review_smoke.gd"):
+              cases = {}
+              for label, cwd in (("release", baseline), ("candidate", candidate)):
+                  env = dict(os.environ)
+                  env["XDG_DATA_HOME"] = str(output / ("data-" + label + "-" + script))
+                  Path(env["XDG_DATA_HOME"]).mkdir(parents=True, exist_ok=True)
+                  try:
+                      result = subprocess.run(
+                          ["godot", "--headless", "--path", ".", "--script", "res://tools/" + script],
+                          cwd=cwd, env=env, capture_output=True, text=True, timeout=150)
+                      log = result.stdout + "\n" + result.stderr
+                      code = result.returncode
+                  except subprocess.TimeoutExpired as exc:
+                      log = str(exc)
+                      code = -1
+                  (output / f"{label}-{script}.log").write_text(log)
+                  # Compare error content, not generic localization or shutdown messages.
+                  errors = [line.strip() for line in log.splitlines()
+                            if line.startswith(("ERROR: Experiments:", "ERROR: Review solve failed:"))]
+                  cases[label] = {"exit": code, "errors": errors}
+              same = cases["release"] == cases["candidate"]
+              reports.append({"script": script, "same": same, **cases})
+              print(script, "MATCH" if same else "DIFFERENCE",
+                    "release:", len(cases["release"]["errors"]), "errors",
+                    "candidate:", len(cases["candidate"]["errors"]), "errors")
+              if not same:
+                  failures.append(script)
+          (output / "report.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("## Legacy comparison against Grant36 release branch\n")
+              for rep in reports:
+                  f.write(f"- {rep['script']}: {'same error signature' if rep['same'] else 'DIFFERENT'}"
+                          f" (release {len(rep['release']['errors'])} errors, candidate {len(rep['candidate']['errors'])} errors)\n")
+          if failures:
+              raise SystemExit("Legacy test behavior changed: " + ", ".join(failures))
+          PY
+      - name: Save side-by-side logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: noxsum-legacy-smoke-baseline
+          path: builds/legacy-baseline/
+          if-no-files-found: warn
+          retention-days: 14

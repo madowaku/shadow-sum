@@ -4,6 +4,15 @@ extends Control
 const NoxHome = preload("res://src/nox_home.gd")
 
 func _ready() -> void:
+	# Godot Web canvas uses physical backing pixels (CSS viewport × DPR).
+	# Keep UI geometry in logical 360×800 units so touch targets remain
+	# readable on both DPR 2 and DPR 3 phones. Never multiply by DPR here.
+	# This is Web-only: desktop/native product rendering stays unchanged.
+	if OS.has_feature("web"):
+		var window: Window = get_tree().root
+		window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+		window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+		window.content_scale_size = Vector2i(360, 800)
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.has("--dev-selector"):
 		_show_selector()
