@@ -91,7 +91,7 @@ func _build_ui() -> void:
 	sound_button = N.button("", 44)
 	sound_button.name = "SoundButton"
 	sound_button.custom_minimum_size.x = 74
-	sound_button.add_theme_font_size_override("font_size", 10)
+	sound_button.add_theme_font_size_override("font_size", 12)
 	sound_button.pressed.connect(_toggle_sound)
 	top_row.add_child(sound_button)
 	_refresh_sound_button()
@@ -148,7 +148,7 @@ func _build_ui() -> void:
 		else:
 			_play())
 	play_center.add_child(continue_button)
-	progress_label = N.label(bottom_column, L.copy("36 shadow records await.") if completed.is_empty() else L.progress(completed.size()), 11, N.SOFT)
+	progress_label = N.label(bottom_column, L.copy("Find NOX from the shadows. 36 puzzles.") if completed.is_empty() else L.progress(completed.size()), 13, N.SOFT)
 	progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_readable(progress_label)
 	var nav: HBoxContainer = HBoxContainer.new()
@@ -157,10 +157,11 @@ func _build_ui() -> void:
 	bottom_column.add_child(nav)
 	for item: String in ["ABOUT", "HOW TO PLAY", "GALLERY"]:
 		var button: Button = N.button(L.copy(item), 44)
+		button.add_theme_font_size_override("font_size", 13)
 		button.name = item.to_pascal_case() + "Button"
 		button.pressed.connect(_open_page.bind(item))
 		nav.add_child(button)
-	var footer: Label = N.label(bottom_column, L.copy("OBSERVE.   CONNECT.   UNCOVER."), 9, N.BRASS)
+	var footer: Label = N.label(bottom_column, L.copy("OBSERVE.   CONNECT.   UNCOVER."), 11, N.BRASS)
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_readable(footer)
 	_build_modal()
