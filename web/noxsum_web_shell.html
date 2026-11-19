@@ -26,6 +26,29 @@
 			touch-action: none;
 		}
 
+		/* The Grant36 board is portrait-first. For short touch landscapes,
+		   offer a readable turn-phone hint instead of shrinking controls. */
+		#noxsum-orientation {
+			position: fixed;
+			inset: 0;
+			z-index: 9;
+			display: none;
+			place-items: center;
+			box-sizing: border-box;
+			padding: max(20px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px));
+			background: radial-gradient(circle at 50% 30%, #1b2436, #080b13 80%);
+			color: #e9e4da;
+			text-align: center;
+			font-family: system-ui, sans-serif;
+			overflow-y: auto;
+		}
+		#noxsum-orientation .turn-inner { max-width: 410px; }
+		#noxsum-orientation .turn-symbol { font-size: 40px; line-height: 1; color: #dfc08d; }
+		#noxsum-orientation .turn-title { margin-top: 12px; font-size: 18px; font-weight: 600; letter-spacing: 0.04em; }
+		#noxsum-orientation .turn-caption { margin-top: 8px; font-size: 13px; line-height: 1.6; color: #cbd6dd; }
+		@media (orientation: landscape) and (pointer: coarse) and (max-height: 540px) {
+			#noxsum-orientation { display: grid; }
+		}
 		#noxsum-loading {
 			position: fixed;
 			inset: 0;
@@ -58,6 +81,13 @@
 </head>
 <body>
 	<canvas id="canvas"></canvas>
+	<div id="noxsum-orientation" role="note" aria-label="Portrait orientation recommended">
+		<div class="turn-inner">
+			<div class="turn-symbol" aria-hidden="true">↻</div>
+			<div class="turn-title">縦向きで、夜の記録を。</div>
+			<div class="turn-caption">スマホを縦向きにすると、影をじっくり観察できます。<br>Rotate your phone to portrait to play NOXSUM.</div>
+		</div>
+	</div>
 	<div id="noxsum-loading" role="status" aria-live="polite">
 		<div class="loading-inner">
 			<div class="loading-title">NOXSUM</div>
