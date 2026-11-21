@@ -30,6 +30,10 @@ jobs:
         run: python3 tools/fetch_godot_web_templates.py --install --target-dir "$HOME/.local/share/godot/export_templates/4.7.stable"
       - name: Check unused asset exclusions
         run: python3 tools/audit_noxsum_web_payload.py
+      - name: Check Japanese font subset covers all game text
+        run: |
+          python3 -m pip install --quiet fonttools
+          python3 tools/subset_noxsum_japanese_font.py --check
       - name: Import Godot resources
         run: godot --headless --path . --editor --quit
       - name: Export NOXSUM Web Release (no deployment)

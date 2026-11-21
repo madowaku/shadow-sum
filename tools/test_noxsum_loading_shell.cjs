@@ -10,6 +10,7 @@ const vm = require("node:vm");
 const shell = fs.readFileSync(path.join(__dirname, "..", "web", "noxsum_web_shell.html"), "utf8");
 assert.match(shell, /id="noxsum-loading"/);
 assert.match(shell, /role="progressbar"/);
+assert.match(shell, /class="loading-slides"/, "loading screen must teach the rules while the engine downloads");
 const match = shell.match(/<script>\s*([\s\S]*?)<\/script>/);
 assert.ok(match, "inline Web startup script must exist");
 const script = match[1].replace("$GODOT_CONFIG", "{}");

@@ -2,7 +2,7 @@ extends RefCounted
 
 const SERIF: Font = preload("res://assets/fonts/Display.tres")
 const BODY: Font = preload("res://assets/fonts/Body.tres")
-const JAPANESE: Font = preload("res://assets/fonts/NotoSansJP-VF.ttf")
+const JAPANESE: Font = preload("res://assets/fonts/NotoSansJP-VF-subset.ttf")
 const INK: Color = Color("#090f18")
 const IVORY: Color = Color("#eee7d8")
 const SOFT: Color = Color("#cbd6dd")
