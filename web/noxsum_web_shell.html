@@ -65,16 +65,25 @@
 			transition: opacity 240ms ease;
 		}
 		#noxsum-loading.ready { opacity: 0; pointer-events: none; }
-		#noxsum-loading .loading-inner { width: min(280px, 100%); }
+		#noxsum-loading .loading-inner { width: min(340px, 100%); }
 		#noxsum-loading .loading-title { font-size: 26px; letter-spacing: 0.3em; font-weight: 500; padding-left: 0.3em; }
 		#noxsum-loading .loading-caption { margin-top: 18px; font-size: 12px; line-height: 1.9; color: #a8afc2; }
+		#noxsum-loading .loading-slides { margin-top: 26px; min-height: 132px; padding: 18px 18px 14px; border: 1px solid rgba(193, 168, 120, 0.28); border-radius: 10px; background: rgba(16, 26, 37, 0.72); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+		#noxsum-loading .slide-step { font-size: 11px; letter-spacing: 0.16em; color: #c1a878; }
+		#noxsum-loading .slide-title { margin-top: 8px; font-size: 17px; font-weight: 600; line-height: 1.45; color: #ece6da; }
+		#noxsum-loading .slide-body { margin-top: 8px; font-size: 14px; line-height: 1.75; color: #c3cad8; }
+		#noxsum-loading .slide-text { transition: opacity 260ms ease; }
+		#noxsum-loading .slide-text.fading { opacity: 0; }
+		#noxsum-loading .slide-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+		#noxsum-loading .slide-dots span { width: 6px; height: 6px; border-radius: 50%; background: #3a4254; transition: background 200ms ease; }
+		#noxsum-loading .slide-dots span.on { background: #c1a878; }
 		#noxsum-loading .loading-track { margin-top: 22px; height: 3px; overflow: hidden; background: #343b4c; border-radius: 10px; }
 		#noxsum-loading .loading-fill { height: 100%; width: 0; background: #c1c9dc; transition: width 120ms linear; }
 		#noxsum-loading .loading-percent { margin-top: 12px; min-height: 18px; color: #a8afc2; font-size: 12px; font-variant-numeric: tabular-nums; }
 		#noxsum-loading.indeterminate .loading-fill { width: 35% !important; animation: noxsum-wait 1.3s ease-in-out infinite alternate; }
 		@keyframes noxsum-wait { from { transform: translateX(0); } to { transform: translateX(180%); } }
 		@media (prefers-reduced-motion: reduce) {
-			#noxsum-loading, #noxsum-loading .loading-fill { transition: none; }
+			#noxsum-loading, #noxsum-loading .loading-fill, #noxsum-loading .slide-text { transition: none; }
 			#noxsum-loading.indeterminate .loading-fill { animation: none; }
 		}
 	</style>
@@ -92,6 +101,14 @@
 		<div class="loading-inner">
 			<div class="loading-title">NOXSUM</div>
 			<div class="loading-caption">夜の記録を読み込んでいます<br>Loading the archive</div>
+			<div class="loading-slides" aria-live="off" title="Tap for the next tip">
+				<div class="slide-text">
+					<div class="slide-step"></div>
+					<div class="slide-title"></div>
+					<div class="slide-body"></div>
+				</div>
+				<div class="slide-dots" aria-hidden="true"></div>
+			</div>
 			<div class="loading-track" role="progressbar" aria-label="Game download progress" aria-valuemin="0" aria-valuemax="100"><div class="loading-fill"></div></div>
 			<div class="loading-percent">Preparing…</div>
 		</div>
@@ -164,6 +181,59 @@
 			progressText.textContent = "読み込みに失敗しました / Load failed. Please reload.";
 			progressTrack.removeAttribute("aria-valuenow");
 		});
+	</script>
+	<script>
+		// Rule primer shown while the engine downloads. Copy is condensed from
+		// the in-game HOW TO PLAY page (src/nox_home.gd, src/nox_locale.gd).
+		(() => {
+			const box = document.querySelector("#noxsum-loading .loading-slides");
+			if (!box) return;
+			const japanese = /^ja\b/i.test(navigator.language || "");
+			const slides = japanese ? [
+				["影から、消えたNOXを探す", "記録板に残った影は、NOXがいた場所を覚えている。影に合う場所へ、NOXの痕跡を置いていこう。"],
+				["影の濃さを読む", "影が重なるマスほど濃くなる。「？」は記録されていない場所。"],
+				["姿勢と光を見る", "座る（SIT）影は近くに、立つ（STAND）影は遠くまで届く。光の向きでも影は変わる。"],
+				["すべての影を一致させる", "制限時間もペナルティもない。「観察」を使えば、答えを置かずに手がかりを読める。"]
+			] : [
+				["Find NOX from the shadows", "The recorded shadows remember where NOX was. Place NOX's traces where those shadows agree."],
+				["Read the darkness", "Darker squares hold more overlapping shadows. A question mark is an unrecorded area."],
+				["Watch the pose and the light", "SIT leaves a nearby shadow. STAND reaches farther. The direction of the light changes every shadow."],
+				["Let every shadow agree", "There is no timer or penalty. OBSERVE offers a clue without placing an answer."]
+			];
+			const label = japanese ? "遊び方" : "HOW TO PLAY";
+			const text = box.querySelector(".slide-text");
+			const step = box.querySelector(".slide-step");
+			const title = box.querySelector(".slide-title");
+			const body = box.querySelector(".slide-body");
+			const dots = box.querySelector(".slide-dots");
+			const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+			slides.forEach(() => dots.appendChild(document.createElement("span")));
+			let index = 0;
+			let timer = 0;
+			const render = () => {
+				const [heading, copy] = slides[index];
+				step.textContent = label + "  " + (index + 1) + " / " + slides.length;
+				title.textContent = heading;
+				body.textContent = copy;
+				Array.from(dots.children).forEach((dot, i) => dot.classList.toggle("on", i === index));
+			};
+			const advance = () => {
+				index = (index + 1) % slides.length;
+				if (reduced) { render(); return; }
+				text.classList.add("fading");
+				window.setTimeout(() => { render(); text.classList.remove("fading"); }, 260);
+			};
+			const schedule = () => {
+				window.clearInterval(timer);
+				timer = window.setInterval(() => {
+					if (!document.body.contains(box)) { window.clearInterval(timer); return; }
+					advance();
+				}, 6000);
+			};
+			box.addEventListener("click", () => { advance(); schedule(); });
+			render();
+			schedule();
+		})();
 	</script>
 </body>
 </html>

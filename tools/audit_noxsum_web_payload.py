@@ -22,7 +22,7 @@ PROTECTED = (
     "assets/nox/v0.6/archive_puzzle_window.png",
     "assets/nox/v0.6/app_icon.png",
     "assets/nox/v0.4/archive_window.png",  # Referenced by the stage layout.
-    "assets/fonts/NotoSansJP-VF.ttf",
+    "assets/fonts/NotoSansJP-VF-subset.ttf",  # shipped subset; see tools/subset_noxsum_japanese_font.py
     "assets/bgm/the_most_human_computer.mp3",
 )
 
